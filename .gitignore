@@ -1,0 +1,7 @@
+.vs
+Client/bin
+Client/obj
+Server/bin
+Server/obj
+DB_Initialization/bin
+DB_Initialization/obj
