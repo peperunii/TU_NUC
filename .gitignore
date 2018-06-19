@@ -1,7 +1,7 @@
 .vs
-Client/bin
+Client/bin/Debug
 Client/obj
-Server/bin
+Server/bin/Debug
 Server/obj
-DB_Initialization/bin
+DB_Initialization/bin/Debug
 DB_Initialization/obj
