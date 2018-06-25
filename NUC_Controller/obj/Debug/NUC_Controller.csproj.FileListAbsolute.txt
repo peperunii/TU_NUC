@@ -1,0 +1,15 @@
+C:\Users\Petar\source\repos\TU_NUC\NUC_Controller\bin\Debug\NUC_Controller.exe.config
+C:\Users\Petar\source\repos\TU_NUC\NUC_Controller\bin\Debug\NUC_Controller.exe
+C:\Users\Petar\source\repos\TU_NUC\NUC_Controller\bin\Debug\NUC_Controller.pdb
+C:\Users\Petar\source\repos\TU_NUC\NUC_Controller\obj\Debug\NUC_Controller.csprojResolveAssemblyReference.cache
+C:\Users\Petar\source\repos\TU_NUC\NUC_Controller\obj\Debug\MainWindow.g.cs
+C:\Users\Petar\source\repos\TU_NUC\NUC_Controller\obj\Debug\App.g.cs
+C:\Users\Petar\source\repos\TU_NUC\NUC_Controller\obj\Debug\NUC_Controller_MarkupCompile.cache
+C:\Users\Petar\source\repos\TU_NUC\NUC_Controller\obj\Debug\NUC_Controller_MarkupCompile.lref
+C:\Users\Petar\source\repos\TU_NUC\NUC_Controller\obj\Debug\MainWindow.baml
+C:\Users\Petar\source\repos\TU_NUC\NUC_Controller\obj\Debug\NUC_Controller.g.resources
+C:\Users\Petar\source\repos\TU_NUC\NUC_Controller\obj\Debug\NUC_Controller.Properties.Resources.resources
+C:\Users\Petar\source\repos\TU_NUC\NUC_Controller\obj\Debug\NUC_Controller.csproj.GenerateResource.Cache
+C:\Users\Petar\source\repos\TU_NUC\NUC_Controller\obj\Debug\NUC_Controller.csproj.CoreCompileInputs.cache
+C:\Users\Petar\source\repos\TU_NUC\NUC_Controller\obj\Debug\NUC_Controller.exe
+C:\Users\Petar\source\repos\TU_NUC\NUC_Controller\obj\Debug\NUC_Controller.pdb

@@ -1,0 +1,6 @@
+C:\Users\Petar\source\repos\TU_NUC\NetworkLib\obj\Release\NetworkLib.csprojResolveAssemblyReference.cache
+C:\Users\Petar\source\repos\TU_NUC\NetworkLib\obj\Release\NetworkLib.csproj.CoreCompileInputs.cache
+C:\Users\Petar\source\repos\TU_NUC\NetworkLib\bin\Release\NetworkLib.dll
+C:\Users\Petar\source\repos\TU_NUC\NetworkLib\bin\Release\NetworkLib.pdb
+C:\Users\Petar\source\repos\TU_NUC\NetworkLib\obj\Release\NetworkLib.dll
+C:\Users\Petar\source\repos\TU_NUC\NetworkLib\obj\Release\NetworkLib.pdb
