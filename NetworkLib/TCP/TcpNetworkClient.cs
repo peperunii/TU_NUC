@@ -76,10 +76,10 @@ namespace Network.TCP
             if (_Client != null) _Client.Close();
         }
 
-        public void Send(Message xHeader)
+        public void Send(Message message)
         {
-            if (xHeader == null) return;
-            _Queue.Add(xHeader);
+            if (message == null) return;
+            _Queue.Add(message);
         }
 
 
@@ -123,10 +123,20 @@ namespace Network.TCP
                 {
                     if (_ExitLoop) LogManager.LogMessage(LogType.Error, "User requested client shutdown.");
                     else LogManager.LogMessage(LogType.Error, "Disconnected");
+
+                    this.RestartClient();
                 }
-                catch (Exception ex) { LogManager.LogMessage(LogType.Error, ex.ToString()); }
+                catch (Exception ex) { this.RestartClient(); LogManager.LogMessage(LogType.Error, ex.ToString()); }
             }
             LogManager.LogMessage(LogType.Error, "Reader is shutting down");
+        }
+
+        private void RestartClient()
+        {
+            Console.WriteLine("Restarting ...");
+            Thread.Sleep(3000);
+            this.Disconnect();
+            this.Connect();
         }
 
         private byte[] GetBytArrFromNetworkStream()

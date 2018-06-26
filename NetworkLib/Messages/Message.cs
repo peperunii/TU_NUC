@@ -13,7 +13,7 @@ namespace Network.Messages
 
         public abstract byte[] Serialize();
         
-        public byte[] GetBytesForNumberShort(short value)
+        public byte[] GetBytesForNumberShort(ushort value)
         {
             return BitConverter.GetBytes(value);
         }

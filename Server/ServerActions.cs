@@ -44,7 +44,15 @@ namespace Server
 
         private static void Server_OnMessage(object xSender, Message message)
         {
-            
+            if (message != null)
+            {
+                switch (message.type)
+                {
+                    case MessageType.TimeSyncRequest:
+                        Console.WriteLine("Vzimame vremeto");
+                        break;
+                }
+            }
         }
 
         public static void StartDiscoveryServer()

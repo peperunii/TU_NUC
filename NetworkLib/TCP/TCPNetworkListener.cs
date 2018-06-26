@@ -19,13 +19,13 @@ namespace NetworkLib.TCP
         public delegate void dOnMessage(object xSender, Message message);
         public event dOnMessage OnMessage;
         
-        private List<TcpNetworkClient> _clients = new List<TcpNetworkClient>();
+        private List<TcpClient> _clients = new List<TcpClient>();
         
         public int Port { get; private set; }
         public string IpAddress { get; private set; }
         public string ThreadName { get; private set; }
         
-        public List<TcpNetworkClient> Clients
+        public List<TcpClient> Clients
         {
             get { return _clients; }
         }
@@ -61,51 +61,34 @@ namespace NetworkLib.TCP
             catch (Exception ex) { LogManager.LogMessage(LogType.Error, ex.ToString()); }
             return false;
         }
-        
+
         public void Disconnect()
         {
             _ExitLoop = true;
             lock (_clients)
             {
-                foreach (var lClient in _clients) lClient.Disconnect();
+                foreach (TcpClient lClient in _clients) lClient.Close();
                 _clients.Clear();
             }
         }
-        
+
         private void LoopWaitingForClientsToConnect()
         {
             try
             {
                 while (!_ExitLoop)
                 {
-                    LogManager.LogMessage(LogType.Info, "Waiting for a client");
-                    TcpClient tcpClient = _Listener.AcceptTcpClient();
-                    var clientEndPoint = tcpClient.Client.LocalEndPoint;
-                    string lClientIpAddress = clientEndPoint.ToString();
-                    LogManager.LogMessage(LogType.Info, "New client connecting: " + lClientIpAddress);
+                    LogManager.LogMessage(LogType.Info, "waiting for a client");
+                    var lClient = _Listener.AcceptTcpClient();
+                    string lClientIpAddress = lClient.Client.LocalEndPoint.ToString();
+                    LogManager.LogMessage(LogType.Info, "new client connecting: " + lClientIpAddress);
                     if (_ExitLoop) break;
-        
-                    string clientIPAddress = ((IPEndPoint)tcpClient.Client.RemoteEndPoint).Address.ToString();
-                    var clientPort = ((IPEndPoint)tcpClient.Client.RemoteEndPoint).Port;
-                    var threadName = string.Format("TcpCLient {0}", _clients.Count);
-        
-                    lock (_clients)
-                    {
-                        var wrapper = new TcpNetworkClient(clientIPAddress, clientPort, threadName);
-                        wrapper.OnMessage += Wrapper_OnMessage;
-                        _clients.Add(wrapper);
-                        wrapper.Connect(tcpClient);
-                    }
-        
-                    //Thread lThread = new Thread(new ParameterizedThreadStart(LoopRead));
-                    //lThread.IsBackground = true;
-                    //lThread.Name = ThreadName + "CommunicatingWithClient";
-                    //lThread.Start(tcpClient);
-        
-                    //Thread lLoopWrite = new Thread(new ThreadStart(LoopWrite));
-                    //lLoopWrite.IsBackground = true;
-                    //lLoopWrite.Name = ThreadName + "Write";
-                    //lLoopWrite.Start(tcpClient);
+                    lock (_clients) _clients.Add(lClient);
+
+                    Thread lThread = new Thread(new ParameterizedThreadStart(LoopRead));
+                    lThread.IsBackground = true;
+                    lThread.Name = ThreadName + "CommunicatingWithClient";
+                    lThread.Start(lClient);
                 }
             }
             catch (Exception ex) { LogManager.LogMessage(LogType.Error, ex.ToString()); }
@@ -115,39 +98,8 @@ namespace NetworkLib.TCP
                 if (_Listener != null) _Listener.Stop();
             }
         } // 
-        
-        private void Wrapper_OnMessage(Message message)
-        {
-            // raise an event
-            dOnMessage lEvent = OnMessage;
-            lEvent?.Invoke(null, message);
-        }
 
-        private void LoopWrite(object xClient)
-        {
-            TcpClient lClient = xClient as TcpClient;
-            NetworkStream lNetworkStream = lClient.GetStream();
-            while (!_ExitLoop)
-            {
-                //try
-                //{
-                //    var lObject = _Queue.Take();
-                //    if (lObject == null) break;
-                //
-                //    lNetworkStream.Write(BitConverter.GetBytes((Int16)lObject.messageType), 0, 2);
-                //    ProtoBuf.Serializer.SerializeWithLengthPrefix<TCPMessage>(lNetworkStream, lObject, ProtoBuf.PrefixStyle.Fixed32);
-                //}
-                //catch (System.IO.IOException)
-                //{
-                //    if (_ExitLoop) LogManager.LogMessage(LogType.Error, "User requested client shutdown.");
-                //    else GLogManager.LogMessage(LogType.Error, "Disconnected");
-                //}
-                //catch (Exception ex) { LogManager.LogMessage(LogType.Error, ex.ToString()); }
-            }
-            _ExitLoop = true;
-            LogManager.LogMessage(LogType.Error, "Writer is shutting down");
-        }
-
+   
         private void LoopRead(object xClient)
         {
             TcpClient lClient = xClient as TcpClient;
@@ -167,10 +119,18 @@ namespace NetworkLib.TCP
                 {
                     if (_ExitLoop) LogManager.LogMessage(LogType.Error, "User requested client shutdown");
                     else LogManager.LogMessage(LogType.Error, "Disconnected");
+                    this.RestartClient();
                 }
-                catch (Exception ex) { LogManager.LogMessage(LogType.Error, ex.ToString()); }
+                catch (Exception ex) { this.RestartClient(); LogManager.LogMessage(LogType.Error, ex.ToString()); }
             }
             LogManager.LogMessage(LogType.Error, "Listener is shutting down");
+        }
+
+        private void RestartClient()
+        {
+            Console.WriteLine("Restarting ...");
+            this.Disconnect();
+            this.Connect();
         }
 
         private byte[] GetBytArrFromNetworkStream(NetworkStream _NetworkStream)
@@ -207,14 +167,29 @@ namespace NetworkLib.TCP
             }
         }
 
-        public void Send(TcpNetworkClient xClient, Message msg)
+        public void Send(TcpClient xClient, Message msg)
         {
-            xClient.Send(msg);
+            if (msg == null) return;
+            if (!xClient.Connected) return;
+
+            lock (xClient)
+            {
+                try
+                {
+                    NetworkStream lNetworkStream = xClient.GetStream();
+                    var msgData = msg.Serialize();
+                    lNetworkStream.Write(msgData, 0, msgData.Length);
+                }
+                catch (Exception ex) { LogManager.LogMessage(LogType.Error, ex.ToString()); }
+            }
         }
-        
+
         public void Broadcast(Message msg)
         {
-            foreach (var client in _clients) Send(client, msg);
+            lock (_clients)
+            {
+                foreach (var client in _clients) Send(client, msg);
+            }
         }
     }
 }

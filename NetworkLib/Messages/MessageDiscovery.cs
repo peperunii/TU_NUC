@@ -16,13 +16,13 @@ namespace Network.Messages
 
         public MessageDiscovery(short infoBytes)
         {
-            this.type = MessageType.Info;
+            this.type = MessageType.Discovery;
             this.info = infoBytes;
         }
 
         public override byte[] Serialize()
         {
-            var bytes = this.GetBytesForNumberShort((short)this.type);
+            var bytes = this.GetBytesForNumberShort((ushort)this.type);
             var bytesInfo = this.GetBytesOfInfo();
             var lenghtInfoBytes = this.GetBytesForNumberInt((int)bytesInfo.Length);
 
@@ -31,7 +31,7 @@ namespace Network.Messages
 
         private byte[] GetBytesOfInfo()
         {
-            return this.GetBytesForNumberShort((short)this.info);
+            return this.GetBytesForNumberShort((ushort)this.info);
         }
     }
 }

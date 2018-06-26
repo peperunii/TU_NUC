@@ -2,7 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
 
@@ -12,8 +14,8 @@ namespace Network
     {
         public static IPAddress DeviceIP;
         public static DeviceID DeviceID;
-        public static short DiscoveryPort;
-        public static int CommunicationPort;
+        public static ushort DiscoveryPort;
+        public static ushort CommunicationPort;
 
         public static bool logInConsole;
         public static bool logInDB;
@@ -53,15 +55,22 @@ namespace Network
             {
                 if (line.Contains(identifierForDeviceID))
                 {
-                    Configuration.DeviceID = (DeviceID)(int.Parse(GetValueFromLine(line)) - 1);
+                    try
+                    {
+                        Configuration.DeviceID = (DeviceID)(int.Parse(GetValueFromLine(line)) - 1);
+                    }
+                    catch (Exception ex)
+                    {
+                        Configuration.DeviceID = (DeviceID)Enum.Parse(typeof(DeviceID), GetValueFromLine(line));
+                    }
                 }
                 else if (line.Contains(identifierForDiscoveryPort))
                 {
-                    Configuration.DiscoveryPort = short.Parse(GetValueFromLine(line));
+                    Configuration.DiscoveryPort = ushort.Parse(GetValueFromLine(line));
                 }
                 else if (line.Contains(identifierForCommunicationPort))
                 {
-                    Configuration.CommunicationPort = short.Parse(GetValueFromLine(line));
+                    Configuration.CommunicationPort = ushort.Parse(GetValueFromLine(line));
                 }
 
                 /*Logging configuration*/
@@ -108,6 +117,42 @@ namespace Network
                     yield return ip;
                 }
             }
+        }
+
+        public static int GetAvailablePort()
+        {
+            int startingPort = 1000;
+
+            IPEndPoint[] endPoints;
+            List<int> portArray = new List<int>();
+
+            IPGlobalProperties properties = IPGlobalProperties.GetIPGlobalProperties();
+
+            //getting active connections
+            TcpConnectionInformation[] connections = properties.GetActiveTcpConnections();
+            portArray.AddRange(from n in connections
+                               where n.LocalEndPoint.Port >= startingPort
+                               select n.LocalEndPoint.Port);
+
+            //getting active tcp listners - WCF service listening in tcp
+            endPoints = properties.GetActiveTcpListeners();
+            portArray.AddRange(from n in endPoints
+                               where n.Port >= startingPort
+                               select n.Port);
+
+            //getting active udp listeners
+            endPoints = properties.GetActiveUdpListeners();
+            portArray.AddRange(from n in endPoints
+                               where n.Port >= startingPort
+                               select n.Port);
+
+            portArray.Sort();
+
+            for (int i = startingPort; i < UInt16.MaxValue; i++)
+                if (!portArray.Contains(i))
+                    return i;
+
+            return 0;
         }
     }
 }

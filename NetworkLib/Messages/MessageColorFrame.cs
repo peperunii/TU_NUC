@@ -30,13 +30,13 @@ namespace Network.Messages
 
         public MessageColorFrame(byte[] colorFrameInfo)
         {
-            this.type = MessageType.Info;
+            this.type = MessageType.ColorFrame;
             //this.info = new JpegImage(new SampleRow())
         }
 
         public override byte[] Serialize()
         {
-            var bytes = this.GetBytesForNumberShort((short)this.type);
+            var bytes = this.GetBytesForNumberShort((ushort)this.type);
             var bytesInfo = this.GetBytesOfInfo();
             var lenghtInfoBytes = this.GetBytesForNumberInt((int)bytesInfo.Length);
 

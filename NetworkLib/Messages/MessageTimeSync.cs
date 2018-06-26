@@ -16,7 +16,7 @@ namespace Network.Messages
 
         public override byte [] Serialize()
         {
-            return this.GetBytesForNumberShort((short)this.type);
+            return this.GetBytesForNumberShort((ushort)this.type);
         }
     }
 }

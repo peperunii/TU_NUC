@@ -1,6 +1,6 @@
 ﻿namespace Network
 {
-    public enum DeviceID : short
+    public enum DeviceID : ushort
     {
         Server,
         NUC_1,

@@ -23,7 +23,7 @@ namespace Network.Messages
 
         public MessageDiscoveryResponse(byte[] infoBytes)
         {
-            this.type = MessageType.Info;
+            this.type = MessageType.DiscoveryResponse;
             this.info = infoBytes;
 
             this.IP = new byte[4] { infoBytes[0], infoBytes[1], infoBytes[2], infoBytes[3] };
@@ -32,7 +32,7 @@ namespace Network.Messages
 
         public override byte[] Serialize()
         {
-            var bytes = this.GetBytesForNumberShort((short)this.type);
+            var bytes = this.GetBytesForNumberShort((ushort)this.type);
             var bytesInfo = this.GetBytesOfInfo();
             var lenghtInfoBytes = this.GetBytesForNumberInt((int)bytesInfo.Length);
 

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -41,6 +42,7 @@ namespace Server
 
         public static void RestartApp()
         {
+            Thread.Sleep(5000);
             Application.Restart();
         }
 

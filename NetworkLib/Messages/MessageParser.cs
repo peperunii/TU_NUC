@@ -10,7 +10,7 @@ namespace Network.Messages
     {
         public static Message GetMessageFromBytArr(byte [] messageArr)
         {
-            if (messageArr.Length >= 2)
+            if (messageArr != null && messageArr.Length >= 2)
             {
                 var messageType = BitConverter.ToUInt16(new byte[] { messageArr[0], messageArr[1] }, 0);
                 switch((MessageType)messageType)

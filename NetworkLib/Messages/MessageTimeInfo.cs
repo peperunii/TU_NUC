@@ -16,13 +16,13 @@ namespace Network.Messages
 
         public MessageTimeInfo(byte [] dateTimeInfo)
         {
-            this.type = MessageType.Info;
+            this.type = MessageType.TimeInfo;
             this.info = BitConverter.ToInt64(dateTimeInfo, 0);
         }
 
         public override byte[] Serialize()
         {
-            var bytes = this.GetBytesForNumberShort((short)this.type);
+            var bytes = this.GetBytesForNumberShort((ushort)this.type);
             var bytesInfo = this.GetBytesOfInfo();
             var lenghtInfoBytes = this.GetBytesForNumberInt((int)bytesInfo.Length);
 

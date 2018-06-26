@@ -1,4 +1,5 @@
-﻿using Network.Discovery;
+﻿using Network;
+using Network.Discovery;
 using Network.Logger;
 using Network.Messages;
 using Network.TCP;
@@ -36,11 +37,12 @@ namespace Client
 
         private static void NetworkWorker_ServerFound(object source, Network.Events.ServerFoundEventArgs e)
         {
-            connectionSettings = new ConnectionSettings(e.Address.ToString(), e.Port);
+            connectionSettings = new ConnectionSettings(e.Address.ToString(), Configuration.CommunicationPort);
 
             tcpClient = new TcpNetworkClient(connectionSettings.Address, connectionSettings.Port, "nuc");
             tcpClient.OnMessage += TcpClient_OnMessage;
             tcpClient.Connect();
+            tcpClient.Send(new MessageTimeSync());
         }
 
         private static void TcpClient_OnMessage(Network.Messages.Message message)

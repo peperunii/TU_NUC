@@ -46,22 +46,33 @@ namespace Network.Discovery
                 byte[] bytes = udp.EndReceive(ar, ref ip);
                 var message = MessageParser.GetMessageFromBytArr(bytes);
 
+                Console.WriteLine("Received message: " + message.type);
                 switch (message.type)
                 {
                     case MessageType.Discovery:
-                        if (!this.connectedAddresses.ContainsKey((DeviceID)(short)message.info))
+                        var deviceId = (DeviceID)(short)message.info;
+                        if (this.connectedAddresses.ContainsKey(deviceId))
                         {
-                            this.connectedAddresses.Add((DeviceID)(short)message.info, ip);
+                            LogManager.LogMessage(
+                                LogType.Warning, 
+                                string.Format(
+                                    "Device {0}: Reconnecting ...",
+                                    deviceId));
 
-                            SendServerFound(ip);
-
-                            if (DeviceConnected != null)
-                            {
-                                DeviceConnected.Invoke(null, new NucConnectedEventArgs(connectedAddresses, connectedAddresses.Count - 1));
-                            }
-
-                            LogManager.LogMessage(LogType.Info, String.Format("Server found by client {0}", ip.Address.ToString()));
+                            this.connectedAddresses.Remove(deviceId);
                         }
+
+                        this.connectedAddresses.Add((DeviceID)(short)message.info, ip);
+
+                        SendServerFound(ip);
+
+                        if (DeviceConnected != null)
+                        {
+                            DeviceConnected.Invoke(null, new NucConnectedEventArgs(connectedAddresses, connectedAddresses.Count - 1));
+                        }
+
+                        LogManager.LogMessage(LogType.Info, String.Format("Server found by client {0}", ip.Address.ToString()));
+                        
                         break;
                     default:
                         break;
@@ -83,13 +94,14 @@ namespace Network.Discovery
 
             var infoBytes = new byte[] { ipAdd[0], ipAdd[1], ipAdd[2], ipAdd[3], port[0], port[1] };
 
+            Console.WriteLine("Sending Discovery Response");
             var msg = new MessageDiscoveryResponse()
             {
                 IP = Configuration.DeviceIP.GetAddressBytes(),
                 Port = port,
                 info = infoBytes
             };
-            
+            Console.WriteLine("Type: " + msg.type);
 
             byte[] bytes = msg.Serialize();
 

@@ -64,7 +64,8 @@ namespace Network.Discovery
                 }
 
                 //again
-                CloseConnection();
+                //CloseConnection();
+                StartListening();
             }
             catch (Exception ex)
             {
