@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 
 namespace Network.Discovery
 {
@@ -15,17 +16,24 @@ namespace Network.Discovery
         public delegate void MyEventHandler(object source, ServerFoundEventArgs e);
         public event MyEventHandler ServerFound;
 
+        private bool isServerFound = false;
+
         public void FindServer()
         {
             this.client = new UDPClient(new IPEndPoint(Configuration.DeviceIP, Configuration.DiscoveryPort));
             var messageDiscovery = new MessageDiscovery().Serialize();
-
-            client.Send(
-                messageDiscovery, 
-                messageDiscovery.Length, 
-                new IPEndPoint(IPAddress.Broadcast, Configuration.DiscoveryPort));
             
-            StartListening();
+            while(!isServerFound)
+            {
+                client.Send(
+                    messageDiscovery,
+                    messageDiscovery.Length,
+                    new IPEndPoint(IPAddress.Broadcast, Configuration.DiscoveryPort));
+
+                StartListening();
+
+                Thread.Sleep(1000);
+            }
         }
 
         public void StartListening()
@@ -49,10 +57,14 @@ namespace Network.Discovery
                 switch (message.type)
                 {
                     case MessageType.DiscoveryResponse:
-                
+
+                        isServerFound = true;
                         if (ServerFound != null)
                         {
-                            ServerFound.Invoke(null, new ServerFoundEventArgs(ip.Address, ip.Port));
+                            var port = BitConverter.ToUInt16(new byte[] { (message.info as byte [])[4], (message.info as byte[])[5] }, 0);
+                            ServerFound.Invoke(null, new ServerFoundEventArgs(ip.Address, port));
+
+                            LogManager.LogMessage(LogType.Info, "Communicating with server on Port: " + port);
                         }
 
                         LogManager.LogMessage(
@@ -62,9 +74,7 @@ namespace Network.Discovery
                     default:
                         break;
                 }
-
-                //again
-                //CloseConnection();
+                
                 StartListening();
             }
             catch (Exception ex)

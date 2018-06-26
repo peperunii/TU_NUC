@@ -2,6 +2,7 @@
 using Network.Events;
 using Network.Logger;
 using Network.Messages;
+using NetworkLib.TCP;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -63,9 +64,7 @@ namespace Network.Discovery
                         }
 
                         this.connectedAddresses.Add((DeviceID)(short)message.info, ip);
-
-                        SendServerFound(ip);
-
+                        
                         if (DeviceConnected != null)
                         {
                             DeviceConnected.Invoke(null, new NucConnectedEventArgs(connectedAddresses, connectedAddresses.Count - 1));
@@ -87,10 +86,10 @@ namespace Network.Discovery
             }
         }
 
-        private void SendServerFound(IPEndPoint ip)
+        private void SendServerFound(TcpNetworkListener tcpServer)
         {
             var ipAdd = Configuration.DeviceIP.GetAddressBytes();
-            var port = BitConverter.GetBytes(Configuration.DiscoveryPort);
+            var port = BitConverter.GetBytes(tcpServer.Port);
 
             var infoBytes = new byte[] { ipAdd[0], ipAdd[1], ipAdd[2], ipAdd[3], port[0], port[1] };
 
@@ -105,36 +104,17 @@ namespace Network.Discovery
 
             byte[] bytes = msg.Serialize();
 
-            udp.Send(bytes, bytes.Length, ip);
+            udp.Send(
+                bytes, 
+                bytes.Length, 
+                new IPEndPoint(
+                    IPAddress.Parse(tcpServer.IpAddress), 
+                    Configuration.DiscoveryPort));
         }
 
-        public void SendRpiStart()
+        public void SendDeviceStart(TcpNetworkListener tcpServer)
         {
-            //foreach (var rPi in connectedAddresses)
-            //{
-            //    UdpDiscovery msg = new UdpDiscovery
-            //    {
-            //        messageType = UdpDiscovery.Type.RPI_START,
-            //        sessionId = ProtobufHelper.generateUUID(),
-            //    };
-            //
-            //    byte[] bytes = ProtobufHelper.Serialize(msg);
-            //
-            //    udp.Send(bytes, bytes.Length, rPi.Value);
-            //
-            //    Console.WriteLine("Rpi Start {0}", rPi.Value);
-            //}
-            ////UdpDiscovery msg = new UdpDiscovery
-            ////{
-            ////    messageType = UdpDiscovery.Type.RPI_START,
-            ////    sessionId = ProtobufHelper.generateUUID(),
-            ////};
-            //
-            ////byte[] bytes = ProtobufHelper.Serialize(msg);
-            //
-            ////IPEndPoint targetEndPoint = new IPEndPoint(IPAddress.Broadcast, Global.DISCOVERY_PORT);
-            //
-            ////udp.Send(bytes, bytes.Length, targetEndPoint);
+            SendServerFound(tcpServer);
         }
     }
 }

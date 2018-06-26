@@ -119,9 +119,9 @@ namespace Network
             }
         }
 
-        public static int GetAvailablePort()
+        public static ushort GetAvailablePort()
         {
-            int startingPort = 1000;
+            ushort startingPort = 1000;
 
             IPEndPoint[] endPoints;
             List<int> portArray = new List<int>();
@@ -148,7 +148,7 @@ namespace Network
 
             portArray.Sort();
 
-            for (int i = startingPort; i < UInt16.MaxValue; i++)
+            for (ushort i = startingPort; i < UInt16.MaxValue; i++)
                 if (!portArray.Contains(i))
                     return i;
 

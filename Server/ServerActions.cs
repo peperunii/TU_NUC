@@ -6,6 +6,8 @@ using NetworkLib.TCP;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,15 +17,16 @@ namespace Server
     public static class ServerActions
     {
         public static List<NUC> Devices { get; set; }
-        private static DiscoveryReceiver discoveryServer;
-        private static TcpNetworkListener tcpServer;
+        public static Dictionary<DeviceID, TcpNetworkListener> tcpServers;
 
+        private static DiscoveryReceiver discoveryServer;
+        
         public static void Listener()
         {
             Devices = new List<NUC>();
+            tcpServers = new Dictionary<DeviceID, TcpNetworkListener>();
 
             StartDiscoveryServer();
-            StartTcpServer();
 
             Global.EventDispatcher.AdminStartDiscovery += EventDispatcher_AdminStartDiscovery;
 
@@ -35,21 +38,31 @@ namespace Server
             }
         }
 
-        private static void StartTcpServer()
+        public static TcpNetworkListener StartTcpServer()
         {
-            tcpServer = new TcpNetworkListener(Configuration.DeviceIP.ToString(), Configuration.CommunicationPort, "Server");
+            var tcpServer = new TcpNetworkListener(Configuration.DeviceIP.ToString(), Configuration.GetAvailablePort(), "Server");
             tcpServer.OnMessage += Server_OnMessage;
             tcpServer.Connect();
+
+            return tcpServer;
         }
 
         private static void Server_OnMessage(object xSender, Message message)
         {
             if (message != null)
             {
+                var tcpStream = (xSender as TcpClient).GetStream();
                 switch (message.type)
                 {
                     case MessageType.TimeSyncRequest:
-                        Console.WriteLine("Vzimame vremeto");
+                        var messageTimeInfo = new MessageTimeInfo().Serialize();
+                        tcpStream.Write(messageTimeInfo, 0, messageTimeInfo.Length);
+                        break;
+
+                    case MessageType.Info:
+                        LogManager.LogMessage(
+                            LogType.Warning, 
+                            "Received Info Message: " + message.info as string);
                         break;
                 }
             }
@@ -64,48 +77,37 @@ namespace Server
 
         private static void DiscoveryServer_DeviceConnected(object source, Network.Events.NucConnectedEventArgs e)
         {
-            //if (_wssv != null && _wssv.IsListening)
-            //{
-            //    var msg = new AdminEvent
-            //    {
-            //        messageType = AdminEvent.Type.RPI_CLIENTS_CHANGED,
-            //        rpiClientChanged = new RpiClientsChanged(),
-            //    };
-            //
-            //    foreach (var item in e.ConnectedAddresses)
-            //    {
-            //        msg.rpiClientChanged.rpiClients.Add(new RpiClient
-            //        {
-            //            piId = item.Key,
-            //            ipAddress = item.Value.ToString()
-            //        });
-            //        var existingRpiID = (from t in this.devices
-            //                             where t.piID == item.Key
-            //                             select t).FirstOrDefault();
-            //        if (existingRpiID == null)
-            //        {
-            //            this.devices.Add(new CameraInfo(item.Key, item.Value.ToString()));
-            //        }
-            //        else
-            //        {
-            //            existingRpiID.RaspberryAddress = item.Value.ToString();
-            //        }
-            //    }
-            //
-            //    byte[] bytes = ProtobufHelper.Serialize(msg);
-            //
-            //    _wssv.WebSocketServices[ServerConfig.Default.WebPathAdmin].Sessions.Broadcast(bytes);
-            //}
+            var connectedDevices = e.ConnectedAddresses;
 
-            LogManager.LogMessage(LogType.Info, "Device Found");
-            SendRpiStart();
+            foreach (var device in connectedDevices)
+            {
+                LogManager.LogMessage(LogType.Info, "Device Found: " + device.Key);
+
+                var deviceID = device.Key;
+                var address = device.Value;
+
+                var exist = (from t in Devices
+                             where t.deviceID == deviceID
+                             select t).FirstOrDefault();
+                if (exist != null)
+                {
+                    Devices.Remove(exist);
+                    tcpServers.Remove(deviceID);
+                }
+
+                Devices.Add(new NUC(deviceID, address));
+                var tcpServer = StartTcpServer();
+                tcpServers.Add(deviceID, tcpServer);
+
+                SendDeviceStart(tcpServer);
+            }
         }
 
 
-        private static void SendRpiStart()
+        private static void SendDeviceStart(TcpNetworkListener tcpServer)
         {
             LogManager.LogMessage(LogType.Info, "Device Start");
-            discoveryServer.SendRpiStart();
+            discoveryServer.SendDeviceStart(tcpServer);
         }
 
         public static void DiscoverConnectedDevices()

@@ -113,7 +113,7 @@ namespace NetworkLib.TCP
                     //fire event
                     dOnMessage lEvent = OnMessage;
                     if (lEvent == null) continue;
-                    lEvent(null, msg);
+                    lEvent(lClient, msg);
                 }
                 catch (System.IO.IOException)
                 {
@@ -136,6 +136,7 @@ namespace NetworkLib.TCP
         private byte[] GetBytArrFromNetworkStream(NetworkStream _NetworkStream)
         {
             byte[] lHeader = new byte[2];
+
             if (_NetworkStream.Read(lHeader, 0, 2) != 2) return null;
 
             var messageType = (MessageType)BitConverter.ToInt16(lHeader, 0);

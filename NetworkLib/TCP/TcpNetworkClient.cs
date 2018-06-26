@@ -23,6 +23,8 @@ namespace Network.TCP
         public delegate void dOnMessage(Message message);
         public event dOnMessage OnMessage;
 
+        public delegate void dOnServerDisconnected();
+        public event dOnServerDisconnected OnServerDisconnected;
 
         public TcpNetworkClient(string xIpAddress, int xPort, string xThreadName)
         {
@@ -54,20 +56,31 @@ namespace Network.TCP
             if (!_ExitLoop) return; // running already
             _ExitLoop = false;
 
-            _Client = new TcpClient();
-            _Client.Connect(IpAddress, Port);
-            _NetworkStream = _Client.GetStream();
+            while (true)
+            {
+                try
+                {
+                    _Client = new TcpClient();
+                    _Client.Connect(IpAddress, Port);
+                    _NetworkStream = _Client.GetStream();
+                    
+                    Thread lLoopWrite = new Thread(new ThreadStart(LoopWrite));
+                    lLoopWrite.IsBackground = true;
+                    lLoopWrite.Name = ThreadName + "Write";
+                    lLoopWrite.Start();
 
-            Thread lLoopWrite = new Thread(new ThreadStart(LoopWrite));
-            lLoopWrite.IsBackground = true;
-            lLoopWrite.Name = ThreadName + "Write";
-            lLoopWrite.Start();
+                    Thread lLoopRead = new Thread(new ThreadStart(LoopRead));
+                    lLoopRead.IsBackground = true;
+                    lLoopRead.Name = ThreadName + "Read";
+                    lLoopRead.Start();
+                    break;
+                }
+                catch (Exception ex)
+                {
 
-            Thread lLoopRead = new Thread(new ThreadStart(LoopRead));
-            lLoopRead.IsBackground = true;
-            lLoopRead.Name = ThreadName + "Read";
-            lLoopRead.Start();
-        } //
+                }
+            }
+        }
 
         public void Disconnect()
         {
@@ -134,9 +147,17 @@ namespace Network.TCP
         private void RestartClient()
         {
             Console.WriteLine("Restarting ...");
+
             Thread.Sleep(3000);
+
             this.Disconnect();
-            this.Connect();
+
+            //fire event
+            dOnServerDisconnected lEvent = OnServerDisconnected;
+            if (lEvent != null)
+            {
+                lEvent();
+            }
         }
 
         private byte[] GetBytArrFromNetworkStream()

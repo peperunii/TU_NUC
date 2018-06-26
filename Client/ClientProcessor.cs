@@ -17,13 +17,14 @@ namespace Client
 {
     public static class ClientProcessor
     {
+        private static DiscoverySender networkWorker;
         private static TcpNetworkClient tcpClient;
         private static ConnectionSettings connectionSettings;
         private static long lastServerHeartbeat;
 
         public static void Start()
         {
-            var networkWorker = new DiscoverySender();
+            networkWorker = new DiscoverySender();
             networkWorker.ServerFound += NetworkWorker_ServerFound;
             networkWorker.FindServer();
 
@@ -37,12 +38,27 @@ namespace Client
 
         private static void NetworkWorker_ServerFound(object source, Network.Events.ServerFoundEventArgs e)
         {
-            connectionSettings = new ConnectionSettings(e.Address.ToString(), Configuration.CommunicationPort);
+            connectionSettings = new ConnectionSettings(e.Address.ToString(), e.Port);
 
             tcpClient = new TcpNetworkClient(connectionSettings.Address, connectionSettings.Port, "nuc");
             tcpClient.OnMessage += TcpClient_OnMessage;
+            tcpClient.OnServerDisconnected += TcpClient_OnServerDisconnected;
             tcpClient.Connect();
+
+            /*Synchronize Time*/
             tcpClient.Send(new MessageTimeSync());
+        }
+
+        private static void TcpClient_OnServerDisconnected()
+        {
+            if (networkWorker != null)
+            {
+                networkWorker.CloseConnection();
+            }
+
+            networkWorker = new DiscoverySender();
+            networkWorker.ServerFound += NetworkWorker_ServerFound;
+            networkWorker.FindServer();
         }
 
         private static void TcpClient_OnMessage(Network.Messages.Message message)
@@ -64,6 +80,7 @@ namespace Client
 
                 case MessageType.TimeInfo:
                     ServerTime.Set(DateTime.FromFileTimeUtc((long)message.info));
+                    LogManager.LogMessage(LogType.Info, "Sync Date/Time...");
                     break;
 
                 case MessageType.ReloadConfiguration:
