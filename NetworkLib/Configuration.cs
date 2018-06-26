@@ -15,22 +15,34 @@ namespace Network
         public static IPAddress DeviceIP;
         public static DeviceID DeviceID;
         public static ushort DiscoveryPort;
-        public static ushort CommunicationPort;
 
         public static bool logInConsole;
         public static bool logInDB;
         public static bool logInFile;
         public static string logFilename;
 
+        public static double colorFrameScale = 1.0;
+        public static double depthFrameScale = 1.0;
+        public static double irFrameScale = 1.0;
+
+        public static ushort minReliableDepth = ushort.MinValue;
+        public static ushort maxReliableDepth = ushort.MaxValue;
+
         private static string configFile = @"..\..\..\config\conf.txt";
         private static string identifierForDeviceID = "deviceID";
         private static string identifierForDiscoveryPort = "Discovery Port";
-        private static string identifierForCommunicationPort = "Communication Port";
 
         private static string identifierForLogInConsole = "Log in Console";
         private static string identifierForLogInDB = "Log in DB";
         private static string identifierForLogInFile = "Log in File";
         private static string identifierForLogFilename = "Log Filename";
+
+        private static string identifierForColorFrameScale = "Color Frame Scale";
+        private static string identifierForDepthFrameScale = "Depth Frame Scale";
+        private static string identifierForIRFrameScale = "IR Frame Scale";
+
+        private static string identifierForMinReliableDepth = "Min Reliable Depth";
+        private static string identifierForMaxReliableDepth = "Max Reliable Depth";
 
         static Configuration()
         {
@@ -68,10 +80,6 @@ namespace Network
                 {
                     Configuration.DiscoveryPort = ushort.Parse(GetValueFromLine(line));
                 }
-                else if (line.Contains(identifierForCommunicationPort))
-                {
-                    Configuration.CommunicationPort = ushort.Parse(GetValueFromLine(line));
-                }
 
                 /*Logging configuration*/
                 else if (line.Contains(identifierForLogInConsole))
@@ -89,6 +97,30 @@ namespace Network
                 else if (line.Contains(identifierForLogFilename))
                 {
                     Configuration.logFilename = GetValueFromLine(line).Trim();
+                }
+
+                /*Frames Scale configuration*/
+                else if (line.Contains(identifierForColorFrameScale))
+                {
+                    Configuration.colorFrameScale = double.Parse(GetValueFromLine(line));
+                }
+                else if (line.Contains(identifierForDepthFrameScale))
+                {
+                    Configuration.depthFrameScale = double.Parse(GetValueFromLine(line));
+                }
+                else if (line.Contains(identifierForIRFrameScale))
+                {
+                    Configuration.irFrameScale = double.Parse(GetValueFromLine(line));
+                }
+
+                /*Frames setup*/
+                else if (line.Contains(identifierForMinReliableDepth))
+                {
+                    Configuration.minReliableDepth = ushort.Parse(GetValueFromLine(line));
+                }
+                else if (line.Contains(identifierForMaxReliableDepth))
+                {
+                    Configuration.maxReliableDepth = ushort.Parse(GetValueFromLine(line));
                 }
             }
         }

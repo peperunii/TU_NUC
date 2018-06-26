@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BitMiracle.LibJpeg.Classic;
 using BitMiracle.LibJpeg;
+using Network.Logger;
 
 namespace Network.Messages
 {
@@ -31,7 +32,13 @@ namespace Network.Messages
         public MessageColorFrame(byte[] colorFrameInfo)
         {
             this.type = MessageType.ColorFrame;
-            //this.info = new JpegImage(new SampleRow())
+            this.Height = BitConverter.ToInt32(colorFrameInfo.SubArray(0, 4), 0);
+            this.Height = BitConverter.ToInt32(colorFrameInfo.SubArray(4, 4), 0);
+            this.IsCompressed = BitConverter.ToBoolean(colorFrameInfo.SubArray(8, 1), 0);
+
+            this.info = colorFrameInfo.SubArray(9);
+
+            LogManager.LogMessage(LogType.Info, "Received ColorFrame");
         }
 
         public override byte[] Serialize()
@@ -45,7 +52,8 @@ namespace Network.Messages
 
         private byte[] GetBytesOfInfo()
         {
-            return BitConverter.GetBytes((long)this.info);
+            this.info = BitConverter.GetBytes(this.Height).Concat(BitConverter.GetBytes(this.Width).Concat(BitConverter.GetBytes(this.Channels).Concat(BitConverter.GetBytes(this.IsCompressed))));
+            return this.info as byte [];
         }
     }
 }

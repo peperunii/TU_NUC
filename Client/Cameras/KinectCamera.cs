@@ -8,6 +8,9 @@ using System.Windows.Media.Imaging;
 using System.Windows.Media;
 using System.Windows;
 using System.IO;
+using Emgu.CV;
+using Emgu.CV.Structure;
+using Emgu.CV.CvEnum;
 
 namespace Client.Cameras
 {
@@ -23,11 +26,12 @@ namespace Client.Cameras
         private FrameDescription colorFrameDescription;
         private FrameDescription depthFrameDescription;
         private FrameDescription irFrameDescription;
-
-        private WriteableBitmap colorBitmap = null;
-        private WriteableBitmap depthBitmap = null;
-        private WriteableBitmap irBitmap = null;
+        
         private Body[] bodies = null;
+
+        private Image<Bgr, Byte> colorImage = null;
+        private Image<Gray, ushort> depthImage = null;
+        private Image<Gray, ushort> irImage = null;
 
         /*IR settings*/
         private const float InfraredSourceScale = 0.75f;
@@ -36,8 +40,14 @@ namespace Client.Cameras
         private const float InfraredSourceValueMaximum = (float)ushort.MaxValue;
 
         /*Depth settings*/
-        private byte[] depthPixels = null;
         private const int MapDepthToByte = 8000 / 256;
+        private ushort MinReliableDepth = ushort.MinValue;
+        private ushort MaxReliableDepth = ushort.MaxValue;
+
+        /*Resolution Scale settings*/
+        private double colorScale = 1.0;
+        private double depthScale = 1.0;
+        private double irScale = 1.0;
 
         /*Events*/
         public delegate void dOnColorFrameArrived();
@@ -67,21 +77,46 @@ namespace Client.Cameras
             this.bodyFrameReader.FrameArrived += this.BodyFrameReader_FrameArrived;
 
             this.colorFrameDescription = this.kinectSensor.ColorFrameSource.CreateFrameDescription(ColorImageFormat.Bgra);
-            this.colorBitmap = new WriteableBitmap(colorFrameDescription.Width, colorFrameDescription.Height, 96.0, 96.0, PixelFormats.Bgr32, null);
+            this.colorImage = new Image<Bgr, byte>(colorFrameDescription.Width, colorFrameDescription.Height);
 
             this.depthFrameDescription = this.kinectSensor.DepthFrameSource.FrameDescription;
-            this.depthBitmap = new WriteableBitmap(depthFrameDescription.Width, depthFrameDescription.Height, 96.0, 96.0, PixelFormats.Gray8, null);
+            this.depthImage = new Image<Gray, ushort>(depthFrameDescription.Width, depthFrameDescription.Height);
 
             this.irFrameDescription = this.kinectSensor.DepthFrameSource.FrameDescription;
-            this.irBitmap = new WriteableBitmap(irFrameDescription.Width, irFrameDescription.Height, 96.0, 96.0, PixelFormats.Gray32Float, null);
-
-            this.depthPixels = new byte[this.depthFrameDescription.Width * this.depthFrameDescription.Height];
+            this.irImage = new Image<Gray, ushort>(irFrameDescription.Width, irFrameDescription.Height);
 
             this.kinectSensor.Open();
         }
 
+        public void SetScaleFactor(CameraDataType type, double scale)
+        {
+            switch(type)
+            {
+                case CameraDataType.Color:
+                    this.colorScale = scale;
+                    break;
 
-        private void ColorFrameReader_FrameArrived(object sender, ColorFrameArrivedEventArgs e)
+                case CameraDataType.Depth:
+                    this.depthScale = scale;
+                    break;
+
+                case CameraDataType.IR:
+                    this.irScale = scale;
+                    break;
+            }
+        }
+
+        public void SetDepthMinReliable(ushort minReliableDepth)
+        {
+            this.MinReliableDepth = minReliableDepth;
+        }
+
+        public void SetDepthMaxReliable(ushort maxReliableDepth)
+        {
+            this.MaxReliableDepth = maxReliableDepth;
+        }
+
+        private unsafe void ColorFrameReader_FrameArrived(object sender, ColorFrameArrivedEventArgs e)
         {
             // ColorFrame is IDisposable
             using (ColorFrame colorFrame = e.FrameReference.AcquireFrame())
@@ -92,20 +127,22 @@ namespace Client.Cameras
 
                     using (KinectBuffer colorBuffer = colorFrame.LockRawImageBuffer())
                     {
-                        this.colorBitmap.Lock();
-
                         // verify data and write the new color frame data to the display bitmap
-                        if ((colorFrameDescription.Width == this.colorBitmap.PixelWidth) && (colorFrameDescription.Height == this.colorBitmap.PixelHeight))
+
+                        var dataSize = colorFrameDescription.Width * colorFrameDescription.Height * 4;
+                        var byteArr = new byte[dataSize];
+
+                        fixed (byte* p = byteArr)
                         {
-                            colorFrame.CopyConvertedFrameDataToIntPtr(
-                                this.colorBitmap.BackBuffer,
-                                (uint)(colorFrameDescription.Width * colorFrameDescription.Height * 4),
-                                ColorImageFormat.Bgra);
+                            IntPtr ptr = (IntPtr)p;
+                            colorFrame.CopyRawFrameDataToIntPtr(ptr, (uint)dataSize);
 
-                            this.colorBitmap.AddDirtyRect(new Int32Rect(0, 0, this.colorBitmap.PixelWidth, this.colorBitmap.PixelHeight));
+                            this.colorImage = new Image<Bgr, byte>(colorFrameDescription.Width, colorFrameDescription.Height, colorFrameDescription.Width * 4, ptr);
+                            if (this.colorScale != 1)
+                            {
+                                this.colorImage = this.colorImage.Resize(this.colorScale, Inter.Cubic);
+                            }
                         }
-
-                        this.colorBitmap.Unlock();
                     }
 
                     //fire event
@@ -118,10 +155,8 @@ namespace Client.Cameras
             }
         }
 
-        private void DepthFrameReader_FrameArrived(object sender, DepthFrameArrivedEventArgs e)
+        private unsafe void DepthFrameReader_FrameArrived(object sender, DepthFrameArrivedEventArgs e)
         {
-            bool depthFrameProcessed = false;
-
             using (DepthFrame depthFrame = e.FrameReference.AcquireFrame())
             {
                 if (depthFrame != null)
@@ -130,19 +165,25 @@ namespace Client.Cameras
                     // the underlying buffer
                     using (Microsoft.Kinect.KinectBuffer depthBuffer = depthFrame.LockImageBuffer())
                     {
-                        // verify data and write the color data to the display bitmap
-                        if (((this.depthFrameDescription.Width * this.depthFrameDescription.Height) == (depthBuffer.Size / this.depthFrameDescription.BytesPerPixel)) &&
-                            (this.depthFrameDescription.Width == this.depthBitmap.PixelWidth) && (this.depthFrameDescription.Height == this.depthBitmap.PixelHeight))
+
+                        // Note: In order to see the full range of depth (including the less reliable far field depth)
+                        // we are setting maxDepth to the extreme potential depth threshold
+                        
+                        ushort* frameData = (ushort*)depthBuffer.UnderlyingBuffer;
+                        var dataSize = depthFrameDescription.Width * depthFrameDescription.Height;
+
+                        IntPtr ptr = (IntPtr)frameData;
+                        depthFrame.CopyFrameDataToIntPtr(ptr, (uint)dataSize);
+
+                        this.depthImage = new Image<Gray, ushort>(depthFrameDescription.Width, depthFrameDescription.Height, depthFrameDescription.Width, ptr);
+                        if (this.depthScale != 1)
                         {
-                            // Note: In order to see the full range of depth (including the less reliable far field depth)
-                            // we are setting maxDepth to the extreme potential depth threshold
-                            ushort maxDepth = ushort.MaxValue;
+                            this.depthImage = this.depthImage.Resize(this.depthScale, Inter.Cubic);
+                        }
 
-                            // If you wish to filter by reliable depth distance, uncomment the following line:
-                            //// maxDepth = depthFrame.DepthMaxReliableDistance
-
-                            this.ProcessDepthFrameData(depthBuffer.UnderlyingBuffer, depthBuffer.Size, depthFrame.DepthMinReliableDistance, maxDepth);
-                            depthFrameProcessed = true;
+                        if(this.MaxReliableDepth != ushort.MaxValue)
+                        {
+                            this.ConvertDepthImageToMaxDistance();
                         }
                     }
 
@@ -154,34 +195,36 @@ namespace Client.Cameras
                     }
                 }
             }
-
-            if (depthFrameProcessed)
-            {
-                this.RenderDepthPixels();
-            }
         }
 
-        private void IrFrameReader_FrameArrived(object sender, InfraredFrameArrivedEventArgs e)
+        private unsafe void IrFrameReader_FrameArrived(object sender, InfraredFrameArrivedEventArgs e)
         {
             // InfraredFrame is IDisposable
             using (InfraredFrame infraredFrame = e.FrameReference.AcquireFrame())
             {
                 if (infraredFrame != null)
                 {
-                    // the fastest way to process the infrared frame data is to directly access 
+                    // the fastest way to process the body index data is to directly access 
                     // the underlying buffer
-                    using (Microsoft.Kinect.KinectBuffer infraredBuffer = infraredFrame.LockImageBuffer())
+                    using (Microsoft.Kinect.KinectBuffer infraredbuffer = infraredFrame.LockImageBuffer())
                     {
-                        // verify data and write the new infrared frame data to the display bitmap
-                        if (((this.irFrameDescription.Width * this.irFrameDescription.Height) == (infraredBuffer.Size / this.irFrameDescription.BytesPerPixel)) &&
-                            (this.irFrameDescription.Width == this.irBitmap.PixelWidth) && (this.irFrameDescription.Height == this.irBitmap.PixelHeight))
+                        ushort* frameData = (ushort*)infraredbuffer.UnderlyingBuffer;
+                        var dataSize = irFrameDescription.Width * irFrameDescription.Height;
+
+                        IntPtr ptr = (IntPtr)frameData;
+                        infraredFrame.CopyFrameDataToIntPtr(ptr, (uint)dataSize);
+
+                        this.irImage = new Image<Gray, ushort>(irFrameDescription.Width, irFrameDescription.Height, irFrameDescription.Width, ptr);
+                        if (this.irScale != 1)
                         {
-                            this.ProcessInfraredFrameData(infraredBuffer.UnderlyingBuffer, infraredBuffer.Size);
+                            this.irImage = this.irImage.Resize(this.irScale, Inter.Cubic);
                         }
+
+                        this.ConvertIRImage();
                     }
 
                     //fire event
-                    dOnIRFrameArrived lEvent = OnIRFrameArrived;
+                    dOnDepthFrameArrived lEvent = OnDepthFrameArrived;
                     if (lEvent != null)
                     {
                         lEvent();
@@ -217,63 +260,51 @@ namespace Client.Cameras
         }
 
         #region Helpers
-        private unsafe void ProcessInfraredFrameData(IntPtr infraredFrameData, uint infraredFrameDataSize)
+        private void ConvertDepthImageToMaxDistance()
         {
-            // infrared frame data is a 16 bit value
-            ushort* frameData = (ushort*)infraredFrameData;
+            var data = this.depthImage.Data;
+            var width = this.depthImage.Width;
+            var height = this.depthImage.Height;
 
-            // lock the target bitmap
-            this.irBitmap.Lock();
-
-            // get the pointer to the bitmap's back buffer
-            float* backBuffer = (float*)this.irBitmap.BackBuffer;
-
-            // process the infrared data
-            for (int i = 0; i < (int)(infraredFrameDataSize / this.irFrameDescription.BytesPerPixel); ++i)
+            for(int i = 0; i < height; i++)
             {
-                // since we are displaying the image as a normalized grey scale image, we need to convert from
-                // the ushort data (as provided by the InfraredFrame) to a value from [InfraredOutputValueMinimum, InfraredOutputValueMaximum]
-                backBuffer[i] = Math.Min(InfraredOutputValueMaximum, (((float)frameData[i] / InfraredSourceValueMaximum * InfraredSourceScale) * (1.0f - InfraredOutputValueMinimum)) + InfraredOutputValueMinimum);
-            }
-
-            // mark the entire bitmap as needing to be drawn
-            this.irBitmap.AddDirtyRect(new Int32Rect(0, 0, this.irBitmap.PixelWidth, this.irBitmap.PixelHeight));
-
-            // unlock the bitmap
-            this.irBitmap.Unlock();
-        }
-
-        private unsafe void ProcessDepthFrameData(IntPtr depthFrameData, uint depthFrameDataSize, ushort minDepth, ushort maxDepth)
-        {
-            // depth frame data is a 16 bit value
-            ushort* frameData = (ushort*)depthFrameData;
-
-            // convert depth to a visual representation
-            for (int i = 0; i < (int)(depthFrameDataSize / this.depthFrameDescription.BytesPerPixel); ++i)
-            {
-                // Get the depth for this pixel
-                ushort depth = frameData[i];
-
-                // To convert to a byte, we're mapping the depth value to the byte range.
-                // Values outside the reliable depth range are mapped to 0 (black).
-                this.depthPixels[i] = (byte)(depth >= minDepth && depth <= maxDepth ? (depth / MapDepthToByte) : 0);
+                for (int j = 0; j < width; j++)
+                {
+                    var depth = data[i, j, 0];
+                    data[i, j, 0] = (depth >= this.MinReliableDepth && depth <= this.MaxReliableDepth ? depth : (ushort)0);
+                }
             }
         }
 
-        private void RenderDepthPixels()
+
+        private void ConvertIRImage()
         {
-            this.depthBitmap.WritePixels(
-                new Int32Rect(0, 0, this.depthBitmap.PixelWidth, this.depthBitmap.PixelHeight),
-                this.depthPixels,
-                this.depthBitmap.PixelWidth,
-                0);
+            var data = this.irImage.Data;
+            var width = this.irImage.Width;
+            var height = this.irImage.Height;
+
+            for (int i = 0; i < height; i++)
+            {
+                for (int j = 0; j < width; j++)
+                {
+                    var ir = data[i, j, 0];
+                    data[i, j, 0] = 
+                        (ushort)Math.Min(
+                            InfraredOutputValueMaximum, 
+                            (((float)ir / InfraredSourceValueMaximum * InfraredSourceScale) * (1.0f - InfraredOutputValueMinimum)) + InfraredOutputValueMinimum);
+                }
+            }
         }
 
+        
         private unsafe byte[] GetColorImageByteArr()
         {
-            var byteArr = new byte[this.colorFrameDescription.Width * this.colorFrameDescription.Height * 3];
-            var dataPointer = (byte *)this.colorBitmap.BackBuffer;
-            var totalBufferSize = this.colorFrameDescription.Width * this.colorFrameDescription.Height * 4;
+            var byteArr = this.colorImage.Data;
+            var totalBufferSize = 
+                this.colorImage.Width * 
+                this.colorImage.Height * 
+                this.colorImage.NumberOfChannels;
+
             var curIndex = 0;
 
             for (int i = 0; i < totalBufferSize; ++i)
@@ -309,13 +340,13 @@ namespace Client.Cameras
             switch(type)
             {
                 case CameraDataType.Color:
-                    return this.Serialize(this.colorBitmap, type);
+                    return this.Serialize(this.colorImage, type);
 
                 case CameraDataType.Depth:
-                    return this.Serialize(this.depthBitmap, type);
+                    return this.Serialize(this.depthImage, type);
 
                 case CameraDataType.IR:
-                    return this.Serialize(this.irBitmap, type);
+                    return this.Serialize(this.irImage, type);
 
                 case CameraDataType.Body:
                     return this.Serialize(this.bodies, type);

@@ -30,11 +30,7 @@ namespace Client
             networkWorker.ServerFound += NetworkWorker_ServerFound;
             networkWorker.FindServer();
 
-            camera = new KinectCamera();
-            camera.OnColorFrameArrived += Camera_OnColorFrameArrived;
-            camera.OnDepthFrameArrived += Camera_OnDepthFrameArrived;
-            camera.OnIRFrameArrived += Camera_OnIRFrameArrived;
-            camera.OnBodyFrameArrived += Camera_OnBodyFrameArrived;
+            CameraInit();
 
             while (true)
             {
@@ -45,10 +41,26 @@ namespace Client
         }
         
         /*Camera Events*/
+        private static void CameraInit()
+        {
+            camera = new KinectCamera();
+            camera.SetScaleFactor(CameraDataType.Color, Configuration.colorFrameScale);
+            camera.SetScaleFactor(CameraDataType.Depth, Configuration.depthFrameScale);
+            camera.SetScaleFactor(CameraDataType.IR, Configuration.irFrameScale);
+
+            camera.SetDepthMinReliable(Configuration.minReliableDepth);
+            camera.SetDepthMaxReliable(Configuration.maxReliableDepth);
+
+            camera.OnColorFrameArrived += Camera_OnColorFrameArrived;
+            camera.OnDepthFrameArrived += Camera_OnDepthFrameArrived;
+            camera.OnIRFrameArrived += Camera_OnIRFrameArrived;
+            camera.OnBodyFrameArrived += Camera_OnBodyFrameArrived;
+        }
 
         private static void Camera_OnColorFrameArrived()
         {
             var colorData = camera.GetData(CameraDataType.Color);
+            tcpClient.Send(new MessageColorFrame(1080, 1920, 3, false, colorData as byte[]));
         }
 
         private static void Camera_OnDepthFrameArrived()
@@ -63,6 +75,8 @@ namespace Client
         private static void Camera_OnBodyFrameArrived()
         {
             var bodyData = camera.GetData(CameraDataType.Body);
+
+            //tcpClient.Send(new MessageSkeleton);
         }
         
 

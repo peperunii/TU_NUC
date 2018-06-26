@@ -60,7 +60,7 @@ namespace Network.Messages
                         return new MessageCalibrationRequest();
 
                     case MessageType.ColorFrame:
-                        return null;
+                        return new MessageColorFrame(messageArr.SubArray(6));
 
                     case MessageType.DepthFrame:
                         return null;
@@ -97,6 +97,13 @@ namespace Network.Messages
         public static T[] SubArray<T>(this T[] data, int index)
         {
             var length = data.Length - index;
+            T[] result = new T[length];
+            Array.Copy(data, index, result, 0, length);
+            return result;
+        }
+
+        public static T[] SubArray<T>(this T[] data, int index, int length)
+        {
             T[] result = new T[length];
             Array.Copy(data, index, result, 0, length);
             return result;

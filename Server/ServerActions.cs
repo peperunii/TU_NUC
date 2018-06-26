@@ -64,6 +64,16 @@ namespace Server
                             LogType.Warning, 
                             "Received Info Message: " + message.info as string);
                         break;
+
+                    case MessageType.ColorFrame:
+                        LogManager.LogMessage(
+                            LogType.Warning,
+                            "Received Color Frame: (" 
+                            + (message as MessageColorFrame).Height
+                            + ", "
+                            + (message as MessageColorFrame).Width
+                            + ")");
+                        break;
                 }
             }
         }
