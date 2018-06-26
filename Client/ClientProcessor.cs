@@ -1,4 +1,5 @@
-﻿using Network;
+﻿using Client.Cameras;
+using Network;
 using Network.Discovery;
 using Network.Logger;
 using Network.Messages;
@@ -21,12 +22,19 @@ namespace Client
         private static TcpNetworkClient tcpClient;
         private static ConnectionSettings connectionSettings;
         private static long lastServerHeartbeat;
+        private static KinectCamera camera;
 
         public static void Start()
         {
             networkWorker = new DiscoverySender();
             networkWorker.ServerFound += NetworkWorker_ServerFound;
             networkWorker.FindServer();
+
+            camera = new KinectCamera();
+            camera.OnColorFrameArrived += Camera_OnColorFrameArrived;
+            camera.OnDepthFrameArrived += Camera_OnDepthFrameArrived;
+            camera.OnIRFrameArrived += Camera_OnIRFrameArrived;
+            camera.OnBodyFrameArrived += Camera_OnBodyFrameArrived;
 
             while (true)
             {
@@ -35,6 +43,28 @@ namespace Client
                 Thread.Sleep(1);
             }
         }
+        
+        /*Camera Events*/
+
+        private static void Camera_OnColorFrameArrived()
+        {
+            var colorData = camera.GetData(CameraDataType.Color);
+        }
+
+        private static void Camera_OnDepthFrameArrived()
+        {
+            var depthData = camera.GetData(CameraDataType.Depth);
+        }
+        
+        private static void Camera_OnIRFrameArrived()
+        {
+            var irData = camera.GetData(CameraDataType.IR);
+        }
+        private static void Camera_OnBodyFrameArrived()
+        {
+            var bodyData = camera.GetData(CameraDataType.Body);
+        }
+        
 
         private static void NetworkWorker_ServerFound(object source, Network.Events.ServerFoundEventArgs e)
         {
