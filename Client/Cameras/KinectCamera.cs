@@ -11,6 +11,7 @@ using System.IO;
 using Emgu.CV;
 using Emgu.CV.Structure;
 using Emgu.CV.CvEnum;
+using Network.Logger;
 
 namespace Client.Cameras
 {
@@ -32,6 +33,10 @@ namespace Client.Cameras
         private Image<Bgr, Byte> colorImage = null;
         private Image<Gray, ushort> depthImage = null;
         private Image<Gray, ushort> irImage = null;
+
+        private byte[] colorImageByteArr = null;
+        private ushort[] depthImageUshortArr = null;
+        private ushort[] irImageUshortArr = null;
 
         /*IR settings*/
         private const float InfraredSourceScale = 0.75f;
@@ -72,9 +77,9 @@ namespace Client.Cameras
             this.bodyFrameReader = this.kinectSensor.BodyFrameSource.OpenReader();
 
             this.colorFrameReader.FrameArrived += this.ColorFrameReader_FrameArrived;
-            this.depthFrameReader.FrameArrived += this.DepthFrameReader_FrameArrived;
-            this.irFrameReader.FrameArrived += this.IrFrameReader_FrameArrived;
-            this.bodyFrameReader.FrameArrived += this.BodyFrameReader_FrameArrived;
+            //this.depthFrameReader.FrameArrived += this.DepthFrameReader_FrameArrived;
+            //this.irFrameReader.FrameArrived += this.IrFrameReader_FrameArrived;
+            //this.bodyFrameReader.FrameArrived += this.BodyFrameReader_FrameArrived;
 
             this.colorFrameDescription = this.kinectSensor.ColorFrameSource.CreateFrameDescription(ColorImageFormat.Bgra);
             this.colorImage = new Image<Bgr, byte>(colorFrameDescription.Width, colorFrameDescription.Height);
@@ -123,25 +128,27 @@ namespace Client.Cameras
             {
                 if (colorFrame != null)
                 {
-                    FrameDescription colorFrameDescription = colorFrame.FrameDescription;
-
                     using (KinectBuffer colorBuffer = colorFrame.LockRawImageBuffer())
                     {
                         // verify data and write the new color frame data to the display bitmap
 
-                        var dataSize = colorFrameDescription.Width * colorFrameDescription.Height * 4;
-                        var byteArr = new byte[dataSize];
+                        var dataSize = this.colorFrameDescription.Width * this.colorFrameDescription.Height * 2;
+                        this.colorImageByteArr = new byte[dataSize];
 
-                        fixed (byte* p = byteArr)
+                        //colorFrame.CopyConvertedFrameDataToArray(byteArr, ColorImageFormat.Bgra);
+                        //var multiByteArr = this.ConvertSingleToMultiArr(byteArr, this.colorFrameDescription.Width, this.colorFrameDescription.Height);
+
+                        fixed (byte* frameData = &this.colorImageByteArr[0])
                         {
-                            IntPtr ptr = (IntPtr)p;
-                            colorFrame.CopyRawFrameDataToIntPtr(ptr, (uint)dataSize);
+                            IntPtr ptr = (IntPtr)frameData;
 
-                            this.colorImage = new Image<Bgr, byte>(colorFrameDescription.Width, colorFrameDescription.Height, colorFrameDescription.Width * 4, ptr);
-                            if (this.colorScale != 1)
-                            {
-                                this.colorImage = this.colorImage.Resize(this.colorScale, Inter.Cubic);
-                            }
+                            colorFrame.CopyRawFrameDataToIntPtr(ptr, (uint)dataSize);
+                            //this.colorImage = new Image<Bgr, byte>(1920, 1080, 1920 * 4, ptr);
+                            //
+                            //if (this.colorScale != 1)
+                            //{
+                            //    this.colorImage = this.colorImage.Resize(this.colorScale, Inter.Cubic);
+                            //}
                         }
                     }
 
@@ -153,6 +160,24 @@ namespace Client.Cameras
                     }
                 }
             }
+        }
+
+        private byte[,,] ConvertSingleToMultiArr(byte[] byteArr, int width, int height)
+        {
+            var multiByteArr = new byte[height, width, 3];
+
+            for(int i = 0; i < height; i++)
+            {
+                for(int j = 0; j < width; j++)
+                {
+                    var index = (i * width + j) * 4;
+                    multiByteArr[i, j, 0] = byteArr[index];
+                    multiByteArr[i, j, 1] = byteArr[index + 1];
+                    multiByteArr[i, j, 2] = byteArr[index + 2];
+                }
+            }
+
+            return multiByteArr;
         }
 
         private unsafe void DepthFrameReader_FrameArrived(object sender, DepthFrameArrivedEventArgs e)
@@ -299,21 +324,18 @@ namespace Client.Cameras
         
         private unsafe byte[] GetColorImageByteArr()
         {
-            var byteArr = this.colorImage.Data;
-            var totalBufferSize = 
-                this.colorImage.Width * 
-                this.colorImage.Height * 
-                this.colorImage.NumberOfChannels;
+            return this.colorImageByteArr;
 
-            var curIndex = 0;
-
-            for (int i = 0; i < totalBufferSize; ++i)
+            if (this.colorImage != null)
             {
-                if (i % 3 == 0) continue;
-                byteArr[curIndex++] = dataPointer[i];
-            }
+                var byteArr = this.colorImage.Data;
+                byte[] baData = new byte[byteArr.Length];
 
-            return byteArr;
+                Buffer.BlockCopy(byteArr, 0, baData, 0, byteArr.Length);
+
+                return baData;
+            }
+            else return null;
         }
 
         private byte [] Serialize(object objToSerialize, CameraDataType type)

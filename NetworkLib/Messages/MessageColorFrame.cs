@@ -33,26 +33,30 @@ namespace Network.Messages
         {
             this.type = MessageType.ColorFrame;
             this.Height = BitConverter.ToInt32(colorFrameInfo.SubArray(0, 4), 0);
-            this.Height = BitConverter.ToInt32(colorFrameInfo.SubArray(4, 4), 0);
-            this.IsCompressed = BitConverter.ToBoolean(colorFrameInfo.SubArray(8, 1), 0);
+            this.Width = BitConverter.ToInt32(colorFrameInfo.SubArray(4, 4), 0);
+            this.Channels = BitConverter.ToInt32(colorFrameInfo.SubArray(8, 4), 0);
+            this.IsCompressed = BitConverter.ToBoolean(colorFrameInfo.SubArray(12, 1), 0);
 
-            this.info = colorFrameInfo.SubArray(9);
-
-            LogManager.LogMessage(LogType.Info, "Received ColorFrame");
+            this.info = colorFrameInfo.SubArray(13);
         }
 
         public override byte[] Serialize()
         {
             var bytes = this.GetBytesForNumberShort((ushort)this.type);
             var bytesInfo = this.GetBytesOfInfo();
-            var lenghtInfoBytes = this.GetBytesForNumberInt((int)bytesInfo.Length);
+            var lenghtInfoBytes = this.GetBytesForNumberInt(bytesInfo.Length);
 
-            return bytes.Concat(lenghtInfoBytes.Concat(bytesInfo)).ToArray();
+            var result = bytes.Concat(lenghtInfoBytes.Concat(bytesInfo)).ToArray();
+            
+            return result;
         }
 
         private byte[] GetBytesOfInfo()
         {
-            this.info = BitConverter.GetBytes(this.Height).Concat(BitConverter.GetBytes(this.Width).Concat(BitConverter.GetBytes(this.Channels).Concat(BitConverter.GetBytes(this.IsCompressed))));
+            var time = DateTime.Now;
+            this.info = (BitConverter.GetBytes(this.Height).Concat(BitConverter.GetBytes(this.Width).Concat(BitConverter.GetBytes(this.Channels).Concat(BitConverter.GetBytes(this.IsCompressed).Concat(this.info as byte []))))).ToArray();
+            var timeSpan = (DateTime.Now - time).TotalMilliseconds;
+
             return this.info as byte [];
         }
     }

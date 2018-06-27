@@ -39,28 +39,32 @@ namespace Network.Logger
             LogManager.database = new DB(false, true);
         }
 
-        public static void LogMessage(LogType logType, string message)
+        public static async void LogMessage(LogType logType, string message)
         {
-            var messageLog = string.Format("{0}: [{1}] {2}", DateTime.Now, logType, message);
+            await Task.Run(() =>
+            {
+                var time = DateTime.Now;
+                var messageLog = string.Format("{0},{1}: [{2}] {3}", time, time.Millisecond, logType, message);
 
-            if(LogManager.showConsole)
-            {
-                Console.WriteLine(messageLog);
-            }
-            if(LogManager.saveInFile)
-            {
-                File.AppendAllText(LogManager.logFilename, messageLog + "\n");
-            }
-            if(LogManager.saveinDB)
-            {
-                LogManager.database.Query(
-                    string.Format(
-                        QueryStrings.Insert_Into_Table_ServerEvents, 
-                        DateTime.Now.ToFileTimeUtc(), 
-                        Configuration.DeviceID, 
-                        logType, 
-                        "'" + message + "'"));
-            }
+                if (LogManager.showConsole)
+                {
+                    Console.WriteLine(messageLog);
+                }
+                if (LogManager.saveInFile)
+                {
+                    File.AppendAllText(LogManager.logFilename, messageLog + "\n");
+                }
+                if (LogManager.saveinDB)
+                {
+                    LogManager.database.Query(
+                        string.Format(
+                            QueryStrings.Insert_Into_Table_ServerEvents,
+                            DateTime.Now.ToFileTimeUtc(),
+                            Configuration.DeviceID,
+                            logType,
+                            "'" + message + "'"));
+                }
+            });
         }
     }
 }

@@ -3,6 +3,7 @@ using Network.Messages;
 using Network.TCP;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -50,7 +51,8 @@ namespace NetworkLib.TCP
             {
                 _Listener = new TcpListener(IPAddress.Parse(IpAddress), Port);
                 _Listener.Start();
-        
+
+                LogManager.LogMessage(LogType.Info, "TCP connection in port: " + Port);
                 Thread lThread = new Thread(new ThreadStart(LoopWaitingForClientsToConnect));
                 lThread.IsBackground = true;
                 lThread.Name = ThreadName + "WaitingForClients";
@@ -91,7 +93,10 @@ namespace NetworkLib.TCP
                     lThread.Start(lClient);
                 }
             }
-            catch (Exception ex) { LogManager.LogMessage(LogType.Error, ex.ToString()); }
+            catch (Exception ex)
+            {
+                LogManager.LogMessage(LogType.Error, ex.ToString());
+            }
             finally
             {
                 _ExitLoop = true;
@@ -110,10 +115,13 @@ namespace NetworkLib.TCP
                 try
                 {
                     var msg = MessageParser.GetMessageFromBytArr(GetBytArrFromNetworkStream(lNetworkStream));
-                    //fire event
-                    dOnMessage lEvent = OnMessage;
-                    if (lEvent == null) continue;
-                    lEvent(lClient, msg);
+                    if (msg != null)
+                    {
+                        //fire event
+                        dOnMessage lEvent = OnMessage;
+                        if (lEvent == null) continue;
+                        lEvent(lClient, msg);
+                    }
                 }
                 catch (System.IO.IOException)
                 {
@@ -132,15 +140,20 @@ namespace NetworkLib.TCP
             this.Disconnect();
             this.Connect();
         }
-
+        
         private byte[] GetBytArrFromNetworkStream(NetworkStream _NetworkStream)
         {
             byte[] lHeader = new byte[2];
 
-            if (_NetworkStream.Read(lHeader, 0, 2) != 2) return null;
+            if (_NetworkStream.Read(lHeader, 0, 2) != 2)
+                return null;
 
             var messageType = (MessageType)BitConverter.ToInt16(lHeader, 0);
-
+            
+            if((ushort)messageType > Enum.GetValues(typeof(MessageType)).Length)
+            {
+                return null;
+            }
             switch (messageType)
             {
                 case MessageType.KeepAlive:
@@ -157,14 +170,26 @@ namespace NetworkLib.TCP
                     return lHeader;
 
                 default:
-                    var dataLength = new byte[4];
-                    if (_NetworkStream.Read(dataLength, 0, 4) != 4) return null;
-                    var dataSize = BitConverter.ToInt32(dataLength, 0);
-                    var data = new byte[dataSize];
-
-                    if (_NetworkStream.Read(data, 0, dataSize) != dataSize) return null;
-
-                    return lHeader.Concat(dataLength.Concat(data)).ToArray();
+                    try
+                    {
+                        var dataLength = new byte[4];
+                        _NetworkStream.Read(dataLength, 0, 4);
+                        
+                        var dataSize = BitConverter.ToInt32(dataLength, 0);
+                        if (dataSize < 0)
+                        {
+                            return null;
+                        }
+                        var data = new byte[dataSize];
+                        
+                        if (_NetworkStream.Read(data, 0, dataSize) != dataSize) return null;
+                        var fullMessage = lHeader.Concat(dataLength.Concat(data)).ToArray();
+                        return fullMessage;
+                    }
+                    catch (Exception ex)
+                    {
+                        return null;
+                    }
             }
         }
 

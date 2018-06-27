@@ -12,6 +12,9 @@ namespace Network
 {
     public static class Configuration
     {
+        public static bool IsServerDisconnected = false;
+        public static int MAX_MESSAGES_IN_QUEUE = 100;
+
         public static IPAddress DeviceIP;
         public static DeviceID DeviceID;
         public static ushort DiscoveryPort;

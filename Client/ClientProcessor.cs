@@ -57,10 +57,17 @@ namespace Client
             camera.OnBodyFrameArrived += Camera_OnBodyFrameArrived;
         }
 
+        private static int frameCounter = 0;
         private static void Camera_OnColorFrameArrived()
         {
-            var colorData = camera.GetData(CameraDataType.Color);
-            tcpClient.Send(new MessageColorFrame(1080, 1920, 3, false, colorData as byte[]));
+            if (!Configuration.IsServerDisconnected)
+            {
+                LogManager.LogMessage(LogType.Info, "Sending color frame...");
+                var colorData = camera.GetData(CameraDataType.Color);
+                var messageColorFrame = new MessageColorFrame(1080, 1920, 3, false, (colorData as byte[]));
+                tcpClient.Send(messageColorFrame);
+                frameCounter++;
+            }
         }
 
         private static void Camera_OnDepthFrameArrived()

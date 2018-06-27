@@ -63,7 +63,9 @@ namespace Network.TCP
                     _Client = new TcpClient();
                     _Client.Connect(IpAddress, Port);
                     _NetworkStream = _Client.GetStream();
-                    
+
+                    Configuration.IsServerDisconnected = false;
+
                     Thread lLoopWrite = new Thread(new ThreadStart(LoopWrite));
                     lLoopWrite.IsBackground = true;
                     lLoopWrite.Name = ThreadName + "Write";
@@ -93,6 +95,12 @@ namespace Network.TCP
         {
             if (message == null) return;
             _Queue.Add(message);
+
+            if(_Queue.Count > Configuration.MAX_MESSAGES_IN_QUEUE)
+            {
+                for(int i = 0; i < _Queue.Count - Configuration.MAX_MESSAGES_IN_QUEUE; i++)
+                    _Queue.Take();
+            }
         }
 
 
@@ -102,10 +110,16 @@ namespace Network.TCP
             {
                 try
                 {
-                    Message lObject = _Queue.Take();
-                    if (lObject == null) break;
-
+                    Message lObject;
+                    var result = _Queue.TryTake(out lObject);
+                    if (result == false || lObject == null)
+                    {
+                        Thread.Sleep(1);
+                        continue;
+                    }
+                    
                     var messageData = lObject.Serialize();
+                    LogManager.LogMessage(LogType.Info, "Sending: " + messageData.Length + " bytes");
                     _NetworkStream.Write(messageData, 0, messageData.Length);
                 }
                 catch (System.IO.IOException)
@@ -118,8 +132,7 @@ namespace Network.TCP
             _ExitLoop = true;
             LogManager.LogMessage(LogType.Error, "Writer is shutting down");
         }
-
-
+        
         private void LoopRead()
         {
             while (!_ExitLoop)
@@ -132,7 +145,7 @@ namespace Network.TCP
                     if (lEvent == null) continue;
                     lEvent(msg);
                 }
-                catch (System.IO.IOException)
+                catch (System.IO.IOException ex)
                 {
                     if (_ExitLoop) LogManager.LogMessage(LogType.Error, "User requested client shutdown.");
                     else LogManager.LogMessage(LogType.Error, "Disconnected");
@@ -146,6 +159,7 @@ namespace Network.TCP
 
         private void RestartClient()
         {
+            Configuration.IsServerDisconnected = true;
             Console.WriteLine("Restarting ...");
 
             Thread.Sleep(3000);
