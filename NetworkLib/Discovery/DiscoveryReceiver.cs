@@ -82,7 +82,7 @@ namespace Network.Discovery
             }
             catch (Exception ex)
             {
-
+                LogManager.LogMessage(LogType.Error, ex.ToString());
             }
         }
 

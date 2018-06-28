@@ -54,7 +54,8 @@ namespace Network.Discovery
                 IPEndPoint ip = new IPEndPoint(IPAddress.Any, Configuration.DiscoveryPort);
                 byte[] bytes = client.EndReceive(ar, ref ip);
                 var message = MessageParser.GetMessageFromBytArr(bytes);
-                
+
+                Console.Write("Received Message: " + message.type);
                 switch (message.type)
                 {
                     case MessageType.DiscoveryResponse:
@@ -80,7 +81,7 @@ namespace Network.Discovery
             }
             catch (Exception ex)
             {
-
+                LogManager.LogMessage(LogType.Error, ex.ToString());
             }
         }
 
