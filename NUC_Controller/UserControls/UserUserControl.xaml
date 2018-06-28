@@ -1,0 +1,53 @@
+﻿<UserControl x:Class="NUC_Controller.UserControls.UserUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:NUC_Controller.UserControls"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300"
+             IsTabStop="True"
+             Focusable="True"
+             IsEnabled="{Binding IsEnabled}"
+             ToolTip="{Binding Tooltip}"
+             Width="250" Height="180">
+
+    <UserControl.Resources>
+        <Style TargetType="StackPanel">
+            <Setter Property="Orientation" Value="Horizontal"></Setter>
+            <Setter Property="Margin" Value="5,1,1,1"></Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="1" Background="{Binding BackgroundColor}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition Width="auto"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+
+        <Image Grid.RowSpan="6" Grid.Column="1" Margin="10, 30, 10, 10" Width="50"
+                   Source="../Recources/user.png"></Image>
+
+        <StackPanel Grid.Row="0" Grid.ColumnSpan="2" 
+                    Margin="2,3,2,3" Orientation="Horizontal" HorizontalAlignment="Center">
+            <TextBlock FontSize="13" FontWeight="Bold"
+                           VerticalAlignment="Center">User:</TextBlock>
+            <TextBlock Margin="7,0,0,0" FontWeight="Bold" Text="{Binding Username}"
+                           VerticalAlignment="Center"></TextBlock>
+        </StackPanel>
+
+        <StackPanel Grid.Row="2">
+            <TextBlock FontSize="12">Type:</TextBlock>
+            <TextBlock Margin="5,0,0,0" FontWeight="Bold" Text="{Binding Type}"></TextBlock>
+        </StackPanel>
+
+
+    </Grid>
+</UserControl>

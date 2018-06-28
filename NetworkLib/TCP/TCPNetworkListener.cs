@@ -15,6 +15,8 @@ namespace NetworkLib.TCP
 {
     public class TcpNetworkListener
     {
+        private static List<MessageType> messagesWithHeaderOnly = null;
+
         private bool _ExitLoop = true;
         private TcpListener _Listener;
         public delegate void dOnMessage(object xSender, Message message);
@@ -36,6 +38,42 @@ namespace NetworkLib.TCP
             Port = xPort;
             IpAddress = xIpAddress;
             ThreadName = xThreadName;
+
+            /*Reflection - find all Clild Messages classes and which of them are headerOnly*/
+            if (messagesWithHeaderOnly == null)
+            {
+                messagesWithHeaderOnly = new List<MessageType>();
+
+                var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+                foreach (var assembly in assemblies)
+                {
+                    if (!assembly.FullName.Contains("NetworkLib")) continue;
+                    var types = assembly.GetTypes();
+
+                    foreach (var type in types)
+                    {
+                        if (type.IsSubclassOf(typeof(Message)))
+                        {
+                            try
+                            {
+                                dynamic instance =
+                                Convert.ChangeType(
+                                    assembly.CreateInstance(type.ToString()),
+                                    type);
+
+                                if (instance.isHeaderOnly)
+                                {
+                                    messagesWithHeaderOnly.Add(instance.type);
+                                }
+                            }
+                            catch (Exception)
+                            {
+
+                            }
+                        }
+                    }
+                }
+            }
         }
         
         public bool Connect()
@@ -64,13 +102,13 @@ namespace NetworkLib.TCP
             return false;
         }
 
-        public void Disconnect()
+        public void Disconnect(TcpClient client)
         {
             _ExitLoop = true;
             lock (_clients)
             {
-                foreach (TcpClient lClient in _clients) lClient.Close();
-                _clients.Clear();
+                client.Close();
+                _clients.Remove(client);
             }
         }
 
@@ -127,17 +165,17 @@ namespace NetworkLib.TCP
                 {
                     if (_ExitLoop) LogManager.LogMessage(LogType.Error, "User requested client shutdown");
                     else LogManager.LogMessage(LogType.Error, "Disconnected");
-                    this.RestartClient();
+                    this.RestartClient(lClient);
                 }
-                catch (Exception ex) { this.RestartClient(); LogManager.LogMessage(LogType.Error, ex.ToString()); }
+                catch (Exception ex) { this.RestartClient(lClient); LogManager.LogMessage(LogType.Error, ex.ToString()); }
             }
             LogManager.LogMessage(LogType.Error, "Listener is shutting down");
         }
 
-        private void RestartClient()
+        private void RestartClient(TcpClient client)
         {
             Console.WriteLine("Restarting ...");
-            this.Disconnect();
+            this.Disconnect(client);
             this.Connect();
         }
         
@@ -154,42 +192,32 @@ namespace NetworkLib.TCP
             {
                 return null;
             }
-            switch (messageType)
+            if (messagesWithHeaderOnly.Contains(messageType))
             {
-                case MessageType.KeepAlive:
-                case MessageType.ReloadConfiguration:
-                case MessageType.RestartClientApp:
-                case MessageType.RestartClientDevice:
-                case MessageType.RestartServerApp:
-                case MessageType.RestartServerDevice:
-                case MessageType.SkeletonRequest:
-                case MessageType.ColorFrameRequest:
-                case MessageType.DepthFrameRequest:
-                case MessageType.IRFrameRequest:
-                case MessageType.TimeSyncRequest:
-                    return lHeader;
+                return lHeader;
+            }
+            else
+            {
+                try
+                {
+                    var dataLength = new byte[4];
+                    _NetworkStream.Read(dataLength, 0, 4);
 
-                default:
-                    try
-                    {
-                        var dataLength = new byte[4];
-                        _NetworkStream.Read(dataLength, 0, 4);
-                        
-                        var dataSize = BitConverter.ToInt32(dataLength, 0);
-                        if (dataSize < 0)
-                        {
-                            return null;
-                        }
-                        var data = new byte[dataSize];
-                        
-                        if (_NetworkStream.Read(data, 0, dataSize) != dataSize) return null;
-                        var fullMessage = lHeader.Concat(dataLength.Concat(data)).ToArray();
-                        return fullMessage;
-                    }
-                    catch (Exception ex)
+                    var dataSize = BitConverter.ToInt32(dataLength, 0);
+                    if (dataSize < 0)
                     {
                         return null;
                     }
+                    var data = new byte[dataSize];
+
+                    if (_NetworkStream.Read(data, 0, dataSize) != dataSize) return null;
+                    var fullMessage = lHeader.Concat(dataLength.Concat(data)).ToArray();
+                    return fullMessage;
+                }
+                catch (Exception ex)
+                {
+                    return null;
+                }
             }
         }
 

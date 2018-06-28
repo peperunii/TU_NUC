@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BitMiracle.LibJpeg.Classic;
-using BitMiracle.LibJpeg;
 using Network.Logger;
 
 namespace Network.Messages
@@ -27,6 +25,7 @@ namespace Network.Messages
             this.Width = width;
             this.Channels = channels;
             this.IsCompressed = isCompressed;
+            
         }
 
         public MessageColorFrame(byte[] colorFrameInfo)

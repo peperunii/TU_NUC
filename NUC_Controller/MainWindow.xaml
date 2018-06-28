@@ -5,8 +5,179 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NUC_Controller"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
-    <Grid>
+        Title="Monitoring" 
+        Loaded="Window_Loaded"
+        Unloaded="Window_Unloaded"
+        WindowStartupLocation="CenterScreen"
         
+        Height="500" Width="900" MinHeight="500" MinWidth="900"
+        KeyDown="Window_PreviewKeyDown"
+        KeyUp="Window_PreviewKeyUp"
+        PreviewKeyUp="Window_PreviewKeyUp">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="22"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition></RowDefinition>
+            <RowDefinition Height="28"></RowDefinition>
+        </Grid.RowDefinitions>
+
+        <Menu Grid.Row="0" Height="22" VerticalAlignment="Top" Background="White">
+            <MenuItem Header="_File">
+                <MenuItem Header="_Export"></MenuItem>
+            </MenuItem>
+
+            <MenuItem Header="_Data">
+                <MenuItem Header="_Refresh" Click="MenuDBRefresh_Click"></MenuItem>
+            </MenuItem>
+            <MenuItem Header="_About" Name="menuAbout" Click="MenuAbout_Click"/>
+
+        </Menu>
+
+        <UniformGrid Grid.Row="1" Rows="1" 
+                     HorizontalAlignment="Stretch" VerticalAlignment="Center" 
+                     Height="46" MaxHeight="46" 
+                     KeyDown="TextBox_KeyDown" PreviewKeyDown="TextBox_KeyDown">
+
+            <Grid>
+                <Label Name="labelNavEvents" Target="{Binding ElementName=navEvents}" Visibility="Collapsed">
+                    <AccessText Foreground="LightGray" TextWrapping="WrapWithOverflow">_Events</AccessText>
+                </Label>
+                <TextBox Margin="5" FontSize="12" Padding="5"
+                       Name="navEvents"
+                       IsReadOnly="True"
+                       SelectionOpacity="0"
+                       Background="Transparent"
+                       TextAlignment="Center"
+                       Cursor="Hand"
+                       ToolTipService.ShowOnDisabled="True"
+                       PreviewMouseDown="TextBox_MouseDown"
+                       GotKeyboardFocus="Nav_GotFocus"                      
+                       MouseEnter="TextBox_MouseEnter"                        
+                       MouseLeave="TextBox_MouseLeave" BorderThickness="0">Events</TextBox>
+            </Grid>
+            <Grid>
+                <Label Name="labelNavConfiguration" Target="{Binding ElementName=navConfiguration}"  Visibility="Collapsed">
+                    <AccessText Foreground="LightGray" TextWrapping="WrapWithOverflow">_Configuration</AccessText>
+                </Label>
+                <TextBox Margin="5" FontSize="12" Padding="5"
+                       Name="navConfiguration"
+                       IsReadOnly="True"
+                       SelectionOpacity="0"
+                       Background="Transparent"
+                       TextAlignment="Center"
+                       Cursor="Hand"
+                       ToolTipService.ShowOnDisabled="True"
+                       PreviewMouseDown="TextBox_MouseDown"
+                       GotKeyboardFocus="Nav_GotFocus"
+                       MouseEnter="TextBox_MouseEnter"                            
+                       MouseLeave="TextBox_MouseLeave" BorderThickness="0">Configuration</TextBox>
+            </Grid>
+
+            <Grid>
+                <Label Name="labelNavCalibration" 
+                           Target="{Binding ElementName=navCalibration}"  Visibility="Collapsed">
+                    <AccessText Foreground="LightGray" TextWrapping="WrapWithOverflow">_Calibration</AccessText>
+                </Label>
+                <TextBox Margin="5" FontSize="12" Padding="5"
+                       Name="navCalibration" 
+                       IsReadOnly="True"
+                       SelectionOpacity="0"
+                       Background="Transparent"
+                       TextAlignment="Center"
+                       Cursor="Hand"
+                       GotKeyboardFocus="Nav_GotFocus"
+                       ToolTipService.ShowOnDisabled="True"
+                       PreviewMouseDown="TextBox_MouseDown"
+                       MouseEnter="TextBox_MouseEnter"
+                       MouseLeave="TextBox_MouseLeave" BorderThickness="0">Calibration</TextBox>
+            </Grid>
+
+            <Grid>
+                <Label Name="labelNavBodies" 
+                           Target="{Binding ElementName=navBodies}"  Visibility="Collapsed">
+                    <AccessText Foreground="LightGray" TextWrapping="WrapWithOverflow">_Bodies</AccessText>
+                </Label>
+                <TextBox Margin="5" FontSize="12" Padding="5"
+                       Name="navBodies" 
+                       IsReadOnly="True"
+                       SelectionOpacity="0"
+                       Background="Transparent"
+                       TextAlignment="Center"
+                       Cursor="Hand"
+                       GotKeyboardFocus="Nav_GotFocus"
+                       ToolTipService.ShowOnDisabled="True"
+                       PreviewMouseDown="TextBox_MouseDown"
+                       MouseEnter="TextBox_MouseEnter"
+                       MouseLeave="TextBox_MouseLeave" BorderThickness="0">Bodies</TextBox>
+            </Grid>
+
+            <Grid>
+                <Label Name="labelNavFaces" 
+                           Target="{Binding ElementName=navFaces}"  Visibility="Collapsed">
+                    <AccessText Foreground="LightGray" TextWrapping="WrapWithOverflow">_Faces</AccessText>
+                </Label>
+                <TextBox Margin="5" FontSize="12" Padding="5"
+                       Name="navFaces" 
+                       IsReadOnly="True"
+                       SelectionOpacity="0"
+                       Background="Transparent"
+                       TextAlignment="Center"
+                       Cursor="Hand"
+                       GotKeyboardFocus="Nav_GotFocus"
+                       ToolTipService.ShowOnDisabled="True"
+                       PreviewMouseDown="TextBox_MouseDown"
+                       MouseEnter="TextBox_MouseEnter"
+                       MouseLeave="TextBox_MouseLeave" BorderThickness="0">Faces</TextBox>
+            </Grid>
+            
+            <Grid>
+                <Label Name="labelNavUsers" 
+                           Target="{Binding ElementName=navUsers}"  Visibility="Collapsed">
+                    <AccessText Foreground="LightGray" TextWrapping="WrapWithOverflow">)Users</AccessText>
+                </Label>
+                <TextBox Margin="5" FontSize="12" Padding="5"
+                       Name="navUsers" 
+                       IsReadOnly="True"
+                       SelectionOpacity="0"
+                       Background="Transparent"
+                       TextAlignment="Center"
+                       Cursor="Hand"
+                       GotKeyboardFocus="Nav_GotFocus"
+                       ToolTipService.ShowOnDisabled="True"
+                       PreviewMouseDown="TextBox_MouseDown"
+                       MouseEnter="TextBox_MouseEnter"
+                       MouseLeave="TextBox_MouseLeave" BorderThickness="0">Users</TextBox>
+            </Grid>
+            <Grid Visibility="Collapsed">
+                <TextBox
+                       Margin="5" FontSize="12" Padding="5"
+                       Name="navLogo" 
+                       IsReadOnly="True"
+                       SelectionOpacity="0"
+                       Background="Transparent"
+                       TextAlignment="Center"
+                       Cursor="Hand"
+                       ToolTipService.ShowOnDisabled="True"
+                       GotKeyboardFocus="Nav_GotFocus"
+                       MouseEnter="TextBox_MouseEnter"
+                       MouseLeave="TextBox_MouseLeave" BorderThickness="0">Logo</TextBox>
+            </Grid>
+        </UniformGrid>
+
+        <Frame Grid.Row="2" Name="framePresenter"  Margin="5" IsTabStop="False" Focusable="False"    
+                   NavigationUIVisibility="Hidden">
+            <!--==<Frame.Background>
+                <ImageBrush ImageSource="Recources/tulabLogo.jpg"  Stretch="None" AlignmentX="Center" AlignmentY="Center"/>
+            </Frame.Background>
+            -->
+        </Frame>
+
+        <Border x:Name="notificationPanel" Grid.Row="3" BorderThickness="1" BorderBrush="LightGreen">
+            <DockPanel VerticalAlignment="Center" HorizontalAlignment="Left">
+                <TextBlock x:Name="staticTextNotifications"></TextBlock>
+                <TextBlock x:Name="textNotifications" ></TextBlock>
+            </DockPanel>
+        </Border>
     </Grid>
 </Window>

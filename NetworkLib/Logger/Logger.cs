@@ -61,8 +61,9 @@ namespace Network.Logger
                             QueryStrings.Insert_Into_Table_ServerEvents,
                             DateTime.Now.ToFileTimeUtc(),
                             Configuration.DeviceID,
+                            Configuration.DeviceIP,
                             logType,
-                            "'" + message + "'"));
+                            message));
                 }
             });
         }

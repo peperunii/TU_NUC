@@ -1,0 +1,76 @@
+﻿<Page x:Class="NUC_Controller.Pages.UsersPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:NUC_Controller.Pages"
+      xmlns:uc="clr-namespace:NUC_Controller.UserControls"
+      mc:Ignorable="d" 
+      d:DesignHeight="400" d:DesignWidth="600"
+      KeyUp="PageKeyUp"
+      Loaded="PageLoaded"
+	  Title="UsersPage">
+
+    <Page.Resources>
+        <DataTemplate x:Key="UserDataTemplate">
+            <uc:UserUserControl></uc:UserUserControl>
+        </DataTemplate>
+    </Page.Resources>
+
+    <Grid Focusable="False">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"></RowDefinition>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition Width="250"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+
+        <UniformGrid Grid.Row="0" Grid.Column="0" Rows="1" >
+            <Button Name="buttonAdd" Margin="5" Click="ButtonAddClick" ToolTipService.ShowOnDisabled="True">_Add</Button>
+            <Button Name="buttonRemove" Margin="5" Click="ButtonRemoveClick" ToolTipService.ShowOnDisabled="True">_Remove</Button>
+            <Button Name="buttonEdit" Margin="5" Click="ButtonEditClick" ToolTipService.ShowOnDisabled="True">_Edit</Button>
+        </UniformGrid>
+
+        <StackPanel Margin="5" Orientation="Horizontal" HorizontalAlignment="Right"
+                    Grid.Row="0" Grid.Column="1">
+            <TextBlock VerticalAlignment="Center" Margin="0,0,5,0">Order by</TextBlock>
+            <ComboBox Name="comboOrderBy"  SelectedIndex="0" VerticalContentAlignment="Center"
+                      Width="150" SelectionChanged="ComboOrderBySelectionChanged">
+            </ComboBox>
+            <Button BorderThickness="0" Background="Transparent"
+                    MouseEnter="ButtonMouseEnter"
+                    MouseLeave="ButtonMouseLeave"
+                    Click="ButtonOrderByClick">
+                <StackPanel HorizontalAlignment="Center"
+                            VerticalAlignment="Center">
+                    <Image Source="../Recources/arrow-up.png" Width="25"
+                           Name="imgUp"></Image>
+                    <Image Source="../Recources/arrow-down.png" Width="25"
+                           Name="imgDown" Visibility="Collapsed"></Image>
+                </StackPanel>
+            </Button>
+        </StackPanel>
+
+        <ListBox Grid.Row="2" Grid.ColumnSpan="2"
+                 HorizontalAlignment="Stretch"
+                 VerticalAlignment="Stretch"                
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                 ScrollViewer.VerticalScrollBarVisibility="Auto"
+                 SelectionMode="Extended"
+                 Margin="1" Name="listboxUsers"
+                 KeyDown="ListboxUsersKeyDown"
+                 MouseDoubleClick="LibtboxUsersMouseDoubleClick"
+                 SelectionChanged="LibtboxUsersSelectionChanged"
+                 ItemTemplate="{StaticResource UserDataTemplate}"
+                 ItemContainerStyle="{DynamicResource PageItemStyle}">
+            <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel IsItemsHost="True" Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+        </ListBox>
+
+    </Grid>
+</Page>

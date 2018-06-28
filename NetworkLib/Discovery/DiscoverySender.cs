@@ -20,6 +20,7 @@ namespace Network.Discovery
 
         public void FindServer()
         {
+            Console.WriteLine(string.Format("{0}: {1}", Configuration.DeviceIP, Configuration.DiscoveryPort));
             this.client = new UDPClient(new IPEndPoint(Configuration.DeviceIP, Configuration.DiscoveryPort));
             var messageDiscovery = new MessageDiscovery().Serialize();
             

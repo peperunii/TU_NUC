@@ -10,7 +10,7 @@ namespace Network.Messages
     {
         public MessageCalibrationRequest()
         {
-            this.type = MessageType.RestartServerDevice;
+            this.type = MessageType.CalibrationRequest;
             this.info = null;
         }
 

@@ -30,11 +30,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="BitMiracle.LibJpeg.NET, Version=1.4.280.0, Culture=neutral, PublicKeyToken=53879b3e20e7a7d6, processorArchitecture=MSIL">
-      <HintPath>..\packages\BitMiracle.LibJpeg.NET.1.4.280\lib\net20\BitMiracle.LibJpeg.NET.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.Win32.Primitives, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Win32.Primitives.4.0.1\lib\net46\Microsoft.Win32.Primitives.dll</HintPath>
+    </Reference>
+    <Reference Include="Npgsql, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5d8b90d52f46fda7, processorArchitecture=MSIL">
+      <HintPath>..\packages\Npgsql.4.0.0\lib\net451\Npgsql.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.AppContext, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -73,6 +73,9 @@
       <HintPath>..\packages\System.Net.Sockets.4.1.0\lib\net46\System.Net.Sockets.dll</HintPath>
     </Reference>
     <Reference Include="System.Numerics" />
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.0\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
     <Reference Include="System.Runtime.InteropServices.RuntimeInformation, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Runtime.InteropServices.RuntimeInformation.4.0.0\lib\net45\System.Runtime.InteropServices.RuntimeInformation.dll</HintPath>
       <Private>True</Private>
@@ -91,6 +94,13 @@
     <Reference Include="System.Security.Cryptography.X509Certificates, Version=4.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Security.Cryptography.X509Certificates.4.1.0\lib\net461\System.Security.Cryptography.X509Certificates.dll</HintPath>
     </Reference>
+    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Threading.Tasks.Extensions.4.5.0\lib\netstandard2.0\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ValueTuple">
+      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net461\System.ValueTuple.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -100,6 +110,7 @@
   <ItemGroup>
     <Compile Include="Configuration.cs" />
     <Compile Include="DeviceID.cs" />
+    <Compile Include="Devices\NUC.cs" />
     <Compile Include="Discovery\DiscoveryReceiver.cs" />
     <Compile Include="Discovery\UDPClient.cs" />
     <Compile Include="Discovery\DiscoverySender.cs" />
@@ -110,11 +121,16 @@
     <Compile Include="Messages\MessageCalibrationRequest.cs" />
     <Compile Include="Messages\MessageColorFrame.cs" />
     <Compile Include="Messages\MessageColorFrameRequest.cs" />
+    <Compile Include="Messages\MessageConnectedClients.cs" />
+    <Compile Include="Messages\MessageDepthFrame.cs" />
     <Compile Include="Messages\MessageDepthFrameRequest.cs" />
     <Compile Include="Messages\MessageDiscoveryResponse.cs" />
     <Compile Include="Messages\Message.cs" />
     <Compile Include="Messages\MessageCalibration.cs" />
     <Compile Include="Messages\MessageDiscovery.cs" />
+    <Compile Include="Messages\MessageGetConfigurationPerClient.cs" />
+    <Compile Include="Messages\MessageGetConnectedClients.cs" />
+    <Compile Include="Messages\MessageIRFrame.cs" />
     <Compile Include="Messages\MessageIRFrameRequest.cs" />
     <Compile Include="Messages\MessageKeepAlive.cs" />
     <Compile Include="Messages\MessageParser.cs" />
@@ -124,6 +140,8 @@
     <Compile Include="Messages\MessageRestartServerApp.cs" />
     <Compile Include="Messages\MessageRestartServerDevice.cs" />
     <Compile Include="Messages\MessageSendInfoToServer.cs" />
+    <Compile Include="Messages\MessageSetConfigurationPerClient.cs" />
+    <Compile Include="Messages\MessageSkeleton.cs" />
     <Compile Include="Messages\MessageSkeletonRequest.cs" />
     <Compile Include="Messages\MessageTimeInfo.cs" />
     <Compile Include="Messages\MessageTimeSync.cs" />

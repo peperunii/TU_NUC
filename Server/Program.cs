@@ -21,7 +21,7 @@ namespace Server
                 LogManager.SetDB(Configuration.logInDB);
                 LogManager.SetFileOutput(Configuration.logFilename, Configuration.logInFile);
 
-                LogManager.LogMessage(LogType.Info, string.Format("Client {0}: Started", Configuration.DeviceID));
+                LogManager.LogMessage(LogType.Info, string.Format("Server: Started", Configuration.DeviceID));
 
                 ServerActions.Listener();
             }

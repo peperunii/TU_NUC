@@ -16,10 +16,15 @@
         RestartServerDevice,//
         ReloadConfiguration, //
 
+        ConnectedClients,    //
+        GetConnectedClients,  //
+        GetConfigurationPerClient, //
+        SetConfigurationPerClient, //
+
         Calibration,
         CalibrationRequest, //
         
-        ColorFrame,        
+        ColorFrame,         //
         DepthFrame,
         IRFrame,
         Skeleton,

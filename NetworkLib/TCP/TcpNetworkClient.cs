@@ -8,11 +8,14 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Network.Logger;
+using System.Reflection;
 
 namespace Network.TCP
 {
     public class TcpNetworkClient
     {
+        private static List<MessageType> messagesWithHeaderOnly = null;
+
         public int Port { get; private set; }
         public string IpAddress { get; private set; }
         public string ThreadName { get; private set; }
@@ -31,6 +34,42 @@ namespace Network.TCP
             Port = xPort;
             IpAddress = xIpAddress;
             ThreadName = xThreadName;
+
+            /*Reflection - find all Clild Messages classes and which of them are headerOnly*/
+            if (messagesWithHeaderOnly == null)
+            {
+                messagesWithHeaderOnly = new List<MessageType>();
+
+                var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+                foreach (var assembly in assemblies)
+                {
+                    if (!assembly.FullName.Contains("NetworkLib")) continue;
+                    var types = assembly.GetTypes();
+
+                    foreach (var type in types)
+                    {
+                        if (type.IsSubclassOf(typeof(Message)))
+                        {
+                            try
+                            {
+                                dynamic instance =
+                                Convert.ChangeType(
+                                    assembly.CreateInstance(type.ToString()),
+                                    type);
+
+                                if (instance.isHeaderOnly)
+                                {
+                                    messagesWithHeaderOnly.Add(instance.type);
+                                }
+                            }
+                            catch (Exception)
+                            {
+
+                            }
+                        }
+                    }
+                }
+            }
         } //
 
         public void Connect(TcpClient client)
@@ -117,7 +156,8 @@ namespace Network.TCP
                         Thread.Sleep(1);
                         continue;
                     }
-                    
+
+                    LogManager.LogMessage(LogType.Info, "Sending... ");
                     var messageData = lObject.Serialize();
                     LogManager.LogMessage(LogType.Info, "Sending: " + messageData.Length + " bytes");
                     _NetworkStream.Write(messageData, 0, messageData.Length);
@@ -181,30 +221,20 @@ namespace Network.TCP
 
             var messageType = (MessageType)BitConverter.ToInt16(lHeader, 0);
 
-            switch(messageType)
+            if (messagesWithHeaderOnly.Contains(messageType))
             {
-                case MessageType.KeepAlive:
-                case MessageType.ReloadConfiguration:
-                case MessageType.RestartClientApp:
-                case MessageType.RestartClientDevice:
-                case MessageType.RestartServerApp:
-                case MessageType.RestartServerDevice:
-                case MessageType.SkeletonRequest:
-                case MessageType.ColorFrameRequest:
-                case MessageType.DepthFrameRequest:
-                case MessageType.IRFrameRequest:
-                case MessageType.TimeSyncRequest:
-                    return lHeader;
+                return lHeader;
+            }
+            else
+            {
+                var dataLength = new byte[4];
+                if (_NetworkStream.Read(dataLength, 0, 4) != 4) return null;
+                var dataSize = BitConverter.ToInt32(dataLength, 0);
+                var data = new byte[dataSize];
 
-                default:
-                    var dataLength = new byte[4];
-                    if(_NetworkStream.Read(dataLength, 0, 4) != 4) return null;
-                    var dataSize = BitConverter.ToInt32(dataLength, 0);
-                    var data = new byte[dataSize];
+                if (_NetworkStream.Read(data, 0, dataSize) != dataSize) return null;
 
-                    if (_NetworkStream.Read(data, 0, dataSize) != dataSize) return null;
-
-                    return lHeader.Concat(dataLength.Concat(data)).ToArray();
+                return lHeader.Concat(dataLength.Concat(data)).ToArray();
             }
         }
     }

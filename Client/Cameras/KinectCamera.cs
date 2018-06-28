@@ -34,9 +34,9 @@ namespace Client.Cameras
         private Image<Gray, ushort> depthImage = null;
         private Image<Gray, ushort> irImage = null;
 
-        private byte[] colorImageByteArr = null;
-        private ushort[] depthImageUshortArr = null;
-        private ushort[] irImageUshortArr = null;
+        public byte[] colorImageByteArr = null;
+        public ushort[] depthImageUshortArr = null;
+        public ushort[] irImageUshortArr = null;
 
         /*IR settings*/
         private const float InfraredSourceScale = 0.75f;

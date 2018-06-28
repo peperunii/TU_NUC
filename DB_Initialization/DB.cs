@@ -59,9 +59,21 @@ namespace DB_Initialization
                 if (Program.showInfo) Console.WriteLine("Creating table \"ServerEvents\" ...");
                 this.Query(QueryStrings.create_Table_ServerEvents);
 
+                if (Program.showInfo) Console.WriteLine("Creating table \"KinectBodies\" ...");
+                this.Query(QueryStrings.create_Table_KinectBodies);
+
+                if (Program.showInfo) Console.WriteLine("Creating table \"Faces\" ...");
+                this.Query(QueryStrings.create_Table_Faces);
+
+                if (Program.showInfo) Console.WriteLine("Creating table \"Calibrations\" ...");
+                this.Query(QueryStrings.create_Table_Calibrations);
+
+                if (Program.showInfo) Console.WriteLine("Creating table \"Users\" ...");
+                this.Query(QueryStrings.create_Table_Users);
+
                 /*Insert Admin User*/
-                //if (Program.showInfo) Console.WriteLine("Creating Admin User ...");
-                //this.Query(string.Format(QueryStrings.Insert_Into_Table_Users, "Admin", Crypto.GetHash("123")));
+                if (Program.showInfo) Console.WriteLine("Creating Admin User ...");
+                this.Query(string.Format(QueryStrings.Insert_Into_Table_Users, "Admin", Crypto.GetHash("123"), "Admin"));
 
                 if (Program.fillInfo)
                 {
@@ -96,7 +108,19 @@ namespace DB_Initialization
 
         private void FillInfo()
         {
+            var sources = new List<string> { "Server", "NUC_1", "NUC_2", "NUC_3" };
+            var eventTypes = new List<string> { "Warning", "Info", "Error" };
+            var messages = new List<string> { "Fake message 1", "Fake message 2", "Fake message 3", "Fake message 4"};
+            var ip = "127.0.0.1";
+            var random = new Random();
             
+            for (int i = 0; i < 100000000; i += 100000)
+            {
+                var source = sources[random.Next(0, sources.Count)];
+                var eventType = eventTypes[random.Next(0, eventTypes.Count)];
+                var message = messages[random.Next(0, messages.Count)];
+                this.Query(string.Format(QueryStrings.Insert_Into_Table_ServerEvents, DateTime.Now.ToFileTimeUtc() + i, source, ip, eventType, message));
+            }
         }
     }
 }

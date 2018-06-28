@@ -38,10 +38,10 @@ namespace Network.Messages
                         
                     /*Restart Requests*/
                     case MessageType.RestartClientApp:
-                        return new MessageRestartClientApp();
+                        return new MessageRestartClientApp(messageArr.SubArray(6));
 
                     case MessageType.RestartClientDevice:
-                        return new MessageRestartClientDevice();
+                        return new MessageRestartClientDevice(messageArr.SubArray(6));
 
                     case MessageType.RestartServerApp:
                         return new MessageRestartServerApp();
@@ -84,6 +84,18 @@ namespace Network.Messages
                         return null;
 
 
+                    case MessageType.GetConfigurationPerClient:
+                        return new MessageGetConfigurationPerClient(messageArr.SubArray(6));
+
+                    case MessageType.GetConnectedClients:
+                        return new MessageGetConnectedClients();
+
+                    case MessageType.ConnectedClients:
+                        return new MessageConnectedClients(messageArr.SubArray(6));
+
+                    case MessageType.SetConfigurationPerClient:
+                        return null;
+                    
                     default:
                         return null;
                 }

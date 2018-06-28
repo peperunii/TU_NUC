@@ -1,0 +1,43 @@
+﻿<Window x:Class="NUC_Controller.Windows.LoginWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:NUC_Controller.Windows"
+        mc:Ignorable="d"
+        Loaded="Window_Loaded"
+        WindowStartupLocation="CenterScreen"
+        Title="Login" Height="190" Width="280"
+        KeyDown="Window_KeyDown">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="35"></RowDefinition>
+            <RowDefinition Height="35"></RowDefinition>
+            <RowDefinition></RowDefinition>
+            <RowDefinition Height="40"></RowDefinition>
+        </Grid.RowDefinitions>
+
+        <DockPanel Grid.Row="1" HorizontalAlignment="Right" Margin="0,0,10,0">
+            <TextBlock Margin="0,0,10,0" Width="80" VerticalAlignment="Center">Username:</TextBlock>
+            <TextBox x:Name="textUsername" Width="150" Height="22"></TextBox>
+        </DockPanel>
+
+        <DockPanel Grid.Row="2" HorizontalAlignment="Right" Margin="0,0,10,0">
+            <TextBlock Margin="0,0,10,0" Width="80" VerticalAlignment="Center">Password:</TextBlock>
+            <PasswordBox  x:Name="textPassword" Width="150" Height="22"></PasswordBox>
+            
+        </DockPanel>
+
+        <DockPanel Grid.Row="4" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0">
+            <Border MouseMove="buttonConnect_MouseMove">
+                <Border.ToolTip>
+                    <ToolTip x:Name="tooltip" Content="DB is not Initialized !"/>
+                </Border.ToolTip>
+                <Button x:Name="buttonConnect" Margin="0,0,10,0" Width="70" Click="buttonConnect_Click">Connect
+                </Button>
+            </Border>
+            <Button x:Name="buttonExit" Width="70" Click="buttonExit_Click">Exit</Button>
+        </DockPanel>
+    </Grid>
+</Window>

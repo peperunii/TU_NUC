@@ -1,4 +1,5 @@
 ﻿using Network;
+using Network.Devices;
 using Network.Discovery;
 using Network.Logger;
 using Network.Messages;
@@ -18,14 +19,14 @@ namespace Server
     {
         public static List<NUC> Devices { get; set; }
         public static Dictionary<DeviceID, TcpNetworkListener> tcpServers;
-
+        
         private static DiscoveryReceiver discoveryServer;
         
         public static void Listener()
         {
             Devices = new List<NUC>();
             tcpServers = new Dictionary<DeviceID, TcpNetworkListener>();
-
+            
             StartDiscoveryServer();
 
             Global.EventDispatcher.AdminStartDiscovery += EventDispatcher_AdminStartDiscovery;
@@ -51,6 +52,10 @@ namespace Server
         {
             if (message != null)
             {
+                LogManager.LogMessage(
+                            LogType.Info,
+                            "Message arrived...");
+
                 var tcpStream = (xSender as TcpClient).GetStream();
                 switch (message.type)
                 {
@@ -65,6 +70,7 @@ namespace Server
                             "Received Info Message: " + message.info as string);
                         break;
 
+                    
                     case MessageType.ColorFrame:
                         LogManager.LogMessage(
                             LogType.Warning,
@@ -73,6 +79,13 @@ namespace Server
                             + ", "
                             + (message as MessageColorFrame).Width
                             + ")");
+                        break;
+
+                    case MessageType.GetConnectedClients:
+                        LogManager.LogMessage(LogType.Info, "Sending Clients info to UI Controller");
+                        LogManager.LogMessage(LogType.Info, "Number of connected Devices: " + Devices.Count);
+                        var messageClients = new MessageConnectedClients(ServerActions.Devices).Serialize();
+                        tcpStream.Write(messageClients, 0, messageClients.Length);
                         break;
                 }
             }

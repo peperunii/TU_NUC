@@ -52,6 +52,17 @@ namespace Network
             LoadConfiguration();
         }
 
+        public static string GetConfigurationFile()
+        {
+            return File.ReadAllText(Configuration.configFile);
+        }
+
+        public static void ReplaceConfiguration(string config)
+        {
+            File.WriteAllText(Configuration.configFile, config);
+            LoadConfiguration();
+        }
+
         public static void LoadConfiguration()
         {
             Configuration.ParseConfigiration(File.ReadAllLines(configFile));

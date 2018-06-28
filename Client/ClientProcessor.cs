@@ -6,13 +6,8 @@ using Network.Messages;
 using Network.TCP;
 using Network.TimeSync;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace Client
 {
@@ -97,7 +92,7 @@ namespace Client
             tcpClient.Connect();
 
             /*Synchronize Time*/
-            tcpClient.Send(new MessageTimeSync());
+            SendMessage(new MessageTimeSync());
         }
 
         private static void TcpClient_OnServerDisconnected()
@@ -112,11 +107,26 @@ namespace Client
             networkWorker.FindServer();
         }
 
+        public static void SendMessage(Message message)
+        {
+            LogManager.LogMessage(LogType.Info, "Sending MESSAGE !");
+            tcpClient.Send(message);
+        }
+
         private static void TcpClient_OnMessage(Network.Messages.Message message)
         {
             LogManager.LogMessage(LogType.Info, "Received message: " + message.type);
             switch (message.type)
             {
+                case MessageType.KeepAlive:
+                    lastServerHeartbeat = DateTime.Now.ToFileTimeUtc();
+                    break;
+
+                case MessageType.TimeInfo:
+                    ServerTime.Set(DateTime.FromFileTimeUtc((long)message.info));
+                    LogManager.LogMessage(LogType.Info, "Sync Date/Time...");
+                    break;
+
                 case MessageType.RestartClientApp:
                     Global.RestartApp();
                     break;
@@ -128,18 +138,49 @@ namespace Client
                     proc.Arguments = "/C shutdown -f -r";
                     Process.Start(proc);
                     break;
-
-                case MessageType.TimeInfo:
-                    ServerTime.Set(DateTime.FromFileTimeUtc((long)message.info));
-                    LogManager.LogMessage(LogType.Info, "Sync Date/Time...");
-                    break;
-
+                    
                 case MessageType.ReloadConfiguration:
                     Global.ReloadConfiguration();
                     break;
 
-                case MessageType.KeepAlive:
-                    lastServerHeartbeat = DateTime.Now.ToFileTimeUtc();
+                case MessageType.GetConfigurationPerClient:
+                    SendMessage(
+                        new MessageSetConfigurationPerClient(
+                            Configuration.GetConfigurationFile()));
+                    break;
+
+                case MessageType.SetConfigurationPerClient:
+                    var config = message.info as string;
+                    Configuration.ReplaceConfiguration(config);
+                    break;
+
+                case MessageType.CalibrationRequest:
+                    /*Calculate Intrinsic params*/
+                    //SendMessage(
+                    //    new MessageCalibration());
+                    break;
+
+                case MessageType.ColorFrameRequest:
+                    /*Send last colorFrame*/
+                    SendMessage(new MessageColorFrame(camera.colorImageByteArr));
+                    break;
+
+                case MessageType.DepthFrameRequest:
+                    /*TODO*/
+                    /*Send last depthFrame*/
+                    SendMessage(new MessageDepthFrame());
+                    break;
+
+                case MessageType.IRFrameRequest:
+                    /*TODO*/
+                    /*Send last colorFrame*/
+                    SendMessage(new MessageIRFrame());
+                    break;
+
+                case MessageType.SkeletonRequest:
+                    /*TODO*/
+                    /*Send last colorFrame*/
+                    SendMessage(new MessageSkeleton());
                     break;
             }
         }

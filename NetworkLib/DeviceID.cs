@@ -3,6 +3,7 @@
     public enum DeviceID : ushort
     {
         Server,
+        Controller,
         NUC_1,
         NUC_2,
         NUC_3,
