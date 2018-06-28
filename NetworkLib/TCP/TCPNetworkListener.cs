@@ -160,6 +160,7 @@ namespace NetworkLib.TCP
                         if (lEvent == null) continue;
                         lEvent(lClient, msg);
                     }
+                    Thread.Sleep(1);
                 }
                 catch (System.IO.IOException)
                 {
@@ -233,6 +234,7 @@ namespace NetworkLib.TCP
                     NetworkStream lNetworkStream = xClient.GetStream();
                     var msgData = msg.Serialize();
                     lNetworkStream.Write(msgData, 0, msgData.Length);
+                    Thread.Sleep(1);
                 }
                 catch (Exception ex) { LogManager.LogMessage(LogType.Error, ex.ToString()); }
             }

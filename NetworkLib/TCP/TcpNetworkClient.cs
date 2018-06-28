@@ -161,6 +161,7 @@ namespace Network.TCP
                     var messageData = lObject.Serialize();
                     LogManager.LogMessage(LogType.Info, "Sending: " + messageData.Length + " bytes");
                     _NetworkStream.Write(messageData, 0, messageData.Length);
+                    Thread.Sleep(1);
                 }
                 catch (System.IO.IOException)
                 {
@@ -184,6 +185,7 @@ namespace Network.TCP
                     dOnMessage lEvent = OnMessage;
                     if (lEvent == null) continue;
                     lEvent(msg);
+                    Thread.Sleep(1);
                 }
                 catch (System.IO.IOException ex)
                 {

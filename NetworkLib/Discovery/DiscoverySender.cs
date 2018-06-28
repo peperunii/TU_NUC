@@ -78,6 +78,7 @@ namespace Network.Discovery
                 }
                 
                 StartListening();
+                Thread.Sleep(1);
             }
             catch (Exception ex)
             {
