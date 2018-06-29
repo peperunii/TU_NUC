@@ -85,6 +85,7 @@ namespace Network.Messages
 
 
                     case MessageType.GetConfigurationPerClient:
+                        Console.WriteLine("Configuration Request - GET");
                         return new MessageGetConfigurationPerClient(messageArr.SubArray(6));
 
                     case MessageType.GetConnectedClients:
@@ -94,7 +95,12 @@ namespace Network.Messages
                         return new MessageConnectedClients(messageArr.SubArray(6));
 
                     case MessageType.SetConfigurationPerClient:
-                        return new MessageSetConfigurationPerClient(Encoding.ASCII.GetString(messageArr.SubArray(6)));
+                        Console.WriteLine("Configuration Request - SET");
+                        return 
+                            new MessageSetConfigurationPerClient(
+                                (DeviceID)BitConverter.ToUInt16(
+                                    new byte[] { messageArr[6], messageArr[7] }, 0), 
+                                Encoding.ASCII.GetString(messageArr.SubArray(8)));
                     
                     default:
                         return null;

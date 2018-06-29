@@ -1,4 +1,5 @@
-﻿using Network.Devices;
+﻿using Network;
+using Network.Devices;
 using Network.Discovery;
 using Network.Logger;
 using Network.Messages;
@@ -89,8 +90,25 @@ namespace NUC_Controller.NetworkWorker
 
                 case MessageType.ConnectedClients:
                     Worker.connectedDevices = message.info as List<NUC>;
+
+                    /*Read configurations if user is allowed*/
+                    if (Globals.loggedInUser.CheckIfHasAccess(Users.ActionType.ReadConfig))
+                    {
+                        foreach (var client in Worker.connectedDevices)
+                        {
+                            SendMessage(new MessageGetConfigurationPerClient(client.deviceID));
+                        }
+                    }
+
                     break;
 
+                case MessageType.SetConfigurationPerClient:
+                    var deviceId = (message as MessageSetConfigurationPerClient).deviceId;
+                    var device = (from t in connectedDevices
+                                  where t.deviceID == deviceId
+                                  select t).FirstOrDefault();
+                    device.config = (message as MessageSetConfigurationPerClient).info as string;
+                    break;
             }
         }
 

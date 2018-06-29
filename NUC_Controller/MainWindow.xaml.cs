@@ -1,4 +1,6 @@
-﻿using NUC_Controller.DB;
+﻿using Network;
+using Network.Logger;
+using NUC_Controller.DB;
 using NUC_Controller.NetworkWorker;
 using NUC_Controller.Notifications;
 using NUC_Controller.Users;
@@ -101,6 +103,11 @@ namespace NUC_Controller
         #region Constructor_WindowEvents
         public MainWindow()
         {
+            /* Setting up the Log manager */
+            LogManager.SetConsole(Configuration.logInConsole);
+            LogManager.SetDB(Configuration.logInDB);
+            LogManager.SetFileOutput(Configuration.logFilename, Configuration.logInFile);
+
             var loginWindow = new LoginWindow();
             loginWindow.ShowDialog();
 
@@ -111,6 +118,8 @@ namespace NUC_Controller
             {
                 Environment.Exit(0);
             }
+
+            LogManager.LogMessage(LogType.UserAction, string.Format("User ''{0}'' logged in.", Globals.loggedInUser.Username));
 
             InitializeComponent();
             this.InitializePermissionsControlsMapping();

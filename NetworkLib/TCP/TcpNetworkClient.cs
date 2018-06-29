@@ -202,7 +202,7 @@ namespace Network.TCP
         private void RestartClient()
         {
             Configuration.IsServerDisconnected = true;
-            Console.WriteLine("Restarting ...");
+            LogManager.LogMessage(LogType.Warning, "Restarting ...");
 
             Thread.Sleep(3000);
 

@@ -8,16 +8,19 @@ namespace Network.Messages
 {
     public class MessageSetConfigurationPerClient : Message
     {
+        public DeviceID deviceId;
+
         public MessageSetConfigurationPerClient()
         {
             this.type = MessageType.SetConfigurationPerClient;
             this.info = "";
         }
 
-        public MessageSetConfigurationPerClient(string configuration)
+        public MessageSetConfigurationPerClient(DeviceID deviceId, string configuration)
         {
             this.type = MessageType.SetConfigurationPerClient;
             this.info = configuration;
+            this.deviceId = deviceId;
         }
 
         public override byte[] Serialize()
@@ -31,7 +34,7 @@ namespace Network.Messages
 
         private byte[] GetBytesOfInfo()
         {
-            return Encoding.ASCII.GetBytes(this.info as string);
+            return this.GetBytesForNumberShort((ushort)this.deviceId).Concat( Encoding.ASCII.GetBytes(this.info as string)).ToArray();
         }
     }
 }

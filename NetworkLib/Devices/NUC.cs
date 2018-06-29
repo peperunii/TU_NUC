@@ -10,11 +10,14 @@ namespace Network.Devices
     {
         public DeviceID deviceID;
         public IPEndPoint ip;
+        public string config;
 
         public NUC(DeviceID deviceID, IPEndPoint ipEndPoint)
         {
             this.deviceID = deviceID;
             this.ip = ipEndPoint;
+
+            this.config = string.Empty;
         }
 
         public override bool Equals(object obj)

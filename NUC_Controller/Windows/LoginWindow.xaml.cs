@@ -1,4 +1,5 @@
 ﻿using DB_Initialization;
+using Network.Logger;
 using NUC_Controller.DB;
 using NUC_Controller.Users;
 using System;
@@ -82,6 +83,7 @@ namespace NUC_Controller.Windows
                     else
                     {
                         MessageBox.Show("Incorrect credentials !");
+                        LogManager.LogMessage(LogType.UserAction, string.Format("Unsuccessful Login with user: ''{0}''. Password: ''{1}''", username, password));
                     }
                 }
             }

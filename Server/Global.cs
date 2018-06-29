@@ -1,5 +1,6 @@
 ﻿using Network;
 using Network.Devices;
+using Network.Logger;
 using Network.Messages;
 using Server.Events;
 using System;
@@ -43,8 +44,39 @@ namespace Server
 
         public static void RestartApp()
         {
-            Thread.Sleep(5000);
+            try
+            {
+                LogManager.LogMessage(LogType.Warning, "Server restart...");
+
+                foreach (var tcpServer in ServerActions.tcpServers)
+                {
+                    tcpServer.Value.DisconnectAll();
+                }
+                ServerActions.tcpServers.Clear();
+
+                LogManager.LogMessage(LogType.Warning, "TCP Connections closed...");
+
+                if (ServerActions.discoveryServer != null)
+                {
+                    ServerActions.discoveryServer.CloseConnection();
+                }
+                ServerActions.discoveryServer = null;
+
+                LogManager.LogMessage(LogType.Warning, "UDP server closed...");
+
+                ServerActions.Devices.Clear();
+                LogManager.LogMessage(LogType.Warning, "Clients removed...");
+            }
+            catch(Exception)
+            {
+                LogManager.LogMessage(LogType.Error, "Restart failed...");
+            }
+
+            /*The server App is hard to kill*/
+            Thread.Sleep(3000);
             Application.Restart();
+            Thread.Sleep(1000);
+            Environment.Exit(0);
         }
 
         public static void ReloadConfiguration()

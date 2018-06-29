@@ -20,7 +20,6 @@ namespace Network.Discovery
 
         public void FindServer()
         {
-            Console.WriteLine(string.Format("{0}: {1}", Configuration.DeviceIP, Configuration.DiscoveryPort));
             this.client = new UDPClient(new IPEndPoint(Configuration.DeviceIP, Configuration.DiscoveryPort));
             var messageDiscovery = new MessageDiscovery().Serialize();
             
@@ -54,8 +53,7 @@ namespace Network.Discovery
                 IPEndPoint ip = new IPEndPoint(IPAddress.Any, Configuration.DiscoveryPort);
                 byte[] bytes = client.EndReceive(ar, ref ip);
                 var message = MessageParser.GetMessageFromBytArr(bytes);
-
-                Console.WriteLine("Received Message: " + message.type);
+                
                 switch (message.type)
                 {
                     case MessageType.DiscoveryResponse:

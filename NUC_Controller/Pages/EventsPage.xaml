@@ -18,6 +18,7 @@
         <!--LastChildFill="True">-->
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="27"></RowDefinition>
             <RowDefinition></RowDefinition>
             <RowDefinition Height="auto"></RowDefinition>
         </Grid.RowDefinitions>
@@ -45,9 +46,10 @@
                         Width="80" Margin="3" Visibility="Collapsed" Click="ButtonNextResult_Click">Next</Button>
         </Grid>
 
+        <TextBlock Grid.Row="1" FontStyle="Italic" Foreground="YellowGreen" Margin="0,7,0,0">Warning: Time info is in UTC. Sofia is 3 hours ahead of UTC</TextBlock>
         <TabControl x:Name="tabLogControl" Background="Transparent"
                         SelectionChanged="TabLogControl_SelectionChanged"
-                   Grid.Row="1"
+                   Grid.Row="2"
                     DockPanel.Dock="Bottom">
             <TabControl.ContextMenu>
                 <ContextMenu>
@@ -79,7 +81,7 @@
                 <DataGrid x:Name="listBoxAllLogs" RowBackground="Transparent" AutoGenerateColumns="False" Background="Transparent" MouseDoubleClick="ListBoxAllLogs_MouseDoubleClick"
                           SelectionChanged="ListBoxAllLogs_SelectionChanged">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="Timestamp" IsReadOnly="True"
+                        <DataGridTextColumn Header="Timestamp" IsReadOnly="True" SortDirection="Descending"
                             Binding="{Binding Timestamp}" Width="170" />
                         <DataGridTextColumn Header="Source" IsReadOnly="True"
                             Binding="{Binding Source}" Width="130" />
@@ -92,7 +94,7 @@
                     <DataGrid.Resources>
                         <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#9ACD32"/>
                     </DataGrid.Resources>
-                    
+
                 </DataGrid>
             </TabItem>
             <TabItem Name="tabInfo">
@@ -104,7 +106,7 @@
                     <Grid.RowDefinitions>
                         <RowDefinition></RowDefinition>
                     </Grid.RowDefinitions>
-                    
+
                     <ListView x:Name="listBoxInformation" Background="Transparent"
                               ItemsSource="{Binding Information, IsAsync=True}">
                         <ListView.Resources>
@@ -138,10 +140,10 @@
 
                 </Grid>
             </TabItem>
-            
-        </TabControl>
 
-        <DockPanel  Grid.Row="2" Margin="5" HorizontalAlignment="Right">
+        </TabControl>
+        <DockPanel  Grid.Row="3" Margin="5" HorizontalAlignment="Right">
+            <Button x:Name="buttonRefresh" Width="80" Click="buttonRefresh_Click" Margin="0,0,5,0">_Refresh</Button>
             <Button x:Name="buttonExportToFile" Content="E_xport to File" 
                      Width="80" Click="ButtonExportToFile_Click"
                      HorizontalAlignment="Right"/>

@@ -21,6 +21,12 @@
             UniqueNumberGenerator = new UNG(1, UInt32.MaxValue);
         }
 
+        public static void Clear()
+        {
+            logsList.Clear();
+            UniqueNumberGenerator = new UNG(1, UInt32.MaxValue);
+        }
+
         public static void AddEvent(DBRow dbRow)
         {
             /*This dbRow should be from Logs table - otherwise - an exception will be thrown*/
@@ -35,7 +41,8 @@
 
                 if (logsList.ContainsKey(id))
                 {
-                    throw new ArgumentException(AlreadyExistsError);
+                    return;
+                    //throw new ArgumentException(AlreadyExistsError);
                 }
                 UniqueNumberGenerator.ReserveNumber(id);
 

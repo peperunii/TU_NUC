@@ -21,18 +21,18 @@ namespace NetworkLib.TCP
         private TcpListener _Listener;
         public delegate void dOnMessage(object xSender, Message message);
         public event dOnMessage OnMessage;
-        
+
         private List<TcpClient> _clients = new List<TcpClient>();
-        
+
         public int Port { get; private set; }
         public string IpAddress { get; private set; }
         public string ThreadName { get; private set; }
-        
+
         public List<TcpClient> Clients
         {
             get { return _clients; }
         }
-        
+
         public TcpNetworkListener(string xIpAddress, int xPort, string xThreadName)
         {
             Port = xPort;
@@ -75,7 +75,7 @@ namespace NetworkLib.TCP
                 }
             }
         }
-        
+
         public bool Connect()
         {
             if (!_ExitLoop)
@@ -84,7 +84,7 @@ namespace NetworkLib.TCP
                 return false;
             }
             _ExitLoop = false;
-        
+
             try
             {
                 _Listener = new TcpListener(IPAddress.Parse(IpAddress), Port);
@@ -95,11 +95,23 @@ namespace NetworkLib.TCP
                 lThread.IsBackground = true;
                 lThread.Name = ThreadName + "WaitingForClients";
                 lThread.Start();
-        
+
                 return true;
             }
             catch (Exception ex) { LogManager.LogMessage(LogType.Error, ex.ToString()); }
             return false;
+        }
+
+        public void DisconnectAll()
+        {
+            lock (_clients)
+            {
+                foreach (var client in _clients)
+                {
+                    client.Close();
+                    _clients.Remove(client);
+                }
+            }
         }
 
         public void Disconnect(TcpClient client)
@@ -175,7 +187,7 @@ namespace NetworkLib.TCP
 
         private void RestartClient(TcpClient client)
         {
-            Console.WriteLine("Restarting ...");
+            LogManager.LogMessage(LogType.Warning, "Restarting ...");
             this.Disconnect(client);
             this.Connect();
         }

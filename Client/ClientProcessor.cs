@@ -146,8 +146,8 @@ namespace Client
                 case MessageType.GetConfigurationPerClient:
                     SendMessage(
                         new MessageSetConfigurationPerClient(
+                            Configuration.DeviceID,
                             Configuration.GetConfigurationFile()));
-                    Console.WriteLine("Configuration SEND");
                     break;
 
                 case MessageType.SetConfigurationPerClient:

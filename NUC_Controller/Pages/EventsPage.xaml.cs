@@ -1,10 +1,12 @@
 ﻿namespace NUC_Controller.Pages
 {
+    using Network.Logger;
     using NUC_Controller.DB;
     using NUC_Controller.InfoTypes.Events;
     using NUC_Controller.Utils;
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Linq;
     using System.Windows;
     using System.Windows.Controls;
@@ -22,6 +24,7 @@
 
         private bool isAltKeyPressed = false;
         private bool isAllowedSingleLogCopy = true;
+        private bool isFirstTimeLoad = true;
 
         private static int lastSelectedLogTab = 0;
         private static int comboFilterTypeIndex = 0;
@@ -109,6 +112,12 @@
             {
                 this.buttonExportToFile.IsEnabled = false;
             }
+
+            if(this.isFirstTimeLoad)
+            {
+                this.SortDataGrid(this.listBoxAllLogs, 0, ListSortDirection.Descending);
+                this.isFirstTimeLoad = false;
+            }
         }
 
         private void RefreshLogs()
@@ -130,7 +139,7 @@
                                 this.listBoxAllLogs.ItemsSource = filteredLogs;
                             }
                             break;
-
+                            
                         case 1: // Information
                             {
                                 var filteredLogs = FilterInformationBasedOnString(allinformation);
@@ -684,6 +693,100 @@
         private void ListBoxAllLogs_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
 
+        }
+
+        private void buttonRefresh_Click(object sender, RoutedEventArgs e)
+        {
+            var columnInfo = this.GetColumnInfo(this.listBoxAllLogs);
+            var sortInfo = this.GetSortInfo(this.listBoxAllLogs);
+
+            this.buttonRefresh.IsEnabled = false;
+            LogManager.LogMessage(LogType.Info, "Getting event logs");
+
+            Globals.Database.QuerySelect(DatabaseQueries.SelectFromTable, new List<string>() { TableName.serverevents.ToString() });
+            EventsContainer.Clear();
+
+            this.Page_Loaded(null, null);
+
+            var filteredLogs = FilterLogsBasedOnString(EventsContainer.GetAllEvents());
+            this.listBoxAllLogs.ItemsSource = null;
+            this.listBoxAllLogs.ItemsSource = filteredLogs;
+
+            var filteredInfo = FilterInformationBasedOnString(allinformation);
+            this.listBoxInformation.ItemsSource = null;
+            this.listBoxInformation.ItemsSource = filteredInfo;
+
+            this.RefreshLogs();
+            this.SetColumnInfo(this.listBoxAllLogs, columnInfo);
+            this.SetSortInfo(this.listBoxAllLogs, sortInfo);
+
+            this.buttonRefresh.IsEnabled = true;
+        }
+
+
+        public void SortDataGrid(DataGrid dataGrid, int columnIndex = 0, ListSortDirection sortDirection = ListSortDirection.Ascending)
+        {
+            var column = dataGrid.Columns[columnIndex];
+
+            // Clear current sort descriptions
+            dataGrid.Items.SortDescriptions.Clear();
+
+            // Add the new sort description
+            dataGrid.Items.SortDescriptions.Add(new SortDescription(column.SortMemberPath, sortDirection));
+
+            // Apply sort
+            foreach (var col in dataGrid.Columns)
+            {
+                col.SortDirection = null;
+            }
+            column.SortDirection = sortDirection;
+
+            // Refresh items to display sort
+            dataGrid.Items.Refresh();
+        }
+
+        List<DataGridColumn> GetColumnInfo(DataGrid dg)
+        {
+            List<DataGridColumn> columnInfos = new List<DataGridColumn>();
+            foreach (var column in dg.Columns)
+            {
+                columnInfos.Add(column);
+            }
+            return columnInfos;
+        }
+
+        List<SortDescription> GetSortInfo(DataGrid dg)
+        {
+            List<SortDescription> sortInfos = new List<SortDescription>();
+            foreach (var sortDescription in dg.Items.SortDescriptions)
+            {
+                sortInfos.Add(sortDescription);
+            }
+            return sortInfos;
+        }
+
+        void SetColumnInfo(DataGrid dg, List<DataGridColumn> columnInfos)
+        {
+            columnInfos.Sort((c1, c2) => { return c1.DisplayIndex - c2.DisplayIndex; });
+            foreach (var columnInfo in columnInfos)
+            {
+                var column = dg.Columns.FirstOrDefault(col => col.Header == columnInfo.Header);
+                if (column != null)
+                {
+                    column.SortDirection = columnInfo.SortDirection;
+                    column.DisplayIndex = columnInfo.DisplayIndex;
+                    column.Visibility = columnInfo.Visibility;
+                }
+            }
+        }
+
+        void SetSortInfo(DataGrid dg, List<SortDescription> sortInfos)
+        {
+            dg.Items.SortDescriptions.Clear();
+            foreach (var sortInfo in sortInfos)
+            {
+                dg.Items.SortDescriptions.Add(sortInfo);
+            }
         }
     }
 }

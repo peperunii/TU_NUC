@@ -47,8 +47,7 @@ namespace Network.Discovery
                 IPEndPoint ip = new IPEndPoint(IPAddress.Any, Configuration.DiscoveryPort);
                 byte[] bytes = udp.EndReceive(ar, ref ip);
                 var message = MessageParser.GetMessageFromBytArr(bytes);
-
-                Console.WriteLine("Received message: " + message.type);
+                
                 switch (message.type)
                 {
                     case MessageType.Discovery:
@@ -93,8 +92,7 @@ namespace Network.Discovery
             var port = BitConverter.GetBytes(tcpServer.Port);
 
             var infoBytes = new byte[] { ipAdd[0], ipAdd[1], ipAdd[2], ipAdd[3], port[0], port[1] };
-
-            Console.WriteLine("Sending Discovery Response");
+            
             var msg = new MessageDiscoveryResponse()
             {
                 IP = Configuration.DeviceIP.GetAddressBytes(),

@@ -31,7 +31,7 @@ namespace Client
             catch (Exception ex)
             {
                 /*Restart application on exception*/
-                Console.WriteLine(ex.ToString());
+                LogManager.LogMessage(LogType.Error, ex.ToString());
                 Global.RestartApp();
             }
         }

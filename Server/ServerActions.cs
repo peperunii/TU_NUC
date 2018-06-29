@@ -20,7 +20,7 @@ namespace Server
         public static List<NUC> Devices { get; set; }
         public static Dictionary<DeviceID, TcpNetworkListener> tcpServers;
         
-        private static DiscoveryReceiver discoveryServer;
+        public static DiscoveryReceiver discoveryServer;
         
         public static void Listener()
         {
@@ -77,8 +77,11 @@ namespace Server
                         break;
 
                     case MessageType.GetConfigurationPerClient:
+                        //var msg = new MessageSetConfigurationPerClient(Configuration.DeviceID, Configuration.GetConfigurationFile()).Serialize();
+                        //tcpStream.Write(msg, 0, msg.Length);
+
                         var deviceID = (message as MessageGetConfigurationPerClient).deviceId;
-                        Console.WriteLine("Getting config for device: '" + deviceID + "'");
+
                         var getConfMessage = new MessageGetConfigurationPerClient(deviceID).Serialize();
                         tcpStream.Write(getConfMessage, 0, getConfMessage.Length);
                         break;
@@ -98,6 +101,10 @@ namespace Server
                         LogManager.LogMessage(LogType.Info, "Number of connected Devices: " + Devices.Count);
                         var messageClients = new MessageConnectedClients(ServerActions.Devices).Serialize();
                         tcpStream.Write(messageClients, 0, messageClients.Length);
+                        break;
+
+                    case MessageType.RestartServerApp:
+                        Global.RestartApp();
                         break;
                 }
             }
