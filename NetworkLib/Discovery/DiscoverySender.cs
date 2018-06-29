@@ -55,7 +55,7 @@ namespace Network.Discovery
                 byte[] bytes = client.EndReceive(ar, ref ip);
                 var message = MessageParser.GetMessageFromBytArr(bytes);
 
-                Console.Write("Received Message: " + message.type);
+                Console.WriteLine("Received Message: " + message.type);
                 switch (message.type)
                 {
                     case MessageType.DiscoveryResponse:
@@ -76,9 +76,9 @@ namespace Network.Discovery
                     default:
                         break;
                 }
-                
-                StartListening();
+
                 Thread.Sleep(1);
+                StartListening();
             }
             catch (Exception ex)
             {

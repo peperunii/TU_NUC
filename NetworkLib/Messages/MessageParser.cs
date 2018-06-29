@@ -94,7 +94,7 @@ namespace Network.Messages
                         return new MessageConnectedClients(messageArr.SubArray(6));
 
                     case MessageType.SetConfigurationPerClient:
-                        return null;
+                        return new MessageSetConfigurationPerClient(Encoding.ASCII.GetString(messageArr.SubArray(6)));
                     
                     default:
                         return null;

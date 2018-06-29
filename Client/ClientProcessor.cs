@@ -147,6 +147,7 @@ namespace Client
                     SendMessage(
                         new MessageSetConfigurationPerClient(
                             Configuration.GetConfigurationFile()));
+                    Console.WriteLine("Configuration SEND");
                     break;
 
                 case MessageType.SetConfigurationPerClient:

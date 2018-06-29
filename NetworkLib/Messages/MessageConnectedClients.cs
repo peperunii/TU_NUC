@@ -10,6 +10,12 @@ namespace Network.Messages
 {
     public class MessageConnectedClients : Message
     {
+        public MessageConnectedClients()
+        {
+            this.type = MessageType.ConnectedClients;
+            this.info = new List<NUC>();
+        }
+
         public MessageConnectedClients(byte [] byteArr)
         {
             this.type = MessageType.ConnectedClients;

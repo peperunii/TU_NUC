@@ -65,7 +65,7 @@ namespace Network.Discovery
                         }
 
                         this.connectedAddresses.Add((DeviceID)(short)message.info, ip);
-                        
+                                        
                         if (DeviceConnected != null)
                         {
                             DeviceConnected.Invoke(null, new NucConnectedEventArgs(connectedAddresses, connectedAddresses.Count - 1));
@@ -80,7 +80,6 @@ namespace Network.Discovery
 
                 //again
                 StartListening();
-                Thread.Sleep(1);
             }
             catch (Exception ex)
             {

@@ -14,9 +14,15 @@ namespace Network.Messages
         public bool IsCompressed; // Jpeg
         public long Timestamp;
 
+        public MessageIRFrame()
+        {
+            this.type = MessageType.IRFrame;
+            this.info = new byte[] { };
+        }
+
         public MessageIRFrame(int height, int width, int channels, bool isCompressed, byte[] bytes)
         {
-            this.type = MessageType.ColorFrame;
+            this.type = MessageType.IRFrame;
             this.info = bytes;
             this.Timestamp = DateTime.Now.ToFileTimeUtc();
 

@@ -11,11 +11,21 @@ namespace Network.Messages
         public MessageCalibration()
         {
             this.type = MessageType.Calibration;
+            this.info = new byte[] { };
         }
 
         public override byte[] Serialize()
         {
-            throw new NotImplementedException();
+            var bytes = this.GetBytesForNumberShort((ushort)this.type);
+            var bytesInfo = this.GetBytesOfInfo();
+            var lenghtInfoBytes = this.GetBytesForNumberInt((int)bytesInfo.Length);
+
+            return bytes.Concat(lenghtInfoBytes.Concat(bytesInfo)).ToArray();
+        }
+
+        private byte[] GetBytesOfInfo()
+        {
+            return this.info as byte [];
         }
     }
 }

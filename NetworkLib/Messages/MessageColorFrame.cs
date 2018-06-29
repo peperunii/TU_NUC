@@ -15,6 +15,12 @@ namespace Network.Messages
         public bool IsCompressed; // Jpeg
         public long Timestamp;
 
+        public MessageColorFrame()
+        {
+            this.type = MessageType.ColorFrame;
+            this.info = new byte[] { };
+        }
+
         public MessageColorFrame(int height, int width, int channels, bool isCompressed, byte [] bytes)
         {
             this.type = MessageType.ColorFrame;

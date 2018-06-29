@@ -64,13 +64,25 @@ namespace Server
                         tcpStream.Write(messageTimeInfo, 0, messageTimeInfo.Length);
                         break;
 
+                    case MessageType.SetConfigurationPerClient:
+                        LogManager.LogMessage(
+                            LogType.Warning,
+                            "Received Configuration: " + message.info as string);
+                        break;
+
                     case MessageType.Info:
                         LogManager.LogMessage(
                             LogType.Warning, 
                             "Received Info Message: " + message.info as string);
                         break;
 
-                    
+                    case MessageType.GetConfigurationPerClient:
+                        var deviceID = (message as MessageGetConfigurationPerClient).deviceId;
+                        Console.WriteLine("Getting config for device: '" + deviceID + "'");
+                        var getConfMessage = new MessageGetConfigurationPerClient(deviceID).Serialize();
+                        tcpStream.Write(getConfMessage, 0, getConfMessage.Length);
+                        break;
+
                     case MessageType.ColorFrame:
                         LogManager.LogMessage(
                             LogType.Warning,
@@ -101,7 +113,7 @@ namespace Server
         private static void DiscoveryServer_DeviceConnected(object source, Network.Events.NucConnectedEventArgs e)
         {
             var connectedDevices = e.ConnectedAddresses;
-
+            
             foreach (var device in connectedDevices)
             {
                 LogManager.LogMessage(LogType.Info, "Device Found: " + device.Key);

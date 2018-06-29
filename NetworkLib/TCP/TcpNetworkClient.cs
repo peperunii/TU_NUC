@@ -57,7 +57,7 @@ namespace Network.TCP
                                     assembly.CreateInstance(type.ToString()),
                                     type);
 
-                                if (instance.isHeaderOnly)
+                                if (instance.Serialize().Length == 2)
                                 {
                                     messagesWithHeaderOnly.Add(instance.type);
                                 }

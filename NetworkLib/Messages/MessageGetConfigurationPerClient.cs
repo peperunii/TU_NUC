@@ -8,7 +8,13 @@ namespace Network.Messages
 {
     public class MessageGetConfigurationPerClient : Message
     {
-        private DeviceID deviceId;
+        public DeviceID deviceId;
+
+        public MessageGetConfigurationPerClient()
+        {
+            this.type = MessageType.GetConfigurationPerClient;
+            this.info = new byte[] { };
+        }
 
         public MessageGetConfigurationPerClient(DeviceID deviceID)
         {

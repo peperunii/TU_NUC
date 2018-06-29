@@ -8,9 +8,15 @@ namespace Network.Messages
 {
     public class MessageSkeleton : Message
     {
+        public MessageSkeleton()
+        {
+            this.type = MessageType.Skeleton;
+            this.info = null;
+        }
+
         public override byte[] Serialize()
         {
-            throw new NotImplementedException();
+            return this.GetBytesForNumberShort((ushort)this.type);
         }
     }
 }

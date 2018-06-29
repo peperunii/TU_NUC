@@ -8,6 +8,12 @@ namespace Network.Messages
 {
     public class MessageSendInfoToServer : Message
     {
+        public MessageSendInfoToServer()
+        {
+            this.type = MessageType.Info;
+            this.info = "";
+        }
+
         public MessageSendInfoToServer(string message)
         {
             this.type = MessageType.Info;

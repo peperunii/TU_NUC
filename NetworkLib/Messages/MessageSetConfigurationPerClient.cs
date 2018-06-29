@@ -8,6 +8,12 @@ namespace Network.Messages
 {
     public class MessageSetConfigurationPerClient : Message
     {
+        public MessageSetConfigurationPerClient()
+        {
+            this.type = MessageType.SetConfigurationPerClient;
+            this.info = "";
+        }
+
         public MessageSetConfigurationPerClient(string configuration)
         {
             this.type = MessageType.SetConfigurationPerClient;

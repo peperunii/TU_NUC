@@ -14,9 +14,15 @@ namespace Network.Messages
         public bool IsCompressed; // Jpeg
         public long Timestamp;
 
+        public MessageDepthFrame()
+        {
+            this.type = MessageType.DepthFrame;
+            this.info = new byte[] { };
+        }
+
         public MessageDepthFrame(int height, int width, int channels, bool isCompressed, byte[] bytes)
         {
-            this.type = MessageType.ColorFrame;
+            this.type = MessageType.DepthFrame;
             this.info = bytes;
             this.Timestamp = DateTime.Now.ToFileTimeUtc();
 
@@ -29,7 +35,7 @@ namespace Network.Messages
 
         public MessageDepthFrame(byte[] colorFrameInfo = null)
         {
-            this.type = MessageType.ColorFrame;
+            this.type = MessageType.DepthFrame;
             this.Height = BitConverter.ToInt32(colorFrameInfo.SubArray(0, 4), 0);
             this.Width = BitConverter.ToInt32(colorFrameInfo.SubArray(4, 4), 0);
             this.Channels = BitConverter.ToInt32(colorFrameInfo.SubArray(8, 4), 0);

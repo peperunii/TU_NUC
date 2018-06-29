@@ -10,6 +10,12 @@ namespace Network.Messages
     {
         private DeviceID deviceId;
 
+        public MessageRestartClientApp()
+        {
+            this.type = MessageType.RestartClientApp;
+            this.info = new byte[] { };
+        }
+
         public MessageRestartClientApp(DeviceID deviceID)
         {
             this.type = MessageType.RestartClientApp;
