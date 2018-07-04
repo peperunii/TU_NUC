@@ -5,4 +5,4 @@ Server/bin/Debug
 Server/obj
 DB_Initialization/bin/Debug
 DB_Initialization/obj
-config/conf.txt
+config
