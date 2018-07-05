@@ -141,15 +141,19 @@ namespace Server
                 var tcpServer = StartTcpServer();
                 tcpServers.Add(deviceID, tcpServer);
 
-                SendDeviceStart(tcpServer);
+                SendDeviceStart(tcpServer, deviceID);
             }
         }
 
 
-        private static void SendDeviceStart(TcpNetworkListener tcpServer)
+        private static void SendDeviceStart(TcpNetworkListener tcpServer, DeviceID deviceID)
         {
             LogManager.LogMessage(LogType.Info, "Device Start");
-            discoveryServer.SendDeviceStart(tcpServer);
+            var deviceIP = (from t in Devices
+                        where t.deviceID == deviceID
+                        select t.ip).FirstOrDefault();
+
+            discoveryServer.SendDeviceStart(tcpServer, deviceIP.Address);
         }
 
         public static void DiscoverConnectedDevices()

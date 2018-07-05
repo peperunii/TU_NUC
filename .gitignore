@@ -5,4 +5,8 @@ Server/bin/Debug
 Server/obj
 DB_Initialization/bin/Debug
 DB_Initialization/obj
+NUC_Controller/bin/debug
+NUC_Controller/obj
+NetworkLib/bin/debug
+NetworkLib/obj
 config

@@ -86,7 +86,7 @@ namespace Network.Discovery
             }
         }
 
-        private void SendServerFound(TcpNetworkListener tcpServer)
+        private void SendServerFound(TcpNetworkListener tcpServer, IPAddress deviceIP)
         {
             var ipAdd = Configuration.DeviceIP.GetAddressBytes();
             var port = BitConverter.GetBytes(tcpServer.Port);
@@ -102,18 +102,18 @@ namespace Network.Discovery
             Console.WriteLine("Type: " + msg.type);
 
             byte[] bytes = msg.Serialize();
-
+            
             udp.Send(
                 bytes, 
                 bytes.Length, 
                 new IPEndPoint(
-                    IPAddress.Parse(tcpServer.IpAddress), 
+                    deviceIP,//IPAddress.Parse(tcpServer.IpAddress), 
                     Configuration.DiscoveryPort));
         }
 
-        public void SendDeviceStart(TcpNetworkListener tcpServer)
+        public void SendDeviceStart(TcpNetworkListener tcpServer, IPAddress deviceIP)
         {
-            SendServerFound(tcpServer);
+            SendServerFound(tcpServer, deviceIP);
         }
     }
 }
