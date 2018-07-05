@@ -1,2 +1,3 @@
 cd NUC_Controller\bin\Release
-NUC_Controller.exe
+start NUC_Controller.exe
+exit

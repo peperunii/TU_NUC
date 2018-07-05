@@ -73,7 +73,7 @@ namespace DB_Initialization
 
                 /*Insert Admin User*/
                 if (Program.showInfo) Console.WriteLine("Creating Admin User ...");
-                this.Query(string.Format(QueryStrings.Insert_Into_Table_Users, "Admin", Crypto.GetHash("123"), "Admin"));
+                this.Query(string.Format(QueryStrings.Insert_Into_Table_Users, "admin", Crypto.GetHash("123"), "Admin"));
 
                 if (Program.fillInfo)
                 {
