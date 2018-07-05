@@ -2,15 +2,16 @@
 {
     public enum DeviceID : ushort
     {
-        Server,
+        Petar,
+        TU_SERVER,
         Controller,
-        NUC_1,
-        NUC_2,
-        NUC_3,
-        NUC_4,
-        NUC_5,
-        NUC_6,
-        NUC_7,
-        NUC_8
+        TU_NUC_1,
+        TU_NUC_2,
+        TU_NUC_3,
+        TU_NUC_4,
+        TU_NUC_5,
+        TU_NUC_6,
+        TU_NUC_7,
+        TU_NUC_8
     }
 }
