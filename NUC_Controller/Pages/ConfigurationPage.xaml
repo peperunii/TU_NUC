@@ -16,7 +16,7 @@
             <RowDefinition Height="auto"></RowDefinition>
         </Grid.RowDefinitions>
         <TabControl x:Name="tabDevicesList" Margin="2">
-            
+
         </TabControl>
         <DockPanel Height="24" Grid.Row="1" HorizontalAlignment="Right" Margin="5,2,5,2">
             <Button x:Name="buttonRefresh" Click="buttonRefresh_Click" Width="80">Refresh</Button>

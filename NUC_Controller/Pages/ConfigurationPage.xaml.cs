@@ -64,7 +64,28 @@ namespace NUC_Controller.Pages
             var tab = new TabItem();
             tab.Header = device.deviceID;
             this.tabDevicesList.Items.Add(tab);
-            
+
+            var grid = new DataGrid();
+            grid.RowBackground = Brushes.Transparent;
+            grid.AutoGenerateColumns = false;
+            var column1 = new DataGridTextColumn();
+            column1.Header = "Param";
+            column1.IsReadOnly = true;
+            column1.Binding = new Binding("Param");
+            column1.Width = 140;
+
+            var column2 = new DataGridTextColumn();
+            column2.Header = "Value";
+            column2.IsReadOnly = false;
+            column2.Binding = new Binding("Value");
+
+            grid.Columns.Add(column1);
+            grid.Columns.Add(column2);
+
+            grid.ItemsSource = (from t in connectedDevices
+                                where t.deviceID == device.deviceID
+                                select t.configDict).FirstOrDefault();
+
             var datagrid = new Grid();
             datagrid.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             datagrid.RowDefinitions.Add(new RowDefinition());
@@ -87,14 +108,14 @@ namespace NUC_Controller.Pages
             dockPanel.Children.Add(textblockSocket);
             dockPanel.Children.Add(buttonRestart);
 
-            var textBoxConfig = new TextBox();
-            textBoxConfig.Text = device.config;
+            //var textBoxConfig = new TextBox();
+            //textBoxConfig.Text = device.config;
 
             Grid.SetRow(dockPanel, 0);
-            Grid.SetRow(textBoxConfig, 1);
+            Grid.SetRow(grid, 1);
 
             datagrid.Children.Add(dockPanel);
-            datagrid.Children.Add(textBoxConfig);
+            datagrid.Children.Add(grid);
             tab.Content = datagrid;
         }
 
