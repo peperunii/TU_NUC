@@ -118,6 +118,10 @@ namespace Server
                     case MessageType.RestartServerApp:
                         Global.RestartApp();
                         break;
+
+                    case MessageType.RestartServerDevice:
+                        Global.RestartDevice();
+                        break;
                 }
             }
         }

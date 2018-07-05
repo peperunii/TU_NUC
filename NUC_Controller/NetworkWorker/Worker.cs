@@ -113,7 +113,7 @@ namespace NUC_Controller.NetworkWorker
                     var device = (from t in connectedDevices
                                   where t.deviceID == deviceId
                                   select t).FirstOrDefault();
-                    device.config = (message as MessageSetConfigurationPerClient).info as string;
+                    device.SetConfiguration((message as MessageSetConfigurationPerClient).info as string);
                     break;
             }
         }

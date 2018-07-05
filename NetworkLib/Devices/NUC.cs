@@ -68,13 +68,20 @@ namespace Network.Devices
             this.config = config;
             var lines = this.config.Split('\n');
 
-            foreach(var line in lines)
+            foreach (var line in lines)
             {
-                var parts = line.Split(':');
-                var part1 = parts[0].Trim();
-                var part2 = parts[1].Trim();
+                try
+                {
+                    var parts = line.Split(':');
+                    var part1 = parts[0].Trim();
+                    var part2 = parts[1].Trim();
 
-                this.configDict.Add(new ConfigParam(part1, part2));
+                    this.configDict.Add(new ConfigParam(part1, part2));
+                }
+                catch(Exception)
+                {
+                    this.configDict.Add(new ConfigParam(string.Empty, string.Empty));
+                }
             }
         }
     }

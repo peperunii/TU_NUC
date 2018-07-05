@@ -72,16 +72,18 @@ namespace NUC_Controller.Pages
             column1.Header = "Param";
             column1.IsReadOnly = true;
             column1.Binding = new Binding("Param");
-            column1.Width = 140;
+            column1.Width = 300;
 
             var column2 = new DataGridTextColumn();
             column2.Header = "Value";
             column2.IsReadOnly = false;
             column2.Binding = new Binding("Value");
+            column2.Width = 450;
 
             grid.Columns.Add(column1);
             grid.Columns.Add(column2);
 
+            grid.ItemsSource = null;
             grid.ItemsSource = (from t in connectedDevices
                                 where t.deviceID == device.deviceID
                                 select t.configDict).FirstOrDefault();
@@ -99,14 +101,24 @@ namespace NUC_Controller.Pages
 
             var buttonRestart = new Button();
             buttonRestart.Name = "buttonRestart_" + device.deviceID;
-            buttonRestart.Click += this.ButtonRestart_Click;
+            buttonRestart.Click += this.ButtonRestartApp_Click;
             buttonRestart.Width = 80;
             buttonRestart.Height = 24;
             buttonRestart.Content = "Restart App";
             buttonRestart.HorizontalAlignment = HorizontalAlignment.Right;
 
+            var buttonRestartDevice = new Button();
+            buttonRestart.Name = "buttonRestart_" + device.deviceID;
+            buttonRestart.Click += this.ButtonRestartApp_Click;
+            buttonRestart.Width = 80;
+            buttonRestart.Height = 24;
+            buttonRestart.Content = "Restart Device";
+            buttonRestart.HorizontalAlignment = HorizontalAlignment.Right;
+            buttonRestartDevice.Margin = new Thickness(5, 0, 5, 0);
+
             dockPanel.Children.Add(textblockSocket);
             dockPanel.Children.Add(buttonRestart);
+            dockPanel.Children.Add(buttonRestartDevice);
 
             //var textBoxConfig = new TextBox();
             //textBoxConfig.Text = device.config;
@@ -119,7 +131,7 @@ namespace NUC_Controller.Pages
             tab.Content = datagrid;
         }
 
-        private void ButtonRestart_Click(object sender, RoutedEventArgs e)
+        private void ButtonRestartApp_Click(object sender, RoutedEventArgs e)
         {
             var result = MessageBox.Show("Are you sure?", "Warning", MessageBoxButton.YesNo);
 
@@ -138,6 +150,29 @@ namespace NUC_Controller.Pages
                 else
                 {
                     NetworkSettings.tcpClient.Send(new MessageRestartClientApp(deviceID));
+                }
+            }
+        }
+
+        private void ButtonRestartDevice_Click(object sender, RoutedEventArgs e)
+        {
+            var result = MessageBox.Show("Are you sure?", "Warning", MessageBoxButton.YesNo);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                var indexOfSeparator = (sender as Button).Name.IndexOf('_');
+                var deviceID_string = (sender as Button).Name.Substring(indexOfSeparator + 1);
+
+                var deviceID = (DeviceID)Enum.Parse(typeof(DeviceID), deviceID_string);
+                new Notification(NotificationType.Info, "Restarting " + deviceID);
+
+                if (deviceID_string.ToLower().Contains("server"))
+                {
+                    NetworkSettings.tcpClient.Send(new MessageRestartServerDevice());
+                }
+                else
+                {
+                    NetworkSettings.tcpClient.Send(new MessageRestartClientDevice(deviceID));
                 }
             }
         }
