@@ -85,7 +85,7 @@ namespace Network
                     {
                         var loggedUsername = System.Security.Principal.WindowsIdentity.GetCurrent().Name;
                         loggedUsername = loggedUsername.Substring(loggedUsername.IndexOf('\\') + 1);
-                        LogManager.LogMessage(LogType.Info, "Logged user: " + loggedUsername);
+                        Console.WriteLine("Logged user: " + loggedUsername);
                         Configuration.DeviceID = 
                             (DeviceID)Enum.Parse(
                                 typeof(DeviceID),
