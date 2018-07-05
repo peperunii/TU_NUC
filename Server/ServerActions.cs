@@ -44,7 +44,6 @@ namespace Server
             var tcpServer = new TcpNetworkListener(Configuration.DeviceIP.ToString(), Configuration.GetAvailablePort(), "Server");
             tcpServer.OnMessage += Server_OnMessage;
             tcpServer.Connect();
-
             return tcpServer;
         }
 
@@ -70,6 +69,15 @@ namespace Server
                             LogType.Warning,
                             LogLevel.Everything,
                             "Received Configuration: " + message.info as string);
+                        /*Send configuration to the Controller - If connected*/
+                        if (tcpServers.ContainsKey(DeviceID.Controller))
+                        {
+                            tcpServers[DeviceID.Controller].Send(
+                                tcpServers[DeviceID.Controller].GetClient(), 
+                                new MessageSetConfigurationPerClient(
+                                    (message as MessageSetConfigurationPerClient).deviceId, 
+                                    (message as MessageSetConfigurationPerClient).info as string));
+                        }
                         break;
 
                     case MessageType.Info:

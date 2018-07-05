@@ -1,4 +1,5 @@
-﻿using Network;
+﻿using DB_Initialization;
+using Network;
 using Network.Devices;
 using Network.Discovery;
 using Network.Logger;
@@ -101,6 +102,11 @@ namespace NUC_Controller.NetworkWorker
                     }
 
                     break;
+
+                // The controller is not sending configuration
+                //case MessageType.GetConfigurationPerClient:
+                //    SendMessage(new MessageSetConfigurationPerClient(Network.Configuration.DeviceID, Network.Configuration.GetConfigurationFile()));
+                //    break;
 
                 case MessageType.SetConfigurationPerClient:
                     var deviceId = (message as MessageSetConfigurationPerClient).deviceId;

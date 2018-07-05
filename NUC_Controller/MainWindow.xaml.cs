@@ -103,6 +103,7 @@ namespace NUC_Controller
         #region Constructor_WindowEvents
         public MainWindow()
         {
+            Configuration.DeviceID = DeviceID.Controller;
             /* Setting up the Log manager */
             LogManager.SetConsole(Configuration.logInConsole);
             LogManager.SetDB(Configuration.logInDB);

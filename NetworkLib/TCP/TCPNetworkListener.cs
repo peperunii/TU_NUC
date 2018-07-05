@@ -76,6 +76,11 @@ namespace NetworkLib.TCP
             }
         }
 
+        public TcpClient GetClient()
+        {
+            return this._clients[0];
+        }
+
         public bool Connect()
         {
             if (!_ExitLoop)
