@@ -56,6 +56,7 @@ namespace Network.Discovery
                         {
                             LogManager.LogMessage(
                                 LogType.Warning, 
+                                LogLevel.Communication,
                                 string.Format(
                                     "Device {0}: Reconnecting ...",
                                     deviceId));
@@ -70,7 +71,10 @@ namespace Network.Discovery
                             DeviceConnected.Invoke(null, new NucConnectedEventArgs(connectedAddresses, connectedAddresses.Count - 1));
                         }
 
-                        LogManager.LogMessage(LogType.Info, String.Format("Server found by client {0}", ip.Address.ToString()));
+                        LogManager.LogMessage(
+                            LogType.Info,
+                            LogLevel.ErrWarnInfo,
+                            String.Format("Server found by client {0}", ip.Address.ToString()));
                         
                         break;
                     default:
@@ -82,8 +86,10 @@ namespace Network.Discovery
             }
             catch (Exception ex)
             {
-                Console.WriteLine("1: " + ex.ToString());
-                LogManager.LogMessage(LogType.Error, ex.ToString());
+                LogManager.LogMessage(
+                    LogType.Error,
+                    LogLevel.Errors,
+                    ex.ToString());
             }
         }
 

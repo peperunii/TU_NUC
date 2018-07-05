@@ -64,11 +64,15 @@ namespace Network.Discovery
                             var port = BitConverter.ToUInt16(new byte[] { (message.info as byte [])[4], (message.info as byte[])[5] }, 0);
                             ServerFound.Invoke(null, new ServerFoundEventArgs(ip.Address, port));
 
-                            LogManager.LogMessage(LogType.Info, "Communicating with server on Port: " + port);
+                            LogManager.LogMessage(
+                                LogType.Info,
+                                LogLevel.Communication,
+                                "Communicating with server on Port: " + port);
                         }
 
                         LogManager.LogMessage(
-                            LogType.Info, 
+                            LogType.Info,
+                            LogLevel.Communication,
                             String.Format("Server found {0}", ip.Address.ToString()));
                         break;
                     default:
@@ -80,8 +84,10 @@ namespace Network.Discovery
             }
             catch (Exception ex)
             {
-                Console.WriteLine("2: " + ex.ToString());
-                LogManager.LogMessage(LogType.Error, ex.ToString());
+                LogManager.LogMessage(
+                    LogType.Error,
+                    LogLevel.Errors,
+                    ex.ToString());
             }
         }
 

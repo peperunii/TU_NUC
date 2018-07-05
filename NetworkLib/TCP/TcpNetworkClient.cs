@@ -157,21 +157,21 @@ namespace Network.TCP
                         continue;
                     }
 
-                    LogManager.LogMessage(LogType.Info, "Sending... ");
+                    LogManager.LogMessage(LogType.Info, LogLevel.Communication, "Sending... ");
                     var messageData = lObject.Serialize();
-                    LogManager.LogMessage(LogType.Info, "Sending: " + messageData.Length + " bytes");
+                    LogManager.LogMessage(LogType.Info, LogLevel.Communication, "Sending: " + messageData.Length + " bytes");
                     _NetworkStream.Write(messageData, 0, messageData.Length);
                     Thread.Sleep(1);
                 }
                 catch (System.IO.IOException)
                 {
-                    if (_ExitLoop) LogManager.LogMessage(LogType.Error, "User requested client shutdown.");
-                    else LogManager.LogMessage(LogType.Error, "Disconnected");
+                    if (_ExitLoop) LogManager.LogMessage(LogType.Error, LogLevel.Communication, "User requested client shutdown.");
+                    else LogManager.LogMessage(LogType.Error, LogLevel.Errors, "Disconnected");
                 }
-                catch (Exception ex) { LogManager.LogMessage(LogType.Error, ex.ToString()); }
+                catch (Exception ex) { LogManager.LogMessage(LogType.Error, LogLevel.Errors, ex.ToString()); }
             }
             _ExitLoop = true;
-            LogManager.LogMessage(LogType.Error, "Writer is shutting down");
+            LogManager.LogMessage(LogType.Error, LogLevel.Errors, "Writer is shutting down");
         }
         
         private void LoopRead()
@@ -189,20 +189,20 @@ namespace Network.TCP
                 }
                 catch (System.IO.IOException ex)
                 {
-                    if (_ExitLoop) LogManager.LogMessage(LogType.Error, "User requested client shutdown.");
-                    else LogManager.LogMessage(LogType.Error, "Disconnected");
+                    if (_ExitLoop) LogManager.LogMessage(LogType.Error, LogLevel.Communication, "User requested client shutdown.");
+                    else LogManager.LogMessage(LogType.Error, LogLevel.Errors, "Disconnected");
 
                     this.RestartClient();
                 }
-                catch (Exception ex) { this.RestartClient(); LogManager.LogMessage(LogType.Error, ex.ToString()); }
+                catch (Exception ex) { this.RestartClient(); LogManager.LogMessage(LogType.Error, LogLevel.Errors, ex.ToString()); }
             }
-            LogManager.LogMessage(LogType.Error, "Reader is shutting down");
+            LogManager.LogMessage(LogType.Error, LogLevel.Errors, "Reader is shutting down");
         }
 
         private void RestartClient()
         {
             Configuration.IsServerDisconnected = true;
-            LogManager.LogMessage(LogType.Warning, "Restarting ...");
+            LogManager.LogMessage(LogType.Warning, LogLevel.Communication, "Restarting ...");
 
             Thread.Sleep(3000);
 

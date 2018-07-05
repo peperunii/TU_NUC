@@ -117,6 +117,7 @@
     <Compile Include="Events\ServerFoundEventArgs.cs" />
     <Compile Include="Events\NUCConnectedEventArgs.cs" />
     <Compile Include="Logger\Logger.cs" />
+    <Compile Include="Logger\LogLevel.cs" />
     <Compile Include="Logger\LogType.cs" />
     <Compile Include="Messages\MessageCalibrationRequest.cs" />
     <Compile Include="Messages\MessageColorFrame.cs" />

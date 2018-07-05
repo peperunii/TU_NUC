@@ -17,11 +17,13 @@ namespace Server
             try
             {
                 /* Setting up the Log manager */
+                LogManager.SetLogLevel(Configuration.loglevel);
+
                 LogManager.SetConsole(Configuration.logInConsole);
                 LogManager.SetDB(Configuration.logInDB);
                 LogManager.SetFileOutput(Configuration.logFilename, Configuration.logInFile);
-
-                LogManager.LogMessage(LogType.Info, string.Format("Server: Started", Configuration.DeviceID));
+                
+                LogManager.LogMessage(LogType.Info, LogLevel.ErrWarnInfo, string.Format("Server: Started", Configuration.DeviceID));
 
                 ServerActions.Listener();
             }

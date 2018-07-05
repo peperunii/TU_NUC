@@ -701,7 +701,7 @@
             var sortInfo = this.GetSortInfo(this.listBoxAllLogs);
 
             this.buttonRefresh.IsEnabled = false;
-            LogManager.LogMessage(LogType.Info, "Getting event logs");
+            LogManager.LogMessage(LogType.Info, LogLevel.Everything, "Getting event logs");
 
             Globals.Database.QuerySelect(DatabaseQueries.SelectFromTable, new List<string>() { TableName.serverevents.ToString() });
             EventsContainer.Clear();

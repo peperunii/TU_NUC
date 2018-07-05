@@ -24,7 +24,7 @@ namespace Client
                 LogManager.SetDB(Configuration.logInDB);
                 LogManager.SetFileOutput(Configuration.logFilename, Configuration.logInFile);
 
-                LogManager.LogMessage(LogType.Info, string.Format("Client {0}: Started", Configuration.DeviceID));
+                LogManager.LogMessage(LogType.Info, LogLevel.ErrWarnInfo, string.Format("Client {0}: Started", Configuration.DeviceID));
 
                 ClientProcessor.Start();
             }
@@ -32,7 +32,7 @@ namespace Client
             {
                 Console.WriteLine("4: " + ex.ToString());
                 /*Restart application on exception*/
-                LogManager.LogMessage(LogType.Error, ex.ToString());
+                LogManager.LogMessage(LogType.Error, LogLevel.Errors, ex.ToString());
                 Global.RestartApp();
             }
         }

@@ -119,7 +119,7 @@ namespace NUC_Controller
                 Environment.Exit(0);
             }
 
-            LogManager.LogMessage(LogType.UserAction, string.Format("User ''{0}'' logged in.", Globals.loggedInUser.Username));
+            LogManager.LogMessage(LogType.UserAction, LogLevel.ErrWarn, string.Format("User ''{0}'' logged in.", Globals.loggedInUser.Username));
 
             InitializeComponent();
             this.InitializePermissionsControlsMapping();

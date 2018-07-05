@@ -12,6 +12,7 @@ Log in Console: True
 Log in DB: True
 Log in File: False
 Log Filename: logInfo.txt
+Log Level: Errors
 
 Color Frame Scale: 0.5
 Depth Frame Scale: 1

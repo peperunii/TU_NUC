@@ -46,7 +46,7 @@ namespace Server
         {
             try
             {
-                LogManager.LogMessage(LogType.Warning, "Server restart...");
+                LogManager.LogMessage(LogType.Warning, LogLevel.ErrWarnInfo, "Server restart...");
 
                 foreach (var tcpServer in ServerActions.tcpServers)
                 {
@@ -54,7 +54,7 @@ namespace Server
                 }
                 ServerActions.tcpServers.Clear();
 
-                LogManager.LogMessage(LogType.Warning, "TCP Connections closed...");
+                LogManager.LogMessage(LogType.Warning, LogLevel.Communication, "TCP Connections closed...");
 
                 if (ServerActions.discoveryServer != null)
                 {
@@ -62,14 +62,14 @@ namespace Server
                 }
                 ServerActions.discoveryServer = null;
 
-                LogManager.LogMessage(LogType.Warning, "UDP server closed...");
+                LogManager.LogMessage(LogType.Warning, LogLevel.Communication, "UDP server closed...");
 
                 ServerActions.Devices.Clear();
-                LogManager.LogMessage(LogType.Warning, "Clients removed...");
+                LogManager.LogMessage(LogType.Warning, LogLevel.Communication, "Clients removed...");
             }
             catch(Exception)
             {
-                LogManager.LogMessage(LogType.Error, "Restart failed...");
+                LogManager.LogMessage(LogType.Error, LogLevel.Errors, "Restart failed...");
             }
 
             /*The server App is hard to kill*/

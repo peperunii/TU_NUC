@@ -23,6 +23,7 @@ namespace Network
         public static bool logInDB;
         public static bool logInFile;
         public static string logFilename;
+        public static LogLevel loglevel;
 
         public static double colorFrameScale = 1.0;
         public static double depthFrameScale = 1.0;
@@ -39,6 +40,7 @@ namespace Network
         private static string identifierForLogInDB = "Log in DB";
         private static string identifierForLogInFile = "Log in File";
         private static string identifierForLogFilename = "Log Filename";
+        private static string identifierForLoglevel = "Log Level";
 
         private static string identifierForColorFrameScale = "Color Frame Scale";
         private static string identifierForDepthFrameScale = "Depth Frame Scale";
@@ -86,7 +88,7 @@ namespace Network
                         var loggedUsername = System.Security.Principal.WindowsIdentity.GetCurrent().Name;
                         loggedUsername = loggedUsername.Substring(loggedUsername.IndexOf('\\') + 1);
                         Console.WriteLine("Logged user: " + loggedUsername);
-                        Configuration.DeviceID = 
+                        Configuration.DeviceID =
                             (DeviceID)Enum.Parse(
                                 typeof(DeviceID),
                                 loggedUsername);
@@ -125,6 +127,17 @@ namespace Network
                 else if (line.Contains(identifierForLogFilename))
                 {
                     Configuration.logFilename = GetValueFromLine(line).Trim();
+                }
+                else if (line.Contains(identifierForLoglevel))
+                {
+                    try
+                    {
+                        Configuration.loglevel = (LogLevel)Enum.Parse(typeof(LogLevel), GetValueFromLine(line).Trim());
+                    }
+                    catch (Exception)
+                    {
+                        Configuration.loglevel = (LogLevel)ushort.Parse(GetValueFromLine(line));
+                    }
                 }
 
                 /*Frames Scale configuration*/

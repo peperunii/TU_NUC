@@ -13,8 +13,10 @@ namespace Network.Logger
         private static bool showConsole = false;
         private static bool saveInFile = false;
         private static bool saveinDB = false;
-        private static DB database = null;
 
+        private static LogLevel logLevel = LogLevel.Errors;
+        private static DB database = null;
+        
         private static string logFilename;
 
         static LogManager()
@@ -39,33 +41,41 @@ namespace Network.Logger
             LogManager.database = new DB(false, true);
         }
 
-        public static async void LogMessage(LogType logType, string message)
+        public static void SetLogLevel(LogLevel logLevel = LogLevel.Errors)
         {
-            await Task.Run(() =>
-            {
-                var time = DateTime.Now;
-                var messageLog = string.Format("{0},{1}: [{2}] {3}", time, time.Millisecond, logType, message);
+            LogManager.logLevel = logLevel;
+        }
 
-                if (LogManager.showConsole)
+        public static async void LogMessage(LogType logType, LogLevel priority, string message)
+        {
+            if (LogManager.logLevel >= priority)
+            {
+                await Task.Run(() =>
                 {
-                    Console.WriteLine(messageLog);
-                }
-                if (LogManager.saveInFile)
-                {
-                    File.AppendAllText(LogManager.logFilename, messageLog + "\n");
-                }
-                if (LogManager.saveinDB)
-                {
-                    LogManager.database.Query(
-                        string.Format(
-                            QueryStrings.Insert_Into_Table_ServerEvents,
-                            DateTime.Now.ToFileTimeUtc(),
-                            Configuration.DeviceID,
-                            Configuration.DeviceIP,
-                            logType,
-                            message));
-                }
-            });
+                    var time = DateTime.Now;
+                    var messageLog = string.Format("{0},{1}: [{2}] {3}", time, time.Millisecond, logType, message);
+
+                    if (LogManager.showConsole)
+                    {
+                        Console.WriteLine(messageLog);
+                    }
+                    if (LogManager.saveInFile)
+                    {
+                        File.AppendAllText(LogManager.logFilename, messageLog + "\n");
+                    }
+                    if (LogManager.saveinDB)
+                    {
+                        LogManager.database.Query(
+                            string.Format(
+                                QueryStrings.Insert_Into_Table_ServerEvents,
+                                DateTime.Now.ToFileTimeUtc(),
+                                Configuration.DeviceID,
+                                Configuration.DeviceIP,
+                                logType,
+                                message));
+                    }
+                });
+            }
         }
     }
 }

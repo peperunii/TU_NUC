@@ -57,7 +57,7 @@ namespace Client
         {
             if (!Configuration.IsServerDisconnected)
             {
-                LogManager.LogMessage(LogType.Info, "Sending color frame...");
+                LogManager.LogMessage(LogType.Info, LogLevel.Everything, "Sending color frame...");
                 var colorData = camera.GetData(CameraDataType.Color);
                 var messageColorFrame = new MessageColorFrame(1080, 1920, 3, false, (colorData as byte[]));
                 tcpClient.Send(messageColorFrame);
@@ -109,13 +109,13 @@ namespace Client
 
         public static void SendMessage(Message message)
         {
-            LogManager.LogMessage(LogType.Info, "Sending MESSAGE !");
+            LogManager.LogMessage(LogType.Info, LogLevel.Everything, "Sending MESSAGE !");
             tcpClient.Send(message);
         }
 
         private static void TcpClient_OnMessage(Network.Messages.Message message)
         {
-            LogManager.LogMessage(LogType.Info, "Received message: " + message.type);
+            LogManager.LogMessage(LogType.Info, LogLevel.Everything, "Received message: " + message.type);
             switch (message.type)
             {
                 case MessageType.KeepAlive:
@@ -124,7 +124,7 @@ namespace Client
 
                 case MessageType.TimeInfo:
                     ServerTime.Set(DateTime.FromFileTimeUtc((long)message.info));
-                    LogManager.LogMessage(LogType.Info, "Sync Date/Time...");
+                    LogManager.LogMessage(LogType.Info, LogLevel.Everything, "Sync Date/Time...");
                     break;
 
                 case MessageType.RestartClientApp:

@@ -54,6 +54,7 @@ namespace Server
             {
                 LogManager.LogMessage(
                             LogType.Info,
+                            LogLevel.Everything,
                             "Message arrived...");
 
                 var tcpStream = (xSender as TcpClient).GetStream();
@@ -67,12 +68,14 @@ namespace Server
                     case MessageType.SetConfigurationPerClient:
                         LogManager.LogMessage(
                             LogType.Warning,
+                            LogLevel.Everything,
                             "Received Configuration: " + message.info as string);
                         break;
 
                     case MessageType.Info:
                         LogManager.LogMessage(
-                            LogType.Warning, 
+                            LogType.Warning,
+                            LogLevel.Everything,
                             "Received Info Message: " + message.info as string);
                         break;
 
@@ -89,6 +92,7 @@ namespace Server
                     case MessageType.ColorFrame:
                         LogManager.LogMessage(
                             LogType.Warning,
+                            LogLevel.Everything,
                             "Received Color Frame: (" 
                             + (message as MessageColorFrame).Height
                             + ", "
@@ -97,8 +101,8 @@ namespace Server
                         break;
 
                     case MessageType.GetConnectedClients:
-                        LogManager.LogMessage(LogType.Info, "Sending Clients info to UI Controller");
-                        LogManager.LogMessage(LogType.Info, "Number of connected Devices: " + Devices.Count);
+                        LogManager.LogMessage(LogType.Info, LogLevel.Everything, "Sending Clients info to UI Controller");
+                        LogManager.LogMessage(LogType.Info, LogLevel.Communication, "Number of connected Devices: " + Devices.Count);
                         var messageClients = new MessageConnectedClients(ServerActions.Devices).Serialize();
                         tcpStream.Write(messageClients, 0, messageClients.Length);
                         break;
@@ -123,7 +127,7 @@ namespace Server
             
             foreach (var device in connectedDevices)
             {
-                LogManager.LogMessage(LogType.Info, "Device Found: " + device.Key);
+                LogManager.LogMessage(LogType.Info, LogLevel.Communication, "Device Found: " + device.Key);
 
                 var deviceID = device.Key;
                 var address = device.Value;
@@ -148,7 +152,7 @@ namespace Server
 
         private static void SendDeviceStart(TcpNetworkListener tcpServer, DeviceID deviceID)
         {
-            LogManager.LogMessage(LogType.Info, "Device Start");
+            LogManager.LogMessage(LogType.Info, LogLevel.Communication, "Device Start");
             var deviceIP = (from t in Devices
                         where t.deviceID == deviceID
                         select t.ip).FirstOrDefault();

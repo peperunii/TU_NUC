@@ -80,7 +80,10 @@ namespace NetworkLib.TCP
         {
             if (!_ExitLoop)
             {
-                LogManager.LogMessage(LogType.Warning, "Listener running already");
+                LogManager.LogMessage(
+                    LogType.Warning,
+                    LogLevel.Communication,
+                    "Listener running already");
                 return false;
             }
             _ExitLoop = false;
@@ -90,7 +93,10 @@ namespace NetworkLib.TCP
                 _Listener = new TcpListener(IPAddress.Parse(IpAddress), Port);
                 _Listener.Start();
 
-                LogManager.LogMessage(LogType.Info, "TCP connection in port: " + Port);
+                LogManager.LogMessage(
+                    LogType.Info,
+                    LogLevel.Communication,
+                    "TCP connection in port: " + Port);
                 Thread lThread = new Thread(new ThreadStart(LoopWaitingForClientsToConnect));
                 lThread.IsBackground = true;
                 lThread.Name = ThreadName + "WaitingForClients";
@@ -98,7 +104,12 @@ namespace NetworkLib.TCP
 
                 return true;
             }
-            catch (Exception ex) { LogManager.LogMessage(LogType.Error, ex.ToString()); }
+            catch (Exception ex)
+            {
+                LogManager.LogMessage(
+                    LogType.Error,
+                    LogLevel.Errors,
+                    ex.ToString()); }
             return false;
         }
 
@@ -130,10 +141,16 @@ namespace NetworkLib.TCP
             {
                 while (!_ExitLoop)
                 {
-                    LogManager.LogMessage(LogType.Info, "waiting for a client");
+                    LogManager.LogMessage(
+                        LogType.Info,
+                        LogLevel.Communication,
+                        "waiting for a client");
                     var lClient = _Listener.AcceptTcpClient();
                     string lClientIpAddress = lClient.Client.LocalEndPoint.ToString();
-                    LogManager.LogMessage(LogType.Info, "new client connecting: " + lClientIpAddress);
+                    LogManager.LogMessage(
+                        LogType.Info,
+                        LogLevel.Communication,
+                        "new client connecting: " + lClientIpAddress);
                     if (_ExitLoop) break;
                     lock (_clients) _clients.Add(lClient);
 
@@ -145,7 +162,10 @@ namespace NetworkLib.TCP
             }
             catch (Exception ex)
             {
-                LogManager.LogMessage(LogType.Error, ex.ToString());
+                LogManager.LogMessage(
+                    LogType.Error,
+                    LogLevel.Errors,
+                    ex.ToString());
             }
             finally
             {
@@ -176,18 +196,18 @@ namespace NetworkLib.TCP
                 }
                 catch (System.IO.IOException)
                 {
-                    if (_ExitLoop) LogManager.LogMessage(LogType.Error, "User requested client shutdown");
-                    else LogManager.LogMessage(LogType.Error, "Disconnected");
+                    if (_ExitLoop) LogManager.LogMessage(LogType.Error, LogLevel.Errors, "User requested client shutdown");
+                    else LogManager.LogMessage(LogType.Error, LogLevel.Communication, "Disconnected");
                     this.RestartClient(lClient);
                 }
-                catch (Exception ex) { this.RestartClient(lClient); LogManager.LogMessage(LogType.Error, ex.ToString()); }
+                catch (Exception ex) { this.RestartClient(lClient); LogManager.LogMessage(LogType.Error, LogLevel.Errors, ex.ToString()); }
             }
-            LogManager.LogMessage(LogType.Error, "Listener is shutting down");
+            LogManager.LogMessage(LogType.Error, LogLevel.Communication, "Listener is shutting down");
         }
 
         private void RestartClient(TcpClient client)
         {
-            LogManager.LogMessage(LogType.Warning, "Restarting ...");
+            LogManager.LogMessage(LogType.Warning, LogLevel.Communication, "Restarting ...");
             this.Disconnect(client);
             this.Connect();
         }
@@ -248,7 +268,7 @@ namespace NetworkLib.TCP
                     lNetworkStream.Write(msgData, 0, msgData.Length);
                     Thread.Sleep(1);
                 }
-                catch (Exception ex) { LogManager.LogMessage(LogType.Error, ex.ToString()); }
+                catch (Exception ex) { LogManager.LogMessage(LogType.Error, LogLevel.Errors, ex.ToString()); }
             }
         }
 

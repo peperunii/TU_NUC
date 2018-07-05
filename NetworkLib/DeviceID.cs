@@ -5,7 +5,7 @@
         Petar,
         TU_SERVER,
         Controller,
-        TU_NUC_1,
+        TU_NUC,
         TU_NUC_2,
         TU_NUC_3,
         TU_NUC_4,

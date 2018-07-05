@@ -83,7 +83,7 @@ namespace NUC_Controller.Windows
                     else
                     {
                         MessageBox.Show("Incorrect credentials !");
-                        LogManager.LogMessage(LogType.UserAction, string.Format("Unsuccessful Login with user: ''{0}''. Password: ''{1}''", username, password));
+                        LogManager.LogMessage(LogType.UserAction, LogLevel.Errors, string.Format("Unsuccessful Login with user: ''{0}''. Password: ''{1}''", username, password));
                     }
                 }
             }

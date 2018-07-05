@@ -61,7 +61,7 @@ namespace NUC_Controller.NetworkWorker
 
         private static void TcpClient_OnMessage(Network.Messages.Message message)
         {
-            LogManager.LogMessage(LogType.Info, "Received message: " + message.type);
+            LogManager.LogMessage(LogType.Info, LogLevel.Everything, "Received message: " + message.type);
             switch (message.type)
             {
                 case MessageType.RestartClientApp:
@@ -78,7 +78,7 @@ namespace NUC_Controller.NetworkWorker
 
                 case MessageType.TimeInfo:
                     ServerTime.Set(DateTime.FromFileTimeUtc((long)message.info));
-                    LogManager.LogMessage(LogType.Info, "Sync Date/Time...");
+                    LogManager.LogMessage(LogType.Info, LogLevel.Everything, "Sync Date/Time...");
                     break;
 
                 case MessageType.ReloadConfiguration:
