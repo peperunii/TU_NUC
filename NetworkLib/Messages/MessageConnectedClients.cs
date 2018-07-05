@@ -25,7 +25,12 @@ namespace Network.Messages
         public MessageConnectedClients(List<NUC> devices)
         {
             this.type = MessageType.ConnectedClients;
-            this.info = devices;
+            this.info = devices.ToList();
+
+            var portWithUI = (from t in devices
+                              where t.deviceID == DeviceID.Controller
+                              select t.ip.Port).FirstOrDefault();
+            (this.info as List<NUC>).Add(new NUC(DeviceID.TU_SERVER, new IPEndPoint(Configuration.DeviceIP, portWithUI)));
         }
 
         public override byte[] Serialize()

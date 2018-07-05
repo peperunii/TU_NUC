@@ -61,6 +61,9 @@ namespace NUC_Controller.Pages
 
         private void TabCreator(NUC device)
         {
+            /*Do not visualize configuration of controller*/
+            if (device.deviceID == DeviceID.Controller) return;
+
             var tab = new TabItem();
             tab.Header = device.deviceID;
             this.tabDevicesList.Items.Add(tab);
@@ -99,6 +102,10 @@ namespace NUC_Controller.Pages
             textblockSocket.Height = 30;
             textblockSocket.Text = device.ip.ToString();
 
+            var dockPanelButtons = new DockPanel();
+            dockPanelButtons.HorizontalAlignment = HorizontalAlignment.Right;
+            dockPanelButtons.VerticalAlignment = VerticalAlignment.Center;
+
             var buttonRestart = new Button();
             buttonRestart.Name = "buttonRestart_" + device.deviceID;
             buttonRestart.Click += this.ButtonRestartApp_Click;
@@ -108,17 +115,19 @@ namespace NUC_Controller.Pages
             buttonRestart.HorizontalAlignment = HorizontalAlignment.Right;
 
             var buttonRestartDevice = new Button();
-            buttonRestart.Name = "buttonRestart_" + device.deviceID;
-            buttonRestart.Click += this.ButtonRestartApp_Click;
-            buttonRestart.Width = 80;
-            buttonRestart.Height = 24;
-            buttonRestart.Content = "Restart Device";
-            buttonRestart.HorizontalAlignment = HorizontalAlignment.Right;
+            buttonRestartDevice.Name = "buttonRestart_" + device.deviceID;
+            buttonRestartDevice.Click += this.ButtonRestartDevice_Click;
+            buttonRestartDevice.Width = 80;
+            buttonRestartDevice.Height = 24;
+            buttonRestartDevice.Content = "Restart Device";
+            buttonRestartDevice.HorizontalAlignment = HorizontalAlignment.Right;
             buttonRestartDevice.Margin = new Thickness(5, 0, 5, 0);
 
+            dockPanelButtons.Children.Add(buttonRestart);
+            dockPanelButtons.Children.Add(buttonRestartDevice);
+
             dockPanel.Children.Add(textblockSocket);
-            dockPanel.Children.Add(buttonRestart);
-            dockPanel.Children.Add(buttonRestartDevice);
+            dockPanel.Children.Add(dockPanelButtons);
 
             //var textBoxConfig = new TextBox();
             //textBoxConfig.Text = device.config;

@@ -309,7 +309,7 @@
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>t2085Q5g+STMmz++y1dme0cpmhaLy6jaIf5qSEfIHxY=</dsig:DigestValue>
+        <dsig:DigestValue>M3mtbLJaro9wC+gN+lrocniHtJfKeFh98D0SJpykSPA=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -362,14 +362,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="NetworkLib.dll" size="38400">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="NetworkLib.dll" size="38912">
       <assemblyIdentity name="NetworkLib" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>OizDDRiwUEojKcG0BUgVS+hgQ79vKnCActYNCSI1nQs=</dsig:DigestValue>
+        <dsig:DigestValue>naeZRvvmaWnXJ2i6mZO9fPgZBU+os91kBwB76EgrdP4=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

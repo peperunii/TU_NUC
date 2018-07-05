@@ -93,8 +93,16 @@ namespace Server
 
                         var deviceID = (message as MessageGetConfigurationPerClient).deviceId;
 
-                        var getConfMessage = new MessageGetConfigurationPerClient(deviceID).Serialize();
-                        tcpStream.Write(getConfMessage, 0, getConfMessage.Length);
+                        if (deviceID == DeviceID.TU_SERVER)
+                        {
+                            var getConfMessage = new MessageSetConfigurationPerClient(DeviceID.TU_SERVER, Configuration.GetConfigurationFile()).Serialize();
+                            tcpStream.Write(getConfMessage, 0, getConfMessage.Length);
+                        }
+                        else
+                        {
+                            var getConfMessage = new MessageGetConfigurationPerClient(deviceID).Serialize();
+                            tcpStream.Write(getConfMessage, 0, getConfMessage.Length);
+                        }
                         break;
 
                     case MessageType.ColorFrame:
