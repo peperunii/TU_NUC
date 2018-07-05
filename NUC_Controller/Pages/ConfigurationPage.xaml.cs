@@ -36,13 +36,14 @@ namespace NUC_Controller.Pages
         {
             this.buttonRefresh.ToolTip = string.Empty;
             connectedDevices = Worker.GetConnectedDevices();
-
+            
             if (connectedDevices != null)
             {
+                var sortedDevices = connectedDevices.OrderBy(o => o.deviceID).ToList();
                 var lastSelectedIndex = this.tabDevicesList.SelectedIndex;
 
                 this.tabDevicesList.Items.Clear();
-                foreach (var device in connectedDevices)
+                foreach (var device in sortedDevices)
                 {
                     this.TabCreator(device);
                 }

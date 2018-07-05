@@ -83,11 +83,23 @@ namespace Network
                 {
                     try
                     {
-                        Configuration.DeviceID = (DeviceID)(int.Parse(GetValueFromLine(line)) - 1);
+                        var loggedUsername = System.Security.Principal.WindowsIdentity.GetCurrent().Name;
+                        LogManager.LogMessage(LogType.Info, "Logged user: " + loggedUsername);
+                        Configuration.DeviceID = 
+                            (DeviceID)Enum.Parse(
+                                typeof(DeviceID),
+                                loggedUsername);
                     }
                     catch (Exception ex)
                     {
-                        Configuration.DeviceID = (DeviceID)Enum.Parse(typeof(DeviceID), GetValueFromLine(line));
+                        try
+                        {
+                            Configuration.DeviceID = (DeviceID)(int.Parse(GetValueFromLine(line)) - 1);
+                        }
+                        catch (Exception)
+                        {
+                            Configuration.DeviceID = (DeviceID)Enum.Parse(typeof(DeviceID), GetValueFromLine(line));
+                        }
                     }
                 }
                 else if (line.Contains(identifierForDiscoveryPort))
