@@ -30,6 +30,7 @@ namespace Client
             }
             catch (Exception ex)
             {
+                Console.WriteLine("4: " + ex.ToString());
                 /*Restart application on exception*/
                 LogManager.LogMessage(LogType.Error, ex.ToString());
                 Global.RestartApp();

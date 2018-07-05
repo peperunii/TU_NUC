@@ -82,6 +82,7 @@ namespace Network.Discovery
             }
             catch (Exception ex)
             {
+                Console.WriteLine("1: " + ex.ToString());
                 LogManager.LogMessage(LogType.Error, ex.ToString());
             }
         }

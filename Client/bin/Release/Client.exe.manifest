@@ -302,14 +302,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Client.exe" size="16864">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Client.exe" size="17376">
       <assemblyIdentity name="Client" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>6WLO1K4OErl8blqbO3xnrDQJkY58+nBkBGlRaM0/ZHs=</dsig:DigestValue>
+        <dsig:DigestValue>TBjuy11sdUeuZimzXW2f6l245MIhEleYeOsyKGUkWPI=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -321,7 +321,7 @@
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>mqSUhPEPeE7Mr6Avq5bTcviyow48wNpuugf6B1qpTeo=</dsig:DigestValue>
+        <dsig:DigestValue>g7VXv5/rLHuzeD5D3INlzIfpZ5tyW6qkANiBPp+7uGQ=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -362,14 +362,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="NetworkLib.dll" size="36864">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="NetworkLib.dll" size="37376">
       <assemblyIdentity name="NetworkLib" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>zjL6A15/yd4jnVYR5q9HnQMKYoH8WXMpVMIcZ7Av1MI=</dsig:DigestValue>
+        <dsig:DigestValue>Tf6GP89rZUW+qnHrN0aSnrVCIuFLhiSgoPgKfIDMHFA=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

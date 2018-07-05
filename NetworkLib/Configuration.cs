@@ -93,6 +93,7 @@ namespace Network
                     }
                     catch (Exception ex)
                     {
+                        Console.WriteLine("Error parsing the LoggedIN username");
                         try
                         {
                             Configuration.DeviceID = (DeviceID)(int.Parse(GetValueFromLine(line)) - 1);

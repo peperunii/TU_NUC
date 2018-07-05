@@ -27,6 +27,7 @@ namespace Server
             }
             catch (Exception ex)
             {
+                Console.WriteLine("3: " + ex.ToString());
                 /*Restart application on exception*/
                 Global.RestartApp();
             }
