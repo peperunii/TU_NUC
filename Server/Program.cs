@@ -16,6 +16,9 @@ namespace Server
 
             try
             {
+                /*Only Server and controller are unique and can be hard-coded*/
+                Configuration.DeviceID = DeviceID.TU_SERVER;
+
                 /* Setting up the Log manager */
                 LogManager.SetLogLevel(Configuration.loglevel);
 
@@ -29,7 +32,6 @@ namespace Server
             }
             catch (Exception ex)
             {
-                Console.WriteLine("3: " + ex.ToString());
                 /*Restart application on exception*/
                 Global.RestartApp();
             }

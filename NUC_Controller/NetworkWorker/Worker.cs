@@ -6,6 +6,7 @@ using Network.Logger;
 using Network.Messages;
 using Network.TCP;
 using Network.TimeSync;
+using NUC_Controller.Notifications;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -65,56 +66,58 @@ namespace NUC_Controller.NetworkWorker
             LogManager.LogMessage(LogType.Info, LogLevel.Everything, "Received message: " + message.type);
             switch (message.type)
             {
-                case MessageType.RestartClientApp:
-                    Globals.RestartApp();
-                    break;
-
-                case MessageType.RestartClientDevice:
-                    ProcessStartInfo proc = new ProcessStartInfo();
-                    proc.WindowStyle = ProcessWindowStyle.Hidden;
-                    proc.FileName = "cmd";
-                    proc.Arguments = "/C shutdown -f -r";
-                    Process.Start(proc);
+                case MessageType.Info:
+                    new Notification(NotificationType.Info, (message as MessageSendInfoToServer).info as string);
                     break;
 
                 case MessageType.TimeInfo:
-                    ServerTime.Set(DateTime.FromFileTimeUtc((long)message.info));
-                    LogManager.LogMessage(LogType.Info, LogLevel.Everything, "Sync Date/Time...");
-                    break;
-
-                case MessageType.ReloadConfiguration:
-                    Globals.ReloadConfiguration();
-                    break;
-
-                case MessageType.KeepAlive:
+                    {
+                        ServerTime.Set(DateTime.FromFileTimeUtc((long)message.info));
+                        LogManager.LogMessage(LogType.Info, LogLevel.Everything, "Sync Date/Time...");
+                    }
                     break;
 
                 case MessageType.ConnectedClients:
-                    Worker.connectedDevices = message.info as List<NUC>;
-
-                    /*Read configurations if user is allowed*/
-                    if (Globals.loggedInUser.CheckIfHasAccess(Users.ActionType.ReadConfig))
                     {
-                        foreach (var client in Worker.connectedDevices)
+                        Worker.connectedDevices = message.info as List<NUC>;
+
+                        /*Read configurations if user is allowed*/
+                        if (Globals.loggedInUser.CheckIfHasAccess(Users.ActionType.ReadConfig))
                         {
-                            SendMessage(new MessageGetConfigurationPerClient(client.deviceID));
+                            foreach (var client in Worker.connectedDevices)
+                            {
+                                SendMessage(new MessageGetConfigurationPerClient(client.deviceID));
+                            }
                         }
                     }
-
+                    break;
+                    
+                case MessageType.ShowConfigurationPerClient:
+                    {
+                        var deviceId = (message as MessageSetConfigurationPerClient).deviceId;
+                        var device = (from t in connectedDevices
+                                      where t.deviceID == deviceId
+                                      select t).FirstOrDefault();
+                        device.SetConfiguration((message as MessageSetConfigurationPerClient).info as string);
+                    }
                     break;
 
-                // The controller is not sending configuration
-                //case MessageType.GetConfigurationPerClient:
-                //    SendMessage(new MessageSetConfigurationPerClient(Network.Configuration.DeviceID, Network.Configuration.GetConfigurationFile()));
-                //    break;
-
-                case MessageType.SetConfigurationPerClient:
-                    var deviceId = (message as MessageSetConfigurationPerClient).deviceId;
-                    var device = (from t in connectedDevices
-                                  where t.deviceID == deviceId
-                                  select t).FirstOrDefault();
-                    device.SetConfiguration((message as MessageSetConfigurationPerClient).info as string);
+                case MessageType.ColorFrame:
                     break;
+
+                case MessageType.DepthFrame:
+                    break;
+
+                case MessageType.IRFrame:
+                    break;
+
+                case MessageType.Skeleton:
+                    break;
+                    // The controller is not sending configuration
+                    //case MessageType.GetConfigurationPerClient:
+                    //    SendMessage(new MessageSetConfigurationPerClient(Network.Configuration.DeviceID, Network.Configuration.GetConfigurationFile()));
+                    //    break;
+
             }
         }
 

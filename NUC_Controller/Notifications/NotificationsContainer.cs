@@ -31,5 +31,10 @@ namespace NUC_Controller.Notifications
                 return null;
             }
         }
+
+        public static List<Notification> GetAllNotifications()
+        {
+            return notifications;
+        }
     }
 }

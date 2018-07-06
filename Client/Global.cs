@@ -22,6 +22,19 @@ namespace Client
             Process.Start(proc);
         }
 
+        public static void ShutDownDevice()
+        {
+            try
+            {
+                LogManager.LogMessage(LogType.Info, LogLevel.Everything, "Shutting down Device...");
+                StartShutDown("-f -s -t 5");
+            }
+            catch (Exception ex)
+            {
+                LogManager.LogMessage(LogType.Error, LogLevel.Errors, "Shutting down device failed...");
+            }
+        }
+
         public static void RestartDevice()
         {
             try

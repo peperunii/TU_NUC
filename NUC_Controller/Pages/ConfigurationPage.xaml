@@ -19,7 +19,8 @@
 
         </TabControl>
         <DockPanel Height="24" Grid.Row="1" HorizontalAlignment="Right" Margin="5,2,5,2">
-            <Button x:Name="buttonRefresh" Click="buttonRefresh_Click" Width="80">Refresh</Button>
+            <Button x:Name="buttonRefresh" Click="buttonRefresh_Click" Width="130">Reload Configuration</Button>
+            <Button x:Name="buttonRefreshDevices" Click="buttonRefreshDevices_Click" Width="130" Margin="5,0,0,0">Refresh Devices list</Button>
         </DockPanel>
     </Grid>
 </Page>

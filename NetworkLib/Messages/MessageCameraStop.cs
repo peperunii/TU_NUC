@@ -6,21 +6,29 @@ using System.Threading.Tasks;
 
 namespace Network.Messages
 {
-    public class MessageSetConfigurationPerClient : Message
+    public class MessageCameraStop : Message
     {
         public DeviceID deviceId;
 
-        public MessageSetConfigurationPerClient()
+        public MessageCameraStop()
         {
-            this.type = MessageType.ShowConfigurationPerClient;
-            this.info = "";
+            this.type = MessageType.CameraStop;
+            this.info = new byte[] { };
         }
 
-        public MessageSetConfigurationPerClient(DeviceID deviceId, string configuration)
+        public MessageCameraStop(DeviceID deviceID)
         {
-            this.type = MessageType.ShowConfigurationPerClient;
-            this.info = configuration;
-            this.deviceId = deviceId;
+            this.type = MessageType.CameraStop;
+            this.deviceId = deviceID;
+            this.info = BitConverter.GetBytes((ushort)deviceID);
+        }
+
+        public MessageCameraStop(byte[] infoBytes)
+        {
+            this.type = MessageType.CameraStop;
+            this.info = infoBytes;
+
+            this.deviceId = (DeviceID)BitConverter.ToUInt16(infoBytes, 0);
         }
 
         public override byte[] Serialize()
@@ -34,7 +42,7 @@ namespace Network.Messages
 
         private byte[] GetBytesOfInfo()
         {
-            return this.GetBytesForNumberShort((ushort)this.deviceId).Concat( Encoding.ASCII.GetBytes(this.info as string)).ToArray();
+            return this.info as byte[];
         }
     }
 }

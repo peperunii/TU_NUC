@@ -106,6 +106,15 @@ namespace NUC_Controller.Pages
             dockPanelButtons.HorizontalAlignment = HorizontalAlignment.Right;
             dockPanelButtons.VerticalAlignment = VerticalAlignment.Center;
 
+            var buttonSaveConfig = new Button();
+            buttonSaveConfig.Name = "buttonSaveConfig_" + device.deviceID;
+            buttonSaveConfig.Click += this.ButtonSaveConfig_Click;
+            buttonSaveConfig.Width = 80;
+            buttonSaveConfig.Height = 24;
+            buttonSaveConfig.Content = "Save";
+            buttonSaveConfig.HorizontalAlignment = HorizontalAlignment.Right;
+            buttonSaveConfig.Margin = new Thickness(5, 0, 35, 0);
+
             var buttonRestart = new Button();
             buttonRestart.Name = "buttonRestart_" + device.deviceID;
             buttonRestart.Click += this.ButtonRestartApp_Click;
@@ -123,6 +132,7 @@ namespace NUC_Controller.Pages
             buttonRestartDevice.HorizontalAlignment = HorizontalAlignment.Right;
             buttonRestartDevice.Margin = new Thickness(5, 0, 5, 0);
 
+            dockPanelButtons.Children.Add(buttonSaveConfig);
             dockPanelButtons.Children.Add(buttonRestart);
             dockPanelButtons.Children.Add(buttonRestartDevice);
 
@@ -140,6 +150,48 @@ namespace NUC_Controller.Pages
             tab.Content = datagrid;
         }
 
+        private void ButtonSaveConfig_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var result = MessageBox.Show("Send configuration?", "Warning", MessageBoxButton.YesNo);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    var indexOfSeparator = (sender as Button).Name.IndexOf('_');
+                    var deviceID_string = (sender as Button).Name.Substring(indexOfSeparator + 1);
+
+                    var deviceID = (DeviceID)Enum.Parse(typeof(DeviceID), deviceID_string);
+                    new Notification(NotificationType.Info, "Send configuration to:  " + deviceID);
+
+                    var configuration = this.GetConfigurationString();
+                    var device = (from t in Worker.GetConnectedDevices()
+                                  where t.deviceID == deviceID
+                                  select t).FirstOrDefault();
+                    device.SetConfiguration(configuration);
+
+                    NetworkSettings.tcpClient.Send(new MessageStoreConfigurationPerClient(deviceID, configuration));
+                }
+            }
+            catch (Exception)
+            {
+
+            }
+        }
+
+        private string GetConfigurationString()
+        {
+            var configStr = string.Empty;
+            var datagrid = ((this.tabDevicesList.SelectedItem as TabItem).Content as Grid).Children[1] as DataGrid;
+            foreach(var line in datagrid.Items)
+            {
+                var configLine = line as ConfigParam;
+                configStr += string.Format("{0}: {1}\n", configLine.Param, configLine.Value); 
+            }
+
+            return configStr;
+        }
+
         private void ButtonRestartApp_Click(object sender, RoutedEventArgs e)
         {
             var result = MessageBox.Show("Are you sure?", "Warning", MessageBoxButton.YesNo);
@@ -150,7 +202,7 @@ namespace NUC_Controller.Pages
                 var deviceID_string = (sender as Button).Name.Substring(indexOfSeparator + 1);
 
                 var deviceID = (DeviceID)Enum.Parse(typeof(DeviceID), deviceID_string);
-                new Notification(NotificationType.Info, "Restarting " + deviceID);
+                new Notification(NotificationType.Info, "Restarting app on device: " + deviceID);
 
                 if (deviceID_string.ToLower().Contains("server"))
                 {
@@ -188,26 +240,51 @@ namespace NUC_Controller.Pages
 
         private void buttonRefresh_Click(object sender, RoutedEventArgs e)
         {
-            var currentConnectedDevices = Worker.GetConnectedDevices();
-
-            if (currentConnectedDevices != null)
+            try
             {
-                this.buttonRefresh.IsEnabled = false;
+                var currentConnectedDevices = Worker.GetConnectedDevices();
 
-                for (int i = 0; i < currentConnectedDevices.Count; i++)
+                if (currentConnectedDevices != null)
                 {
-                    var deviceID = currentConnectedDevices[i].deviceID;
+                    this.buttonRefresh.IsEnabled = false;
 
-                    NetworkSettings.tcpClient.Send(new MessageGetConfigurationPerClient(deviceID));
+                    for (int i = 0; i < currentConnectedDevices.Count; i++)
+                    {
+                        var deviceID = currentConnectedDevices[i].deviceID;
 
+                        NetworkSettings.tcpClient.Send(new MessageGetConfigurationPerClient(deviceID));
+
+                    }
+                    this.Page_Loaded(null, null);
+
+                    this.buttonRefresh.IsEnabled = true;
                 }
-                this.Page_Loaded(null, null);
-
+                else
+                {
+                    this.buttonRefresh.ToolTip = "Not connected to Server";
+                }
+            }
+            catch(Exception)
+            {
                 this.buttonRefresh.IsEnabled = true;
             }
-            else
+        }
+
+        private void buttonRefreshDevices_Click(object sender, RoutedEventArgs e)
+        {
+            try
             {
-                this.buttonRefresh.ToolTip = "Not connected to Server";
+                this.buttonRefreshDevices.IsEnabled = false;
+
+                NetworkSettings.tcpClient.Send(new MessageGetConnectedClients());
+
+
+                this.Page_Loaded(null, null);
+                this.buttonRefreshDevices.IsEnabled = true;
+            }
+            catch(Exception)
+            {
+                this.buttonRefreshDevices.IsEnabled = true;
             }
         }
     }

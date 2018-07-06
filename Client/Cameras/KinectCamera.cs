@@ -89,8 +89,16 @@ namespace Client.Cameras
 
             this.irFrameDescription = this.kinectSensor.DepthFrameSource.FrameDescription;
             this.irImage = new Image<Gray, ushort>(irFrameDescription.Width, irFrameDescription.Height);
+        }
 
+        public void Start()
+        {
             this.kinectSensor.Open();
+        }
+
+        public void Stop()
+        {
+            this.kinectSensor.Close();
         }
 
         public void SetScaleFactor(CameraDataType type, double scale)
@@ -143,12 +151,6 @@ namespace Client.Cameras
                             IntPtr ptr = (IntPtr)frameData;
 
                             colorFrame.CopyRawFrameDataToIntPtr(ptr, (uint)dataSize);
-                            //this.colorImage = new Image<Bgr, byte>(1920, 1080, 1920 * 4, ptr);
-                            //
-                            //if (this.colorScale != 1)
-                            //{
-                            //    this.colorImage = this.colorImage.Resize(this.colorScale, Inter.Cubic);
-                            //}
                         }
                     }
 

@@ -97,6 +97,28 @@
 
                 </DataGrid>
             </TabItem>
+
+            <TabItem Name="tabNotifications">
+                <TabItem.Header>
+                    <TextBlock Text="Server Notifications" Name="allNotifications" 
+                            Style="{StaticResource HeaderTextBlockStyle}" Margin="20,0,0,0" Width="130"/>
+                </TabItem.Header>
+
+                <DataGrid x:Name="listBoxAllNotifications" RowBackground="Transparent" AutoGenerateColumns="False" Background="Transparent">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Time" IsReadOnly="True" SortDirection="Descending"
+                            Binding="{Binding startTime}" Width="170" />
+                        <DataGridTextColumn Header="Notification" IsReadOnly="True"
+                            Binding="{Binding message}" Width="400" />
+                    </DataGrid.Columns>
+
+                    <DataGrid.Resources>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#9ACD32"/>
+                    </DataGrid.Resources>
+
+                </DataGrid>
+            </TabItem>
+            
             <TabItem Name="tabInfo">
                 <TabItem.Header>
                     <TextBlock Text="Information" Name="informationForLogs"

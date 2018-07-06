@@ -100,6 +100,9 @@
     <Compile Include="Utils\UserOrderByMapper.cs" />
     <Compile Include="Utils\Validators.cs" />
     <Compile Include="ViewModels\UserViewModel.cs" />
+    <Compile Include="Windows\AboutWindow.xaml.cs">
+      <DependentUpon>AboutWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\LoginWindow.xaml.cs" />
     <Compile Include="Windows\UsersWindow.xaml.cs" />
     <Compile Include="Windows\WindowAction.cs" />
@@ -134,6 +137,10 @@
     <Page Include="UserControls\UserUserControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\AboutWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Windows\LoginWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

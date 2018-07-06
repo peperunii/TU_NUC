@@ -30,6 +30,10 @@
             <MenuItem Header="_Data">
                 <MenuItem Header="_Refresh" Click="MenuDBRefresh_Click"></MenuItem>
             </MenuItem>
+            <MenuItem Header="_Reset">
+                <MenuItem Header="_Restart All" Click="MenuRestartAllDevices_Click"></MenuItem>
+                <MenuItem Header="_ShutDown All" Click="MenuShutDownAllDevices_Click"></MenuItem>
+            </MenuItem>
             <MenuItem Header="_About" Name="menuAbout" Click="MenuAbout_Click"/>
 
         </Menu>
@@ -113,12 +117,12 @@
             </Grid>
 
             <Grid>
-                <Label Name="labelNavFaces" 
-                           Target="{Binding ElementName=navFaces}"  Visibility="Collapsed">
-                    <AccessText Foreground="LightGray" TextWrapping="WrapWithOverflow">_Faces</AccessText>
+                <Label Name="labelNavNotificationss" 
+                           Target="{Binding ElementName=navNotifications}"  Visibility="Collapsed">
+                    <AccessText Foreground="LightGray" TextWrapping="WrapWithOverflow">_Notifications</AccessText>
                 </Label>
                 <TextBox Margin="5" FontSize="12" Padding="5"
-                       Name="navFaces" 
+                       Name="navNotifications" 
                        IsReadOnly="True"
                        SelectionOpacity="0"
                        Background="Transparent"
@@ -128,7 +132,7 @@
                        ToolTipService.ShowOnDisabled="True"
                        PreviewMouseDown="TextBox_MouseDown"
                        MouseEnter="TextBox_MouseEnter"
-                       MouseLeave="TextBox_MouseLeave" BorderThickness="0">Faces</TextBox>
+                       MouseLeave="TextBox_MouseLeave" BorderThickness="0">Notifications</TextBox>
             </Grid>
             
             <Grid>

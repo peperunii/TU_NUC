@@ -6,19 +6,19 @@ using System.Threading.Tasks;
 
 namespace Network.Messages
 {
-    public class MessageSetConfigurationPerClient : Message
+    public class MessageStoreConfigurationPerClient : Message
     {
         public DeviceID deviceId;
 
-        public MessageSetConfigurationPerClient()
+        public MessageStoreConfigurationPerClient()
         {
-            this.type = MessageType.ShowConfigurationPerClient;
+            this.type = MessageType.StoreConfigurationPerClient;
             this.info = "";
         }
 
-        public MessageSetConfigurationPerClient(DeviceID deviceId, string configuration)
+        public MessageStoreConfigurationPerClient(DeviceID deviceId, string configuration)
         {
-            this.type = MessageType.ShowConfigurationPerClient;
+            this.type = MessageType.StoreConfigurationPerClient;
             this.info = configuration;
             this.deviceId = deviceId;
         }
@@ -34,7 +34,7 @@ namespace Network.Messages
 
         private byte[] GetBytesOfInfo()
         {
-            return this.GetBytesForNumberShort((ushort)this.deviceId).Concat( Encoding.ASCII.GetBytes(this.info as string)).ToArray();
+            return this.GetBytesForNumberShort((ushort)this.deviceId).Concat(Encoding.ASCII.GetBytes(this.info as string)).ToArray();
         }
     }
 }

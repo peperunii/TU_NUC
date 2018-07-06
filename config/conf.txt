@@ -1,25 +1,25 @@
 deviceID: Server
-Discovery Port: 54673
+Discovery Port: 234
 Communication Port: 8050
-
+: 
 dbIP: 127.0.0.1
 dbPort: 5432
 dbUsername: postgres
 dbPassword: root
 dbName: dbnuc
-
+: 
 Log in Console: True
 Log in DB: True
 Log in File: False
 Log Filename: logInfo.txt
 Log Level: Errors
-
+: 
 Color Frame Scale: 0.5
 Depth Frame Scale: 1
 IR Frame Scale: 1
-
+: 
 Max Reliable Depth: 40000
-
+: 
 DB_QUERY_SELECT_FROM_TABLE: "SELECT * FROM {0}"
 DB_QUERY_SELECT_FROM_TABLE_LAST_N: "WITH t AS (SELECT * FROM {0} ORDER BY id DESC LIMIT {1}) SELECT * FROM t ORDER BY id ASC;"
 DB_QUERY_SELECT_FROM_TABLE_WHERE: "SELECT * FROM {0} WHERE {1}"

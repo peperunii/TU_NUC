@@ -1,5 +1,6 @@
 ﻿using Network;
 using Network.Logger;
+using Network.Messages;
 using NUC_Controller.DB;
 using NUC_Controller.NetworkWorker;
 using NUC_Controller.Notifications;
@@ -82,7 +83,6 @@ namespace NUC_Controller
                 {this.navConfiguration, new Uri("Pages/ConfigurationPage.xaml", UriKind.RelativeOrAbsolute)},
                 {this.navCalibration, new Uri("Pages/CalibrationPage.xaml", UriKind.RelativeOrAbsolute)},
                 {this.navBodies, new Uri("Pages/KinectBodiesPage.xaml", UriKind.RelativeOrAbsolute)},
-                {this.navFaces, new Uri("Pages/FacesPage.xaml", UriKind.RelativeOrAbsolute)},
                 { this.navUsers, new Uri("Pages/UsersPage.xaml", UriKind.RelativeOrAbsolute)}
             };
         }
@@ -91,11 +91,10 @@ namespace NUC_Controller
         {
             this.mapPermissionControls = new Dictionary<ActionType, IEnumerable<FrameworkElement>>()
             {
-                { ActionType.ReadEvents, new List<FrameworkElement>(){ this.navEvents } },
+                { ActionType.ReadEvents, new List<FrameworkElement>(){ this.navEvents, this.navNotifications } },
                 { ActionType.ReadConfig, new List<FrameworkElement>(){ this.navConfiguration } },
                 { ActionType.PerformCalibration, new List<FrameworkElement>(){ this.navCalibration } },
                 { ActionType.ReadBodies, new List<FrameworkElement>(){ this.navBodies } },
-                { ActionType.ReadFaces, new List<FrameworkElement>(){ this.navFaces } },
                 { ActionType.ReadUsers, new List<FrameworkElement>(){ this.navUsers } }
             };
         }
@@ -133,7 +132,7 @@ namespace NUC_Controller
             this.tabOrder.Add(1, this.navConfiguration);
             this.tabOrder.Add(2, this.navCalibration);
             this.tabOrder.Add(3, this.navBodies);
-            this.tabOrder.Add(4, this.navFaces);
+            this.tabOrder.Add(4, this.navNotifications);
             this.tabOrder.Add(5, this.navUsers);
 
             this.lastSelectedTab = 1;
@@ -178,7 +177,8 @@ namespace NUC_Controller
 
         private void MenuAbout_Click(object sender, RoutedEventArgs e)
         {
-
+            var aboutWindow = new AboutWindow();
+            aboutWindow.ShowDialog();
         }
         #endregion
 
@@ -263,13 +263,13 @@ namespace NUC_Controller
                     this.navBodies.Focusable = false;
                 }
 
-                if (this.navFaces == this.lastClickedNav)
+                if (this.navNotifications == this.lastClickedNav)
                 {
-                    this.navFaces.Focusable = true;
+                    this.navNotifications.Focusable = true;
                 }
                 else
                 {
-                    this.navFaces.Focusable = false;
+                    this.navNotifications.Focusable = false;
                 }
 
                 if (this.navUsers == this.lastClickedNav)
@@ -327,7 +327,7 @@ namespace NUC_Controller
                 this.navConfiguration.IsFocused == true ||
                 this.navCalibration.IsFocused == true ||
                 this.navBodies.IsFocused == true ||
-                this.navFaces.IsFocused == true ||
+                this.navNotifications.IsFocused == true ||
                 this.navUsers.IsFocused == true ||
                 this.navLogo.IsFocused == true))
             {
@@ -369,7 +369,7 @@ namespace NUC_Controller
             this.navConfiguration.Focusable = focusable;
             this.navCalibration.Focusable = focusable;
             this.navBodies.Focusable = focusable;
-            this.navFaces.Focusable = focusable;
+            this.navNotifications.Focusable = focusable;
             this.navUsers.Focusable = focusable;
         }
 
@@ -438,5 +438,47 @@ namespace NUC_Controller
             }
         }
         #endregion
+
+        private void MenuRestartAllDevices_Click(object sender, RoutedEventArgs e)
+        {
+            var result = MessageBox.Show("Are you sure?", "Warning", MessageBoxButton.YesNo);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                var allDevices = Worker.GetConnectedDevices();
+
+                foreach(var device in allDevices)
+                {
+                    var deviceID = device.deviceID;
+                    if (deviceID == DeviceID.TU_SERVER) continue;
+
+                    NetworkSettings.tcpClient.Send(new MessageRestartClientDevice(deviceID));
+                }
+
+                /*Send server request - as the last one*/
+                NetworkSettings.tcpClient.Send(new MessageRestartServerDevice());
+            }
+        }
+
+        private void MenuShutDownAllDevices_Click(object sender, RoutedEventArgs e)
+        {
+            var result = MessageBox.Show("Are you sure?", "Warning", MessageBoxButton.YesNo);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                var allDevices = Worker.GetConnectedDevices();
+
+                foreach (var device in allDevices)
+                {
+                    var deviceID = device.deviceID;
+                    if (deviceID == DeviceID.TU_SERVER) continue;
+
+                    NetworkSettings.tcpClient.Send(new MessageShutdownDevice(deviceID));
+                }
+
+                /*Send server request - as the last one*/
+                NetworkSettings.tcpClient.Send(new MessageShutdownDevice(DeviceID.TU_SERVER));
+            }
+        }
     }
 }

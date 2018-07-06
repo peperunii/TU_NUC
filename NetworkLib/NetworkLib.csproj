@@ -120,6 +120,8 @@
     <Compile Include="Logger\LogLevel.cs" />
     <Compile Include="Logger\LogType.cs" />
     <Compile Include="Messages\MessageCalibrationRequest.cs" />
+    <Compile Include="Messages\MessageCameraStart.cs" />
+    <Compile Include="Messages\MessageCameraStop.cs" />
     <Compile Include="Messages\MessageColorFrame.cs" />
     <Compile Include="Messages\MessageColorFrameRequest.cs" />
     <Compile Include="Messages\MessageConnectedClients.cs" />
@@ -142,8 +144,10 @@
     <Compile Include="Messages\MessageRestartServerDevice.cs" />
     <Compile Include="Messages\MessageSendInfoToServer.cs" />
     <Compile Include="Messages\MessageSetConfigurationPerClient.cs" />
+    <Compile Include="Messages\MessageShutdownDevice.cs" />
     <Compile Include="Messages\MessageSkeleton.cs" />
     <Compile Include="Messages\MessageSkeletonRequest.cs" />
+    <Compile Include="Messages\MessageStoreConfigurationPerClient.cs" />
     <Compile Include="Messages\MessageTimeInfo.cs" />
     <Compile Include="Messages\MessageTimeSync.cs" />
     <Compile Include="Messages\MessageType.cs" />

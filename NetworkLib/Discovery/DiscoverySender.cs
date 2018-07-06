@@ -20,19 +20,26 @@ namespace Network.Discovery
 
         public void FindServer()
         {
-            this.client = new UDPClient(new IPEndPoint(Configuration.DeviceIP, Configuration.DiscoveryPort));
-            var messageDiscovery = new MessageDiscovery().Serialize();
-            
-            while(!isServerFound)
+            try
             {
-                client.Send(
-                    messageDiscovery,
-                    messageDiscovery.Length,
-                    new IPEndPoint(IPAddress.Broadcast, Configuration.DiscoveryPort));
+                this.client = new UDPClient(new IPEndPoint(Configuration.DeviceIP, Configuration.DiscoveryPort));
+                var messageDiscovery = new MessageDiscovery().Serialize();
 
-                StartListening();
+                while (!isServerFound)
+                {
+                    client.Send(
+                        messageDiscovery,
+                        messageDiscovery.Length,
+                        new IPEndPoint(IPAddress.Broadcast, Configuration.DiscoveryPort));
 
-                Thread.Sleep(1000);
+                    StartListening();
+
+                    Thread.Sleep(1000);
+                }
+            }catch(Exception ex)
+            {
+                Thread.Sleep(3000);
+                LogManager.LogMessage(LogType.Error, LogLevel.Errors, "Problem with Discovery: " + ex.ToString ());
             }
         }
 

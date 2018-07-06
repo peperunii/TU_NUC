@@ -93,6 +93,7 @@ namespace Client
 
             /*Synchronize Time*/
             SendMessage(new MessageTimeSync());
+            SendMessage(new MessageSendInfoToServer("Device " + Configuration.DeviceID + ": Connected"));
         }
 
         private static void TcpClient_OnServerDisconnected()
@@ -109,7 +110,6 @@ namespace Client
 
         public static void SendMessage(Message message)
         {
-            LogManager.LogMessage(LogType.Info, LogLevel.Everything, "Sending MESSAGE !");
             tcpClient.Send(message);
         }
 
@@ -118,29 +118,42 @@ namespace Client
             LogManager.LogMessage(LogType.Info, LogLevel.Everything, "Received message: " + message.type);
             switch (message.type)
             {
-                case MessageType.KeepAlive:
-                    lastServerHeartbeat = DateTime.Now.ToFileTimeUtc();
-                    break;
-
                 case MessageType.TimeInfo:
                     ServerTime.Set(DateTime.FromFileTimeUtc((long)message.info));
                     LogManager.LogMessage(LogType.Info, LogLevel.Everything, "Sync Date/Time...");
                     break;
+
+                case MessageType.KeepAlive:
+                    lastServerHeartbeat = DateTime.Now.ToFileTimeUtc();
+                    break;
+                    
 
                 case MessageType.RestartClientApp:
                     Global.RestartApp();
                     break;
 
                 case MessageType.RestartClientDevice:
-                    ProcessStartInfo proc = new ProcessStartInfo();
-                    proc.WindowStyle = ProcessWindowStyle.Hidden;
-                    proc.FileName = "cmd";
-                    proc.Arguments = "/C shutdown -f -r";
-                    Process.Start(proc);
+                    Global.RestartDevice();
                     break;
                     
+
                 case MessageType.ReloadConfiguration:
                     Global.ReloadConfiguration();
+                    break;
+
+                case MessageType.StoreConfigurationPerClient:
+                    try
+                    {
+                        var config_store = message.info as string;
+                        Configuration.ReplaceConfiguration(config_store);
+                        LogManager.LogMessage(LogType.Info, LogLevel.Everything, "Configuration replaced");
+                    }
+                    catch (Exception ex)
+                    {
+                        var info = Configuration.DeviceID + ": There was a problem saving the configuration";
+                        SendMessage(new MessageSendInfoToServer(info));
+                        LogManager.LogMessage(LogType.Error, LogLevel.ErrWarnInfo, info + ": " + ex.ToString());
+                    }
                     break;
 
                 case MessageType.GetConfigurationPerClient:
@@ -150,9 +163,42 @@ namespace Client
                             Configuration.GetConfigurationFile()));
                     break;
 
-                case MessageType.SetConfigurationPerClient:
-                    var config = message.info as string;
-                    Configuration.ReplaceConfiguration(config);
+                case MessageType.ShowConfigurationPerClient:
+                    var config_show = message.info as string;
+                    Configuration.ReplaceConfiguration(config_show);
+                    break;
+
+
+                case MessageType.CameraStart:
+                    {
+                        try
+                        {
+                            camera.Start();
+                            LogManager.LogMessage(LogType.Info, LogLevel.ErrWarnInfo, "Camera Started.");
+                        }
+                        catch (Exception ex)
+                        {
+                            var info = Configuration.DeviceID + ": There was a problem starting the camera";
+                            SendMessage(new MessageSendInfoToServer(info));
+                            LogManager.LogMessage(LogType.Error, LogLevel.ErrWarnInfo, info + ": " + ex.ToString());
+                        }
+                    }
+                    break;
+
+                case MessageType.CameraStop:
+                    {
+                        try
+                        {
+                            camera.Stop();
+                            LogManager.LogMessage(LogType.Info, LogLevel.ErrWarnInfo, "Camera Stopped.");
+                        }
+                        catch (Exception ex)
+                        {
+                            var info = Configuration.DeviceID + ": There was a problem stopping the camera";
+                            SendMessage(new MessageSendInfoToServer(info));
+                            LogManager.LogMessage(LogType.Error, LogLevel.ErrWarnInfo, info + ": " + ex.ToString());
+                        }
+                    }
                     break;
 
                 case MessageType.CalibrationRequest:

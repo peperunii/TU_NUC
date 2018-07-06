@@ -14,12 +14,18 @@
         RestartClientDevice,//
         RestartServerApp,   //
         RestartServerDevice,//
-        ReloadConfiguration, //
+        ShutdownDevice,
+
+        CameraStart,
+        CameraStop,
 
         ConnectedClients,    //
         GetConnectedClients,  //
+
+        ReloadConfiguration, //
         GetConfigurationPerClient, //
-        SetConfigurationPerClient, //
+        ShowConfigurationPerClient, //
+        StoreConfigurationPerClient,
 
         Calibration,
         CalibrationRequest, //

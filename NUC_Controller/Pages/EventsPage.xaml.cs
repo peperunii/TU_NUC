@@ -3,6 +3,7 @@
     using Network.Logger;
     using NUC_Controller.DB;
     using NUC_Controller.InfoTypes.Events;
+    using NUC_Controller.Notifications;
     using NUC_Controller.Utils;
     using System;
     using System.Collections.Generic;
@@ -20,7 +21,7 @@
     {
         private int lastSearchedIndexAllLogs = 0;
         private int lastSearchedIndexInformation = 0;
-        private int lastSearchedIndexCharts = 0;
+        private int lastSearchedIndexNotifications = 0;
 
         private bool isAltKeyPressed = false;
         private bool isAllowedSingleLogCopy = true;
@@ -116,6 +117,7 @@
             if(this.isFirstTimeLoad)
             {
                 this.SortDataGrid(this.listBoxAllLogs, 0, ListSortDirection.Descending);
+                this.SortDataGrid(this.listBoxAllNotifications, 0, ListSortDirection.Descending);
                 this.isFirstTimeLoad = false;
             }
         }
@@ -140,18 +142,21 @@
                             }
                             break;
                             
-                        case 1: // Information
+                        case 1: // Notifications
+                            {
+                                var filteredNotifications = FilterNotificationsBasedOnString(NotificationsContainer.GetAllNotifications());
+
+                                this.listBoxAllNotifications.ItemsSource = null;
+                                this.listBoxAllNotifications.ItemsSource = filteredNotifications;
+                            }
+                            break;
+
+                        case 2: // Information
                             {
                                 var filteredLogs = FilterInformationBasedOnString(allinformation);
 
                                 this.listBoxInformation.ItemsSource = null;
                                 this.listBoxInformation.ItemsSource = filteredLogs;
-                            }
-                            break;
-
-                        case 2: // Charts
-                            {
-                                /*TODO: Filter for Charts*/
                             }
                             break;
                     }
@@ -237,6 +242,25 @@
 
                             case 1:
                                 {
+                                    //this.listBoxAllLogs.ScrollIntoView(this.listBoxAllLogs.SelectedItem);
+                                    this.listBoxAllNotifications.SelectedIndex = SelectedIndex;
+
+                                    if (this.listBoxAllNotifications.ItemContainerGenerator.ContainerFromIndex(SelectedIndex) is ListViewItem lbi)
+                                    {
+                                        lbi.IsSelected = true;
+                                        lbi.Focus();
+                                    }
+                                    var sw = FindScrollViewer(this.listBoxAllNotifications);
+
+                                    if (sw != null) sw.ScrollToVerticalOffset(SelectedIndex);
+
+                                    this.lastSearchedIndexNotifications = SelectedIndex;
+                                    this.listBoxAllNotifications.UpdateLayout();
+                                }
+                                break;
+
+                            case 2:
+                                {
                                     this.listBoxInformation.SelectedIndex = SelectedIndex;
                                     if (this.listBoxInformation.ItemContainerGenerator.ContainerFromIndex(SelectedIndex) is ListViewItem lbi)
                                     {
@@ -249,26 +273,6 @@
                                     //this.listBoxChangeLogs.ScrollIntoView(this.listBoxChangeLogs.SelectedItem);
                                     this.lastSearchedIndexInformation = SelectedIndex;
                                     this.listBoxInformation.UpdateLayout();
-                                }
-                                break;
-
-                            case 2:
-                                {
-                                    //this.listBoxCharts.SelectedIndex = SelectedIndex;
-                                    //
-                                    //ListViewItem lbi = this.listBoxCharts.ItemContainerGenerator.ContainerFromIndex(SelectedIndex) as ListViewItem;
-                                    //if (lbi != null)
-                                    //{
-                                    //    lbi.IsSelected = true;
-                                    //    lbi.Focus();
-                                    //}
-                                    //
-                                    //var sw = FindScrollViewer(listBoxCharts);
-                                    //if (sw != null) sw.ScrollToVerticalOffset(SelectedIndex);
-                                    //
-                                    ////this.listBoxWinLogs.ScrollIntoView(this.listBoxWinLogs.SelectedItem);
-                                    //this.lastSearchedIndexCharts = SelectedIndex;
-                                    //this.listBoxCharts.UpdateLayout();
                                 }
                                 break;
                         }
@@ -301,6 +305,7 @@
             comboFilterTypeIndex = this.comboType.SelectedIndex;
 
             this.listBoxAllLogs.ItemsSource = EventsContainer.GetAllEvents();
+            this.listBoxAllNotifications.ItemsSource = NotificationsContainer.GetAllNotifications();
             this.listBoxInformation.ItemsSource = allinformation;
 
 
@@ -336,7 +341,7 @@
 
             this.lastSearchedIndexAllLogs = 0;
             this.lastSearchedIndexInformation = 0;
-            this.lastSearchedIndexCharts = 0;
+            this.lastSearchedIndexNotifications = 0;
 
             this.RefreshLogs();
         }
@@ -423,67 +428,69 @@
             switch(this.tabLogControl.SelectedIndex)
             {
                 case 0:
-                    var currentLogs = EventsContainer.GetAllEvents();
-                    var lastSearchedIndex = this.lastSearchedIndexAllLogs;
-
-                    string[] keywords = new string[] { };
-                    if (textCriteria[0] == '\"' && textCriteria[textCriteria.Length - 1] == '\"')
                     {
-                        if (textCriteria.Length > 1)
+                        var currentLogs = EventsContainer.GetAllEvents();
+                        var lastSearchedIndex = this.lastSearchedIndexAllLogs;
+
+                        string[] keywords = new string[] { };
+                        if (textCriteria[0] == '\"' && textCriteria[textCriteria.Length - 1] == '\"')
                         {
-                            keywords = new string[] { textCriteria.Substring(1, textCriteria.Length - 2) };
-                        }
-                    }
-                    else
-                    {
-                        keywords = textCriteria.Split(' ');
-                    }
-
-                    var numberOfKeywords = keywords.Count();
-
-                    if (currentLogs != null)
-                    {
-                        bool isTextFound = false;
-
-                        if (lastSearchedIndex < currentLogs.Count - 1)
-                        {
-                            for (int i = lastSearchedIndex + 1; i < currentLogs.Count; i++)
+                            if (textCriteria.Length > 1)
                             {
-                                var numberOFRecognizedWords = 0;
-
-                                for (int k = 0; k < numberOfKeywords; k++)
-                                {
-                                    if (currentLogs[i].Message.Contains(keywords[k], StringComparison.OrdinalIgnoreCase))
-                                    {
-                                        numberOFRecognizedWords++;
-                                    }
-                                }
-                                if (numberOfKeywords == numberOFRecognizedWords)
-                                {
-                                    isTextFound = true;
-                                    returnedIndex = i;
-                                    break;
-                                }
+                                keywords = new string[] { textCriteria.Substring(1, textCriteria.Length - 2) };
                             }
                         }
-                        if (isTextFound == false)
+                        else
                         {
-                            for (int i = 0; i < lastSearchedIndex; i++)
-                            {
-                                var numberOFRecognizedWords = 0;
+                            keywords = textCriteria.Split(' ');
+                        }
 
-                                for (int k = 0; k < numberOfKeywords; k++)
+                        var numberOfKeywords = keywords.Count();
+
+                        if (currentLogs != null)
+                        {
+                            bool isTextFound = false;
+
+                            if (lastSearchedIndex < currentLogs.Count - 1)
+                            {
+                                for (int i = lastSearchedIndex + 1; i < currentLogs.Count; i++)
                                 {
-                                    if (currentLogs[i].Message.Contains(keywords[k], StringComparison.OrdinalIgnoreCase))
+                                    var numberOFRecognizedWords = 0;
+
+                                    for (int k = 0; k < numberOfKeywords; k++)
                                     {
-                                        numberOFRecognizedWords++;
+                                        if (currentLogs[i].Message.Contains(keywords[k], StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            numberOFRecognizedWords++;
+                                        }
+                                    }
+                                    if (numberOfKeywords == numberOFRecognizedWords)
+                                    {
+                                        isTextFound = true;
+                                        returnedIndex = i;
+                                        break;
                                     }
                                 }
-                                if (numberOfKeywords == numberOFRecognizedWords)
+                            }
+                            if (isTextFound == false)
+                            {
+                                for (int i = 0; i < lastSearchedIndex; i++)
                                 {
-                                    isTextFound = true;
-                                    returnedIndex = i;
-                                    break;
+                                    var numberOFRecognizedWords = 0;
+
+                                    for (int k = 0; k < numberOfKeywords; k++)
+                                    {
+                                        if (currentLogs[i].Message.Contains(keywords[k], StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            numberOFRecognizedWords++;
+                                        }
+                                    }
+                                    if (numberOfKeywords == numberOFRecognizedWords)
+                                    {
+                                        isTextFound = true;
+                                        returnedIndex = i;
+                                        break;
+                                    }
                                 }
                             }
                         }
@@ -491,13 +498,78 @@
                     break;
 
                 case 1:
-                    var currentInfo = allinformation;
-                    lastSearchedIndex = this.lastSearchedIndexInformation;
+                    {
+                        var currentLogs = NotificationsContainer.GetAllNotifications();
+                        var lastSearchedIndex = this.lastSearchedIndexAllLogs;
+
+                        string[] keywords = new string[] { };
+                        if (textCriteria[0] == '\"' && textCriteria[textCriteria.Length - 1] == '\"')
+                        {
+                            if (textCriteria.Length > 1)
+                            {
+                                keywords = new string[] { textCriteria.Substring(1, textCriteria.Length - 2) };
+                            }
+                        }
+                        else
+                        {
+                            keywords = textCriteria.Split(' ');
+                        }
+
+                        var numberOfKeywords = keywords.Count();
+
+                        if (currentLogs != null)
+                        {
+                            bool isTextFound = false;
+
+                            if (lastSearchedIndex < currentLogs.Count - 1)
+                            {
+                                for (int i = lastSearchedIndex + 1; i < currentLogs.Count; i++)
+                                {
+                                    var numberOFRecognizedWords = 0;
+
+                                    for (int k = 0; k < numberOfKeywords; k++)
+                                    {
+                                        if (currentLogs[i].message.Contains(keywords[k], StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            numberOFRecognizedWords++;
+                                        }
+                                    }
+                                    if (numberOfKeywords == numberOFRecognizedWords)
+                                    {
+                                        isTextFound = true;
+                                        returnedIndex = i;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (isTextFound == false)
+                            {
+                                for (int i = 0; i < lastSearchedIndex; i++)
+                                {
+                                    var numberOFRecognizedWords = 0;
+
+                                    for (int k = 0; k < numberOfKeywords; k++)
+                                    {
+                                        if (currentLogs[i].message.Contains(keywords[k], StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            numberOFRecognizedWords++;
+                                        }
+                                    }
+                                    if (numberOfKeywords == numberOFRecognizedWords)
+                                    {
+                                        isTextFound = true;
+                                        returnedIndex = i;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
                     break;
 
                 case 2:
-                    //object currentCharts = null; /*TODO: Fix charts filtration*/
-                    lastSearchedIndex = this.lastSearchedIndexCharts;
+                    var currentInfo = allinformation;
+                    //lastSearchedIndex = this.lastSearchedIndexInformation;
                     break;
             }
             
@@ -515,6 +587,100 @@
                 if (sw != null) return sw;
             }
             return null;
+        }
+
+        private List<Notification> FilterNotificationsBasedOnString(List<Notification> currentNotifications)
+        {
+            var filteredList = new List<Notification>();
+
+            var textCriteria = this.textBoxLogFilter.Text;
+
+            if (textCriteria != string.Empty)
+            {
+                var param = FilterEventType.None;
+                var indexOfDots = textCriteria.IndexOf(':');
+                if (indexOfDots > 0) // the result should not be the first char.
+                {
+                    var subString = textCriteria.Substring(0, indexOfDots);
+
+                    if (
+                        subString == "Date" ||
+                        subString == "date" ||
+                        subString == "Time" ||
+                        subString == "time" ||
+                        subString == "Timestamp" ||
+                        subString == "timestamp")
+                    {
+                        param = FilterEventType.Date;
+                    }
+                    else if (
+                        subString == "Message" ||
+                        subString == "message")
+                    {
+                        param = FilterEventType.Message;
+                    }
+                }
+
+                /*Set dafault values*/
+                if (param == FilterEventType.None)
+                {
+                    indexOfDots = -1;
+                    param = FilterEventType.Message;
+                }
+
+                string[] keywords = new string[] { };
+                textCriteria = textCriteria.Substring(indexOfDots + 1);
+
+                if (textCriteria.Length > 0 && textCriteria[0] == '\"' && textCriteria[textCriteria.Length - 1] == '\"')
+                {
+                    if (textCriteria.Length > 1)
+                    {
+                        keywords = new string[] { textCriteria.Substring(1, textCriteria.Length - 2) };
+                    }
+                }
+                else
+                {
+                    keywords = textCriteria.Split(' ');
+                }
+
+                var numberOfKeywords = keywords.Count();
+
+
+                foreach (var notification in currentNotifications)
+                {
+                    var numberOFRecognizedWords = 0;
+
+                    for (int k = 0; k < numberOfKeywords; k++)
+                    {
+                        switch (param)
+                        {
+                            case FilterEventType.Date:
+                                if (notification.startTime.ToString().Contains(keywords[k], StringComparison.OrdinalIgnoreCase))
+                                {
+                                    numberOFRecognizedWords++;
+                                }
+                                break;
+
+                            case FilterEventType.Message:
+                                if (notification.message.Contains(keywords[k], StringComparison.OrdinalIgnoreCase))
+                                {
+                                    numberOFRecognizedWords++;
+                                }
+                                break;
+                        }
+                    }
+                    if (numberOfKeywords == numberOFRecognizedWords)
+                    {
+                        filteredList.Add(notification);
+                    }
+                }
+            }
+            else
+            {
+                return currentNotifications;
+            }
+
+            return filteredList;
         }
 
         private List<Event> FilterLogsBasedOnString(List<Event> currentLogs)
