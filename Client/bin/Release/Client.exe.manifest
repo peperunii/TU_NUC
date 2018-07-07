@@ -302,14 +302,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Client.exe" size="18400">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Client.exe" size="18912">
       <assemblyIdentity name="Client" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>BjEddUNq1rSS3+AfYhILzxLXJ+S3KnRJ5E5QhfDQac4=</dsig:DigestValue>
+        <dsig:DigestValue>XF0Z946tD0LxoevZV2S6WizDw1tSAnxXf0D9ndlGyjI=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -369,7 +369,7 @@
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>I71n3CzA1QTWqV0//d1aYtc6DRjhSDjaw932TCbA668=</dsig:DigestValue>
+        <dsig:DigestValue>XP+EZf+3ncMc0S3Ljqw2SMIpQuxb050TAFFRQwxk1+s=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

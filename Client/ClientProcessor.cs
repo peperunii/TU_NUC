@@ -37,29 +37,38 @@ namespace Client
         /*Camera Events*/
         private static void CameraInit()
         {
-            camera = new KinectCamera();
-            camera.SetScaleFactor(CameraDataType.Color, Configuration.colorFrameScale);
-            camera.SetScaleFactor(CameraDataType.Depth, Configuration.depthFrameScale);
-            camera.SetScaleFactor(CameraDataType.IR, Configuration.irFrameScale);
+            try
+            {
+                Console.WriteLine("Camera Init");
+                camera = new KinectCamera();
+                camera.SetScaleFactor(CameraDataType.Color, Configuration.colorFrameScale);
+                camera.SetScaleFactor(CameraDataType.Depth, Configuration.depthFrameScale);
+                camera.SetScaleFactor(CameraDataType.IR, Configuration.irFrameScale);
 
-            camera.SetDepthMinReliable(Configuration.minReliableDepth);
-            camera.SetDepthMaxReliable(Configuration.maxReliableDepth);
+                camera.SetDepthMinReliable(Configuration.minReliableDepth);
+                camera.SetDepthMaxReliable(Configuration.maxReliableDepth);
 
-            camera.OnColorFrameArrived += Camera_OnColorFrameArrived;
-            camera.OnDepthFrameArrived += Camera_OnDepthFrameArrived;
-            camera.OnIRFrameArrived += Camera_OnIRFrameArrived;
-            camera.OnBodyFrameArrived += Camera_OnBodyFrameArrived;
+                camera.OnColorFrameArrived += Camera_OnColorFrameArrived;
+                camera.OnDepthFrameArrived += Camera_OnDepthFrameArrived;
+                camera.OnIRFrameArrived += Camera_OnIRFrameArrived;
+                camera.OnBodyFrameArrived += Camera_OnBodyFrameArrived;
 
-            camera.Start();
-            Thread.Sleep(2000);
-            Console.WriteLine("Camera started");
-            camera.Stop();
-            Thread.Sleep(2000);
-            Console.WriteLine("Camera stopped");
-            camera.Start();
-            Thread.Sleep(2000);
-            Console.WriteLine("Camera started");
-            camera.Stop();
+                Console.WriteLine("Camera Init - Done");
+                camera.Start();
+                Thread.Sleep(2000);
+                Console.WriteLine("Camera started");
+                camera.Stop();
+                Thread.Sleep(2000);
+                Console.WriteLine("Camera stopped");
+                camera.Start();
+                Thread.Sleep(2000);
+                Console.WriteLine("Camera started");
+                camera.Stop();
+            }
+            catch(Exception ex)
+            {
+                Console.Write("Error: " + ex.ToString());
+            }
         }
 
         private static int frameCounter = 0;
