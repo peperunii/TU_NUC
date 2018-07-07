@@ -46,6 +46,12 @@ namespace Network.Logger
             LogManager.logLevel = logLevel;
         }
 
+        //private static int iterator = 0;
+        //public static void LogError(string sender, int line)
+        //{
+        //    Console.WriteLine(DateTime.Now + ": " + "Step " + iterator + ". func: " + sender + ", line: " + line);
+        //}
+
         public static async void LogMessage(LogType logType, LogLevel priority, string message)
         {
             if (LogManager.logLevel >= priority)

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
 
 namespace NUC_Controller.Notifications
 {
@@ -19,8 +20,12 @@ namespace NUC_Controller.Notifications
             this.message = message;
 
             NotificationsContainer.AddNotification(this);
-            var window = Application.Current.Windows[0] as MainWindow;
-            window.NotificationSetter(type.ToString() + ": ", this.message);
+
+            Application.Current.Dispatcher.Invoke(new Action(() =>
+            {
+                var window = Application.Current.Windows[0] as MainWindow;
+                window.NotificationSetter(type.ToString() + ": ", this.message);
+            }));
         }
     }
 }

@@ -59,154 +59,163 @@ namespace Server
                         tcpServers[DeviceID.Controller].GetClient(), message);
                 }
             }
-            catch (Exception) { }
+            catch (Exception ex)
+            {
+            }
         }
 
         private static void Server_OnMessage(object xSender, Message message)
         {
-            if (message != null)
+            try
             {
-                SendToController(new MessageSendInfoToServer("Message received: " + message.type));
-
-                var tcpStream = (xSender as TcpClient).GetStream();
-
-                switch (message.type)
+                if (message != null)
                 {
-                    case MessageType.Info:
-                        /*Re-Send info to the Controller - If connected*/
-                        SendToController(message);
-                        break;
+                    SendToController(new MessageSendInfoToServer("Message received: " + message.type));
 
-                    case MessageType.KeepAlive:
-                        break;
+                    var tcpStream = (xSender as TcpClient).GetStream();
 
-                    case MessageType.TimeSyncRequest:
-                        var messageTimeInfo = new MessageTimeInfo().Serialize();
-                        tcpStream.Write(messageTimeInfo, 0, messageTimeInfo.Length);
-                        break;
+                    switch (message.type)
+                    {
+                        case MessageType.Info:
+                            /*Re-Send info to the Controller - If connected*/
+                            SendToController(message);
+                            break;
 
+                        case MessageType.KeepAlive:
+                            break;
 
-                    case MessageType.RestartClientApp:
-                        break;
-
-                    case MessageType.RestartClientDevice:
-                        break;
-
-
-                    case MessageType.RestartServerApp:
-                        Global.RestartApp();
-                        break;
-
-                    case MessageType.RestartServerDevice:
-                        Global.RestartDevice();
-                        break;
-
-                    case MessageType.ShutdownDevice:
-                        break;
+                        case MessageType.TimeSyncRequest:
+                            var messageTimeInfo = new MessageTimeInfo().Serialize();
+                            tcpStream.Write(messageTimeInfo, 0, messageTimeInfo.Length);
+                            break;
 
 
-                    case MessageType.GetConnectedClients:
-                        LogManager.LogMessage(LogType.Info, LogLevel.Everything, "Sending Clients info to UI Controller");
-                        LogManager.LogMessage(LogType.Info, LogLevel.Communication, "Number of connected Devices: " + Devices.Count);
-                        var messageClients = new MessageConnectedClients(ServerActions.Devices).Serialize();
-                        tcpStream.Write(messageClients, 0, messageClients.Length);
-                        break;
+                        case MessageType.RestartClientApp:
+                            break;
+
+                        case MessageType.RestartClientDevice:
+                            break;
 
 
-                    case MessageType.ReloadConfiguration:
-                        break;
+                        case MessageType.RestartServerApp:
+                            Global.RestartApp();
+                            break;
 
-                    case MessageType.GetConfigurationPerClient:
-                        {
-                            var deviceID_GetConfig = (message as MessageGetConfigurationPerClient).deviceId;
+                        case MessageType.RestartServerDevice:
+                            Global.RestartDevice();
+                            break;
 
-                            if (deviceID_GetConfig == DeviceID.TU_SERVER)
+                        case MessageType.ShutdownDevice:
+                            break;
+
+
+                        case MessageType.GetConnectedClients:
+                            LogManager.LogMessage(LogType.Info, LogLevel.Everything, "Sending Clients info to UI Controller");
+                            LogManager.LogMessage(LogType.Info, LogLevel.Communication, "Number of connected Devices: " + Devices.Count);
+                            var messageClients = new MessageConnectedClients(ServerActions.Devices).Serialize();
+                            tcpStream.Write(messageClients, 0, messageClients.Length);
+                            break;
+
+
+                        case MessageType.ReloadConfiguration:
+                            break;
+
+                        case MessageType.GetConfigurationPerClient:
                             {
-                                var getConfMessage = new MessageSetConfigurationPerClient(DeviceID.TU_SERVER, Configuration.GetConfigurationFile()).Serialize();
-                                tcpStream.Write(getConfMessage, 0, getConfMessage.Length);
+                                var deviceID_GetConfig = (message as MessageGetConfigurationPerClient).deviceId;
+
+                                if (deviceID_GetConfig == DeviceID.TU_SERVER)
+                                {
+                                    var getConfMessage = new MessageSetConfigurationPerClient(DeviceID.TU_SERVER, Configuration.GetConfigurationFile()).Serialize();
+                                    tcpStream.Write(getConfMessage, 0, getConfMessage.Length);
+                                }
+                                else
+                                {
+                                    var getConfMessage = new MessageGetConfigurationPerClient(deviceID_GetConfig).Serialize();
+                                    tcpStream.Write(getConfMessage, 0, getConfMessage.Length);
+                                }
                             }
-                            else
+                            break;
+
+                        case MessageType.StoreConfigurationPerClient:
                             {
-                                var getConfMessage = new MessageGetConfigurationPerClient(deviceID_GetConfig).Serialize();
-                                tcpStream.Write(getConfMessage, 0, getConfMessage.Length);
+                                var deviceID_StoreConfig = (message as MessageStoreConfigurationPerClient).deviceId;
+                                var configuration = (message as MessageStoreConfigurationPerClient).info as string;
+
+                                LogManager.LogMessage(
+                                    LogType.Warning,
+                                    LogLevel.Everything,
+                                    "Saving Configuration for client: " + deviceID_StoreConfig);
+
+                                if (deviceID_StoreConfig == DeviceID.TU_SERVER)
+                                {
+                                    Configuration.ReplaceConfiguration(configuration);
+                                }
+                                else
+                                {
+                                    tcpServers[deviceID_StoreConfig].Send(
+                                        tcpServers[deviceID_StoreConfig].GetClient(),
+                                        new MessageStoreConfigurationPerClient(deviceID_StoreConfig, configuration));
+                                }
                             }
-                        }
-                        break;
+                            break;
 
-                    case MessageType.StoreConfigurationPerClient:
-                        {
-                            var deviceID_StoreConfig = (message as MessageStoreConfigurationPerClient).deviceId;
-                            var configuration = (message as MessageStoreConfigurationPerClient).info as string;
+                        case MessageType.ShowConfigurationPerClient:
+                            {
+                                /*Send configuration to the Controller - If connected*/
+                                SendToController(new MessageSetConfigurationPerClient(
+                                            (message as MessageSetConfigurationPerClient).deviceId,
+                                            (message as MessageSetConfigurationPerClient).info as string));
+                            }
+                            break;
 
+
+
+                        case MessageType.CameraStart:
+                            {
+                                try
+                                {
+                                    var deviceID = (message as MessageCameraStart).deviceId;
+
+                                    tcpServers[deviceID].Send(
+                                            tcpServers[deviceID].GetClient(),
+                                            new MessageCameraStart(deviceID));
+                                }
+                                catch (Exception) { }
+                            }
+                            break;
+
+                        case MessageType.CameraStop:
+                            {
+                                try
+                                {
+                                    var deviceID = (message as MessageCameraStop).deviceId;
+
+                                    tcpServers[deviceID].Send(
+                                            tcpServers[deviceID].GetClient(),
+                                            new MessageCameraStop(deviceID));
+                                }
+                                catch (Exception) { }
+                            }
+                            break;
+
+                        case MessageType.ColorFrame:
                             LogManager.LogMessage(
                                 LogType.Warning,
                                 LogLevel.Everything,
-                                "Saving Configuration for client: " + deviceID_StoreConfig);
+                                "Received Color Frame: ("
+                                + (message as MessageColorFrame).Height
+                                + ", "
+                                + (message as MessageColorFrame).Width
+                                + ")");
+                            break;
+                    }
 
-                            if (deviceID_StoreConfig == DeviceID.TU_SERVER)
-                            {
-                                Configuration.ReplaceConfiguration(configuration);
-                            }
-                            else
-                            {
-                                tcpServers[deviceID_StoreConfig].Send(
-                                    tcpServers[deviceID_StoreConfig].GetClient(),
-                                    new MessageStoreConfigurationPerClient(deviceID_StoreConfig, configuration));
-                            }
-                        }
-                        break;
-
-                    case MessageType.ShowConfigurationPerClient:
-                        {
-                            /*Send configuration to the Controller - If connected*/
-                            SendToController(new MessageSetConfigurationPerClient(
-                                        (message as MessageSetConfigurationPerClient).deviceId,
-                                        (message as MessageSetConfigurationPerClient).info as string));
-                        }
-                        break;
-
-
-
-                    case MessageType.CameraStart:
-                        {
-                            try
-                            {
-                                var deviceID = (message as MessageCameraStart).deviceId;
-
-                                tcpServers[deviceID].Send(
-                                        tcpServers[deviceID].GetClient(),
-                                        new MessageCameraStart(deviceID));
-                            }
-                            catch (Exception) { }
-                        }
-                        break;
-
-                    case MessageType.CameraStop:
-                        {
-                            try
-                            {
-                                var deviceID = (message as MessageCameraStop).deviceId;
-
-                                tcpServers[deviceID].Send(
-                                        tcpServers[deviceID].GetClient(),
-                                        new MessageCameraStop(deviceID));
-                            }
-                            catch (Exception) { }
-                        }
-                        break;
-
-                    case MessageType.ColorFrame:
-                        LogManager.LogMessage(
-                            LogType.Warning,
-                            LogLevel.Everything,
-                            "Received Color Frame: ("
-                            + (message as MessageColorFrame).Height
-                            + ", "
-                            + (message as MessageColorFrame).Width
-                            + ")");
-                        break;
                 }
-                    
+            }
+            catch (Exception ex)
+            {
+                LogManager.LogMessage(LogType.Error, LogLevel.Communication, "Error receiving message.");
             }
         }
 

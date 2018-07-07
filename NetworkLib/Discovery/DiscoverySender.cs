@@ -31,7 +31,7 @@ namespace Network.Discovery
                         messageDiscovery,
                         messageDiscovery.Length,
                         new IPEndPoint(IPAddress.Broadcast, Configuration.DiscoveryPort));
-
+                    
                     StartListening();
 
                     Thread.Sleep(1000);
@@ -64,7 +64,6 @@ namespace Network.Discovery
                 switch (message.type)
                 {
                     case MessageType.DiscoveryResponse:
-
                         isServerFound = true;
                         if (ServerFound != null)
                         {

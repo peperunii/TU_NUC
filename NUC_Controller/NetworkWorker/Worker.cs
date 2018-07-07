@@ -50,7 +50,7 @@ namespace NUC_Controller.NetworkWorker
             {
                 NetworkSettings.networkWorker.CloseConnection();
             }
-
+            
             NetworkSettings.networkWorker = new DiscoverySender();
             NetworkSettings.networkWorker.ServerFound += NetworkWorker_ServerFound;
             NetworkSettings.networkWorker.FindServer();
@@ -63,61 +63,68 @@ namespace NUC_Controller.NetworkWorker
 
         private static void TcpClient_OnMessage(Network.Messages.Message message)
         {
-            LogManager.LogMessage(LogType.Info, LogLevel.Everything, "Received message: " + message.type);
-            switch (message.type)
+            try
             {
-                case MessageType.Info:
-                    new Notification(NotificationType.Info, (message as MessageSendInfoToServer).info as string);
-                    break;
+                LogManager.LogMessage(LogType.Info, LogLevel.Everything, "Received message: " + message.type);
+                switch (message.type)
+                {
+                    case MessageType.Info:
+                        new Notification(NotificationType.Info, (message as MessageSendInfoToServer).info as string);
+                        break;
 
-                case MessageType.TimeInfo:
-                    {
-                        ServerTime.Set(DateTime.FromFileTimeUtc((long)message.info));
-                        LogManager.LogMessage(LogType.Info, LogLevel.Everything, "Sync Date/Time...");
-                    }
-                    break;
-
-                case MessageType.ConnectedClients:
-                    {
-                        Worker.connectedDevices = message.info as List<NUC>;
-
-                        /*Read configurations if user is allowed*/
-                        if (Globals.loggedInUser.CheckIfHasAccess(Users.ActionType.ReadConfig))
+                    case MessageType.TimeInfo:
                         {
-                            foreach (var client in Worker.connectedDevices)
+                            ServerTime.Set(DateTime.FromFileTimeUtc((long)message.info));
+                            LogManager.LogMessage(LogType.Info, LogLevel.Everything, "Sync Date/Time...");
+                        }
+                        break;
+
+                    case MessageType.ConnectedClients:
+                        {
+                            Worker.connectedDevices = message.info as List<NUC>;
+
+                            /*Read configurations if user is allowed*/
+                            if (Globals.loggedInUser.CheckIfHasAccess(Users.ActionType.ReadConfig))
                             {
-                                SendMessage(new MessageGetConfigurationPerClient(client.deviceID));
+                                foreach (var client in Worker.connectedDevices)
+                                {
+                                    SendMessage(new MessageGetConfigurationPerClient(client.deviceID));
+                                }
                             }
                         }
-                    }
-                    break;
-                    
-                case MessageType.ShowConfigurationPerClient:
-                    {
-                        var deviceId = (message as MessageSetConfigurationPerClient).deviceId;
-                        var device = (from t in connectedDevices
-                                      where t.deviceID == deviceId
-                                      select t).FirstOrDefault();
-                        device.SetConfiguration((message as MessageSetConfigurationPerClient).info as string);
-                    }
-                    break;
+                        break;
 
-                case MessageType.ColorFrame:
-                    break;
+                    case MessageType.ShowConfigurationPerClient:
+                        {
+                            var deviceId = (message as MessageSetConfigurationPerClient).deviceId;
+                            var device = (from t in connectedDevices
+                                          where t.deviceID == deviceId
+                                          select t).FirstOrDefault();
+                            device.SetConfiguration((message as MessageSetConfigurationPerClient).info as string);
+                        }
+                        break;
 
-                case MessageType.DepthFrame:
-                    break;
+                    case MessageType.ColorFrame:
+                        break;
 
-                case MessageType.IRFrame:
-                    break;
+                    case MessageType.DepthFrame:
+                        break;
 
-                case MessageType.Skeleton:
-                    break;
-                    // The controller is not sending configuration
-                    //case MessageType.GetConfigurationPerClient:
-                    //    SendMessage(new MessageSetConfigurationPerClient(Network.Configuration.DeviceID, Network.Configuration.GetConfigurationFile()));
-                    //    break;
+                    case MessageType.IRFrame:
+                        break;
 
+                    case MessageType.Skeleton:
+                        break;
+                        // The controller is not sending configuration
+                        //case MessageType.GetConfigurationPerClient:
+                        //    SendMessage(new MessageSetConfigurationPerClient(Network.Configuration.DeviceID, Network.Configuration.GetConfigurationFile()));
+                        //    break;
+
+                }
+            }
+            catch(Exception ex)
+            {
+                Network.Logger.LogManager.LogMessage(LogType.Error, LogLevel.Communication, "Error in receiving message");
             }
         }
 

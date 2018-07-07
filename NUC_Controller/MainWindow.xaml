@@ -116,24 +116,6 @@
                        MouseLeave="TextBox_MouseLeave" BorderThickness="0">Bodies</TextBox>
             </Grid>
 
-            <Grid>
-                <Label Name="labelNavNotificationss" 
-                           Target="{Binding ElementName=navNotifications}"  Visibility="Collapsed">
-                    <AccessText Foreground="LightGray" TextWrapping="WrapWithOverflow">_Notifications</AccessText>
-                </Label>
-                <TextBox Margin="5" FontSize="12" Padding="5"
-                       Name="navNotifications" 
-                       IsReadOnly="True"
-                       SelectionOpacity="0"
-                       Background="Transparent"
-                       TextAlignment="Center"
-                       Cursor="Hand"
-                       GotKeyboardFocus="Nav_GotFocus"
-                       ToolTipService.ShowOnDisabled="True"
-                       PreviewMouseDown="TextBox_MouseDown"
-                       MouseEnter="TextBox_MouseEnter"
-                       MouseLeave="TextBox_MouseLeave" BorderThickness="0">Notifications</TextBox>
-            </Grid>
             
             <Grid>
                 <Label Name="labelNavUsers" 

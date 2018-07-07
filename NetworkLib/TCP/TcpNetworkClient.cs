@@ -118,7 +118,6 @@ namespace Network.TCP
                 }
                 catch (Exception ex)
                 {
-
                 }
             }
         }
@@ -156,7 +155,7 @@ namespace Network.TCP
                         Thread.Sleep(1);
                         continue;
                     }
-
+                    
                     LogManager.LogMessage(LogType.Info, LogLevel.Communication, "Sending... ");
                     var messageData = lObject.Serialize();
                     LogManager.LogMessage(LogType.Info, LogLevel.Communication, "Sending: " + messageData.Length + " bytes");

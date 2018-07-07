@@ -97,7 +97,6 @@ namespace NetworkLib.TCP
             {
                 _Listener = new TcpListener(IPAddress.Parse(IpAddress), Port);
                 _Listener.Start();
-
                 LogManager.LogMessage(
                     LogType.Info,
                     LogLevel.Communication,
@@ -199,13 +198,14 @@ namespace NetworkLib.TCP
                     }
                     Thread.Sleep(1);
                 }
-                catch (System.IO.IOException)
+                catch (System.IO.IOException ex)
                 {
                     if (_ExitLoop) LogManager.LogMessage(LogType.Error, LogLevel.Errors, "User requested client shutdown");
                     else LogManager.LogMessage(LogType.Error, LogLevel.Communication, "Disconnected");
                     this.RestartClient(lClient);
                 }
-                catch (Exception ex) { this.RestartClient(lClient); LogManager.LogMessage(LogType.Error, LogLevel.Errors, ex.ToString()); }
+                catch (Exception ex) {
+                    this.RestartClient(lClient); LogManager.LogMessage(LogType.Error, LogLevel.Errors, ex.ToString()); }
             }
             LogManager.LogMessage(LogType.Error, LogLevel.Communication, "Listener is shutting down");
         }

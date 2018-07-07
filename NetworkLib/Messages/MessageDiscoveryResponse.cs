@@ -23,11 +23,18 @@ namespace Network.Messages
 
         public MessageDiscoveryResponse(byte[] infoBytes)
         {
-            this.type = MessageType.DiscoveryResponse;
-            this.info = infoBytes;
+            try
+            {
+                this.type = MessageType.DiscoveryResponse;
+                this.info = infoBytes;
 
-            this.IP = new byte[4] { infoBytes[0], infoBytes[1], infoBytes[2], infoBytes[3] };
-            this.Port = new byte[2] { infoBytes[4], infoBytes[5] };
+                this.IP = new byte[4] { infoBytes[0], infoBytes[1], infoBytes[2], infoBytes[3] };
+                this.Port = new byte[2] { infoBytes[4], infoBytes[5] };
+            }
+            catch(Exception ex)
+            {
+
+            }
         }
 
         public override byte[] Serialize()
