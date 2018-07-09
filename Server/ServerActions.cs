@@ -211,6 +211,7 @@ namespace Server
                             break;
 
                         case MessageType.Skeleton:
+                            Console.WriteLine("Resend Skeleton !!!");
                             SendToController(message);
                             break;
 
@@ -223,6 +224,7 @@ namespace Server
                                     tcpServers[deviceID].Send(
                                             tcpServers[deviceID].GetClient(),
                                             new MessageSkeletonRequest(deviceID));
+                                    Console.WriteLine("Resend Skeleton Request");
                                 }
                                 catch (Exception) { }
                             }

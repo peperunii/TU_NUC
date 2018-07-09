@@ -16,6 +16,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace NUC_Controller.NetworkWorker
 {
@@ -120,6 +121,7 @@ namespace NUC_Controller.NetworkWorker
 
                     case MessageType.Skeleton:
                         {
+                            MessageBox.Show("SKELETON arrived");
                             var msgSkeleton = message as MessageSkeleton;
                             var deviceId = msgSkeleton.deviceID;
                             var bodiesList = msgSkeleton.info as List<Body>;
