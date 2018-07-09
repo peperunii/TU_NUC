@@ -91,6 +91,22 @@ namespace Client.Cameras
             this.irImage = new Image<Gray, ushort>(irFrameDescription.Width, irFrameDescription.Height);
         }
 
+        internal bool IsTrackedBodyFound()
+        {
+            var result = false;
+
+            foreach(var body in this.bodies)
+            {
+                if(body.IsTracked == true)
+                {
+                    result = true;
+                    break;
+                }
+            }
+
+            return result;
+        }
+
         public void Start()
         {
             this.kinectSensor.Open();
