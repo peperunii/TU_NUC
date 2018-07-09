@@ -152,7 +152,7 @@ namespace NUC_Controller.Pages
             }
         }
 
-        private Image<Bgr, Byte> ConvertBodiesToImage(List<Body> bodies)
+        private Image<Bgr, Byte> ConvertBodiesToImage(List<Skeleton> bodies)
         {
             var width = (int)imagesize.Width;
             var height = (int)imagesize.Height;
@@ -171,14 +171,19 @@ namespace NUC_Controller.Pages
 
                 foreach (var joint in body.Joints)
                 {
-                    var point = new System.Drawing.PointF(joint.Value.Position.X, joint.Value.Position.Y);
+                    var point = new System.Drawing.PointF(joint.Position.X, joint.Position.Y);
                     image.Draw(new CircleF(point, 3), bgr, 2);
                 }
 
                 foreach (var bone in this.bones)
                 {
-                    var joint0 = body.Joints[bone.Item1];
-                    var joint1 = body.Joints[bone.Item2];
+                    var joint0 = (from t in body.Joints
+                                  where t.JointType == bone.Item1
+                                  select t).FirstOrDefault();
+
+                    var joint1 = (from t in body.Joints
+                                  where t.JointType == bone.Item2
+                                  select t).FirstOrDefault();
 
                     // If we can't find either of these joints, exit
                     if (joint0.TrackingState == TrackingState.NotTracked ||

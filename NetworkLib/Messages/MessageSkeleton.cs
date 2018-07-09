@@ -1,5 +1,6 @@
 ﻿using Microsoft.Kinect;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -38,18 +39,44 @@ namespace Network.Messages
         public byte [] ConvertBodiesListToByteArr()
         {
             var json = Encoding.ASCII.GetBytes(SerializationExtensions.Serialize(this.info as List<Body>));
-            Console.WriteLine("Skeleton serialization");
-
+         
             return json;
         }
 
-        public List<Body> ConvertByteArrToBodyList(byte [] byteArr)
+        public List<Skeleton> ConvertByteArrToBodyList(byte [] byteArr)
         {
+            var listBodies = new List<Skeleton>();
             var reader = JsonConvert.DeserializeObject<dynamic>(Encoding.ASCII.GetString(byteArr));
-            var bodies = reader["Bodies"];
-            Console.WriteLine(bodies);
+            JArray bodies = JArray.Parse(reader["Bodies"]);
+            
+            foreach(var body in bodies)
+            {
+                var skeleton = new Skeleton();
+                var joints = body["Joints"];
+                
+                foreach(var joint in joints)
+                {
+                    Console.WriteLine("parsing joint object...");
+                    var jointType = joint["JointType"];
+                    var trackState = joint["TrackingState"];
+                    var position = joint["Position"];
 
-            return new List<Body>();
+                    var jointObj = new Joint();
+                    jointObj.JointType = (JointType)Enum.Parse(typeof(JointType), (string)jointType);
+                    jointObj.TrackingState = (TrackingState)Enum.Parse(typeof(TrackingState), (string)jointType);
+                    jointObj.Position = new CameraSpacePoint();
+                    jointObj.Position.X = float.Parse((string)position["X"]);
+                    jointObj.Position.Y = float.Parse((string)position["Y"]);
+                    jointObj.Position.Z = float.Parse((string)position["Z"]);
+
+                    Console.WriteLine("joint added. Pos: " + jointObj.Position.X + ", " + jointObj.Position.Y);
+                    skeleton.AddJoint(jointObj);
+                }
+
+                listBodies.Add(skeleton);
+            }
+            
+            return listBodies;
         }
 
         public override byte[] Serialize()
@@ -156,5 +183,21 @@ namespace Network.Messages
         }
 
         #endregion
+    }
+
+    public class Skeleton
+    {
+        public List<Joint> Joints;
+        public bool IsTracked;
+
+        public Skeleton()
+        {
+            this.Joints = new List<Joint>();
+        }
+
+        public void AddJoint(Joint joint)
+        {
+            this.Joints.Add(joint);
+        }
     }
 }

@@ -121,10 +121,9 @@ namespace NUC_Controller.NetworkWorker
 
                     case MessageType.Skeleton:
                         {
-                            MessageBox.Show("SKELETON arrived");
                             var msgSkeleton = message as MessageSkeleton;
                             var deviceId = msgSkeleton.deviceID;
-                            var bodiesList = msgSkeleton.info as List<Body>;
+                            var bodiesList = msgSkeleton.info as List<Skeleton>;
 
                             NewBodyArrived.Invoke(null, new NewBodyArrivedEventArgs(deviceId, bodiesList));
                         }
