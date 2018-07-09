@@ -23,7 +23,7 @@ namespace Network
         public static bool logInDB;
         public static bool logInFile;
         public static string logFilename;
-        public static LogLevel loglevel;
+        public static LogLevel loglevel = LogLevel.Everything;
 
         public static double colorFrameScale = 1.0;
         public static double depthFrameScale = 1.0;

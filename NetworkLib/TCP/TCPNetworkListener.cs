@@ -190,7 +190,6 @@ namespace NetworkLib.TCP
             {
                 try
                 {
-                    if (!lNetworkStream.DataAvailable) continue;
                     var msg = MessageParser.GetMessageFromBytArr(GetBytArrFromNetworkStream(lNetworkStream));
 
                     if (msg != null)
@@ -207,9 +206,12 @@ namespace NetworkLib.TCP
                     if (_ExitLoop) LogManager.LogMessage(LogType.Error, LogLevel.Errors, "User requested client shutdown");
                     else LogManager.LogMessage(LogType.Error, LogLevel.Communication, "Disconnected");
                     this.RestartClient(lClient);
+                    break;
                 }
                 catch (Exception ex) {
-                    this.RestartClient(lClient); LogManager.LogMessage(LogType.Error, LogLevel.Errors, ex.ToString()); }
+                    this.RestartClient(lClient); LogManager.LogMessage(LogType.Error, LogLevel.Errors, ex.ToString());
+                    break;
+                }
             }
             LogManager.LogMessage(LogType.Error, LogLevel.Communication, "Listener is shutting down");
         }
@@ -218,7 +220,7 @@ namespace NetworkLib.TCP
         {
             LogManager.LogMessage(LogType.Warning, LogLevel.Communication, "Restarting ...");
             this.Disconnect(client);
-            this.Connect();
+            //this.Connect();
         }
         
         private byte[] GetBytArrFromNetworkStream(NetworkStream _NetworkStream)
@@ -226,23 +228,18 @@ namespace NetworkLib.TCP
             try
             {
                 byte[] lHeader = new byte[2];
-
-                Console.WriteLine("reading 2 bytes...");
+                
                 if (_NetworkStream.Read(lHeader, 0, 2) != 2)
                 {
                     return null;
                 }
 
                 var messageType = (MessageType)BitConverter.ToInt16(lHeader, 0);
-                Console.WriteLine("Message type: " + messageType);
-                Console.WriteLine("waaaait 1...");
-                
+
                 if ((ushort)messageType > Enum.GetValues(typeof(MessageType)).Length)
                 {
-                    Console.WriteLine("waaaait 2...");
                     return null;
                 }
-                Console.WriteLine("waaaait 3...");
                 if (messagesWithHeaderOnly.Contains(messageType))
                 {
                     return lHeader;
@@ -252,8 +249,7 @@ namespace NetworkLib.TCP
                     try
                     {
                         var dataLength = new byte[4];
-
-                        Console.WriteLine("reading 4 bytes...");
+                        
                         _NetworkStream.Read(dataLength, 0, 4);
 
                         var dataSize = BitConverter.ToInt32(dataLength, 0);
@@ -263,7 +259,6 @@ namespace NetworkLib.TCP
                         }
                         var data = new byte[dataSize];
                         
-                        Console.WriteLine("reading " + dataSize + " bytes...");
                         if (_NetworkStream.Read(data, 0, dataSize) != dataSize) return null;
                         var fullMessage = lHeader.Concat(dataLength.Concat(data)).ToArray();
                         return fullMessage;
@@ -276,7 +271,6 @@ namespace NetworkLib.TCP
             }
             catch(Exception ex)
             {
-                Console.WriteLine("ERROR in byte func!");
                 Console.WriteLine(ex.ToString());
                 return null;
             }
