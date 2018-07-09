@@ -190,7 +190,7 @@ namespace NetworkLib.TCP
             {
                 try
                 {
-                    if (!lNetworkStream.CanRead) continue;
+                    if (!lNetworkStream.DataAvailable) continue;
                     var msg = MessageParser.GetMessageFromBytArr(GetBytArrFromNetworkStream(lNetworkStream));
 
                     if (msg != null)
