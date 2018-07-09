@@ -225,49 +225,58 @@ namespace NetworkLib.TCP
         
         private byte[] GetBytArrFromNetworkStream(NetworkStream _NetworkStream)
         {
-            byte[] lHeader = new byte[2];
+            try
+            {
+                byte[] lHeader = new byte[2];
 
-            if (_NetworkStream.Read(lHeader, 0, 2) != 2)
-            {
-                Console.WriteLine("info 1");
-                return null;
-            }
-
-            var messageType = (MessageType)BitConverter.ToInt16(lHeader, 0);
-            
-            if((ushort)messageType > Enum.GetValues(typeof(MessageType)).Length)
-            {
-                Console.WriteLine("info 2");
-                return null;
-            }
-            if (messagesWithHeaderOnly.Contains(messageType))
-            {
-                return lHeader;
-            }
-            else
-            {
-                try
+                if (_NetworkStream.Read(lHeader, 0, 2) != 2)
                 {
-                    var dataLength = new byte[4];
-                    _NetworkStream.Read(dataLength, 0, 4);
-
-                    var dataSize = BitConverter.ToInt32(dataLength, 0);
-                    if (dataSize < 0)
-                    {
-                        Console.WriteLine("info 3");
-                        return null;
-                    }
-                    var data = new byte[dataSize];
-
-                    if (_NetworkStream.Read(data, 0, dataSize) != dataSize) return null;
-                    var fullMessage = lHeader.Concat(dataLength.Concat(data)).ToArray();
-                    return fullMessage;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("info 4");
+                    Console.WriteLine("info 1");
                     return null;
                 }
+
+                var messageType = (MessageType)BitConverter.ToInt16(lHeader, 0);
+
+                if ((ushort)messageType > Enum.GetValues(typeof(MessageType)).Length)
+                {
+                    Console.WriteLine("info 2");
+                    return null;
+                }
+                if (messagesWithHeaderOnly.Contains(messageType))
+                {
+                    return lHeader;
+                }
+                else
+                {
+                    try
+                    {
+                        var dataLength = new byte[4];
+                        _NetworkStream.Read(dataLength, 0, 4);
+
+                        var dataSize = BitConverter.ToInt32(dataLength, 0);
+                        if (dataSize < 0)
+                        {
+                            Console.WriteLine("info 3");
+                            return null;
+                        }
+                        var data = new byte[dataSize];
+
+                        if (_NetworkStream.Read(data, 0, dataSize) != dataSize) return null;
+                        var fullMessage = lHeader.Concat(dataLength.Concat(data)).ToArray();
+                        return fullMessage;
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("info 4");
+                        return null;
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine("ERROR in byte func!");
+                Console.WriteLine(ex.ToString());
+                return null;
             }
         }
 
