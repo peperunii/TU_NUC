@@ -123,6 +123,9 @@ namespace Network.Messages
                 json.Append("}");
             }
 
+            Console.WriteLine(".............");
+            Console.WriteLine("json body: " + json.ToString());
+            Console.WriteLine(".............");
             return json.ToString();
         }
 
