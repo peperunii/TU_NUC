@@ -22,7 +22,13 @@
             <RowDefinition Height="28"></RowDefinition>
         </Grid.RowDefinitions>
 
-        <Menu Grid.Row="0" Height="22" VerticalAlignment="Top" Background="White">
+        <Menu HorizontalAlignment="Stretch" Grid.Row="0" Height="22" VerticalAlignment="Top" Background="White">
+            <Menu.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <DockPanel HorizontalAlignment="Stretch"></DockPanel>
+                </ItemsPanelTemplate>
+            </Menu.ItemsPanel>
+
             <MenuItem Header="_File">
                 <MenuItem Header="_Export"></MenuItem>
             </MenuItem>
@@ -36,6 +42,7 @@
             </MenuItem>
             <MenuItem Header="_About" Name="menuAbout" Click="MenuAbout_Click"/>
 
+            <MenuItem Header="_Logout" Margin="0,0,10,0" Name="menuLogout" HorizontalAlignment="Right" Click="MenuLogout_Click"/>
         </Menu>
 
         <UniformGrid Grid.Row="1" Rows="1" 
@@ -43,6 +50,24 @@
                      Height="46" MaxHeight="46" 
                      KeyDown="TextBox_KeyDown" PreviewKeyDown="TextBox_KeyDown">
 
+            <Grid>
+                <Label Name="labelNavGlobal" Target="{Binding ElementName=navGlobal}" Visibility="Collapsed">
+                    <AccessText Foreground="LightGray" TextWrapping="WrapWithOverflow">_Global</AccessText>
+                </Label>
+                <TextBox Margin="5" FontSize="12" Padding="5"
+                       Name="navGlobal"
+                       IsReadOnly="True"
+                       SelectionOpacity="0"
+                       Background="Transparent"
+                       TextAlignment="Center"
+                       Cursor="Hand"
+                       ToolTipService.ShowOnDisabled="True"
+                       PreviewMouseDown="TextBox_MouseDown"
+                       GotKeyboardFocus="Nav_GotFocus"                      
+                       MouseEnter="TextBox_MouseEnter"                        
+                       MouseLeave="TextBox_MouseLeave" BorderThickness="0">Global</TextBox>
+            </Grid>
+            
             <Grid>
                 <Label Name="labelNavEvents" Target="{Binding ElementName=navEvents}" Visibility="Collapsed">
                     <AccessText Foreground="LightGray" TextWrapping="WrapWithOverflow">_Events</AccessText>

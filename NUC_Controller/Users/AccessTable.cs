@@ -14,6 +14,7 @@ namespace NUC_Controller.Users
         {
             accessChecker = new Dictionary<ActionType, List<UserType>>();
             //Read
+            accessChecker.Add(ActionType.readGlobals, new List<UserType>() { UserType.Admin, UserType.Extended });
             accessChecker.Add(ActionType.ReadEvents, new List<UserType>() { UserType.Admin, UserType.Extended, UserType.Simple });
             accessChecker.Add(ActionType.ReadFaces, new List<UserType>() { UserType.Admin, UserType.Extended, UserType.Simple });
             accessChecker.Add(ActionType.ReadBodies, new List<UserType>() { UserType.Admin, UserType.Extended, UserType.Simple });

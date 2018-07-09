@@ -79,6 +79,7 @@ namespace NUC_Controller
         {
             this.navigationsLinks = new Dictionary<TextBox, Uri>()
             {
+                {this.navGlobal, new Uri("Pages/GlobalPage.xaml", UriKind.RelativeOrAbsolute)},
                 {this.navEvents, new Uri("Pages/EventsPage.xaml", UriKind.RelativeOrAbsolute)},
                 {this.navConfiguration, new Uri("Pages/ConfigurationPage.xaml", UriKind.RelativeOrAbsolute)},
                 {this.navCalibration, new Uri("Pages/CalibrationPage.xaml", UriKind.RelativeOrAbsolute)},
@@ -91,6 +92,7 @@ namespace NUC_Controller
         {
             this.mapPermissionControls = new Dictionary<ActionType, IEnumerable<FrameworkElement>>()
             {
+                { ActionType.readGlobals, new List<FrameworkElement>(){ this.navGlobal } },
                 { ActionType.ReadEvents, new List<FrameworkElement>(){ this.navEvents } },
                 { ActionType.ReadConfig, new List<FrameworkElement>(){ this.navConfiguration } },
                 { ActionType.PerformCalibration, new List<FrameworkElement>(){ this.navCalibration } },
@@ -128,11 +130,12 @@ namespace NUC_Controller
             this.tabOrder = new Dictionary<int, TextBox>();
             this.TextBox_MouseDown(this.navLogo, null);
 
-            this.tabOrder.Add(0, this.navEvents);
-            this.tabOrder.Add(1, this.navConfiguration);
-            this.tabOrder.Add(2, this.navCalibration);
-            this.tabOrder.Add(3, this.navBodies);
-            this.tabOrder.Add(4, this.navUsers);
+            this.tabOrder.Add(0, this.navGlobal);
+            this.tabOrder.Add(1, this.navEvents);
+            this.tabOrder.Add(2, this.navConfiguration);
+            this.tabOrder.Add(3, this.navCalibration);
+            this.tabOrder.Add(4, this.navBodies);
+            this.tabOrder.Add(5, this.navUsers);
 
             this.lastSelectedTab = 1;
             this.initialSelectedTab = 1;
@@ -147,6 +150,7 @@ namespace NUC_Controller
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            this.RefreshPermissions();
             new Notification(NotificationType.Info, "Connected");
 
             /*Make DB Requests*/
@@ -164,6 +168,28 @@ namespace NUC_Controller
         {
         }
         #endregion
+
+        private void RefreshPermissions()
+        {
+            foreach (var permContrPair in this.mapPermissionControls)
+            {
+                if (!Globals.loggedInUser.CheckIfHasAccess(permContrPair.Key))
+                {
+                    foreach (var control in permContrPair.Value)
+                    {
+                        control.IsEnabled = false;
+                        control.ToolTip = "Insufficient permmissions";
+
+                        TextBox nav = control as TextBox;
+                        if (nav != null)
+                        {
+                            nav.Background = Brushes.Gray;
+                            nav.Foreground = Brushes.Black;
+                        }
+                    }
+                }
+            }
+        }
 
         #region Menu
         private void MenuDBRefresh_Click(object sender, RoutedEventArgs e)
@@ -225,6 +251,15 @@ namespace NUC_Controller
             {
                 this.lastClickedNav = textBox;
                 this.lastClickedNav.Focusable = true;
+
+                if (this.navGlobal == this.lastClickedNav)
+                {
+                    this.navGlobal.Focusable = true;
+                }
+                else
+                {
+                    this.navGlobal.Focusable = false;
+                }
 
                 if (this.navEvents == this.lastClickedNav)
                 {
@@ -315,6 +350,7 @@ namespace NUC_Controller
         {
             this.initialSelectedTab = this.lastSelectedTab;
             if ((this.navEvents.IsFocused == true ||
+                this.navGlobal.IsFocused == true ||
                 this.navConfiguration.IsFocused == true ||
                 this.navCalibration.IsFocused == true ||
                 this.navBodies.IsFocused == true ||
@@ -356,6 +392,7 @@ namespace NUC_Controller
         private void SetAllTextBoxesToFocusable(bool focusable)
         {
             this.navEvents.Focusable = focusable;
+            this.navGlobal.Focusable = focusable;
             this.navConfiguration.Focusable = focusable;
             this.navCalibration.Focusable = focusable;
             this.navBodies.Focusable = focusable;
@@ -430,9 +467,10 @@ namespace NUC_Controller
 
         private void MenuRestartAllDevices_Click(object sender, RoutedEventArgs e)
         {
-            var result = MessageBox.Show("Are you sure?", "Warning", MessageBoxButton.YesNo);
+            var msgWindow = new MessageViewer("Warning", "Are you sure?");
+            msgWindow.ShowDialog();
 
-            if (result == MessageBoxResult.Yes)
+            if (msgWindow.result == MessageBoxResult.Yes)
             {
                 var allDevices = Worker.GetConnectedDevices();
 
@@ -451,9 +489,10 @@ namespace NUC_Controller
 
         private void MenuShutDownAllDevices_Click(object sender, RoutedEventArgs e)
         {
-            var result = MessageBox.Show("Are you sure?", "Warning", MessageBoxButton.YesNo);
+            var msgWindow = new MessageViewer("Warning", "Are you sure?");
+            msgWindow.ShowDialog();
 
-            if (result == MessageBoxResult.Yes)
+            if (msgWindow.result == MessageBoxResult.Yes)
             {
                 var allDevices = Worker.GetConnectedDevices();
 
@@ -467,6 +506,28 @@ namespace NUC_Controller
 
                 /*Send server request - as the last one*/
                 NetworkSettings.tcpClient.Send(new MessageShutdownDevice(DeviceID.TU_SERVER));
+            }
+        }
+
+        private void MenuLogout_Click(object sender, RoutedEventArgs e)
+        {
+            var msgWindow = new MessageViewer("Warning", "Logout!\nAre you sure?");
+            msgWindow.ShowDialog();
+
+            if(msgWindow.result == MessageBoxResult.Yes)
+            {
+                LogManager.LogMessage(LogType.UserAction, LogLevel.ErrWarn, string.Format("User ''{0}'' logged out.", Globals.loggedInUser.Username));
+                this.Hide();
+                var loginWindow = new LoginWindow();
+                loginWindow.ShowDialog();
+
+                var windowResult = loginWindow.resultLogin;
+                if (!windowResult)
+                {
+                    Environment.Exit(0);
+                }
+                this.Show();
+                this.Window_Loaded(null, null);
             }
         }
     }

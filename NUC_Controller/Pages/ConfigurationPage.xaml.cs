@@ -4,6 +4,7 @@ using Network.Messages;
 using NUC_Controller.DB;
 using NUC_Controller.NetworkWorker;
 using NUC_Controller.Notifications;
+using NUC_Controller.Windows;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -115,6 +116,11 @@ namespace NUC_Controller.Pages
             buttonSaveConfig.HorizontalAlignment = HorizontalAlignment.Right;
             buttonSaveConfig.Margin = new Thickness(5, 0, 35, 0);
 
+            if(!Globals.loggedInUser.CheckIfHasAccess(Users.ActionType.ChangeConfig))
+            {
+                buttonSaveConfig.IsEnabled = false;
+            }
+
             var buttonRestart = new Button();
             buttonRestart.Name = "buttonRestart_" + device.deviceID;
             buttonRestart.Click += this.ButtonRestartApp_Click;
@@ -154,9 +160,10 @@ namespace NUC_Controller.Pages
         {
             try
             {
-                var result = MessageBox.Show("Send configuration?", "Warning", MessageBoxButton.YesNo);
+                var msgWindow = new MessageViewer("Warning", "Send configuration?");
+                msgWindow.ShowDialog();
 
-                if (result == MessageBoxResult.Yes)
+                if (msgWindow.result == MessageBoxResult.Yes)
                 {
                     var indexOfSeparator = (sender as Button).Name.IndexOf('_');
                     var deviceID_string = (sender as Button).Name.Substring(indexOfSeparator + 1);
@@ -194,9 +201,10 @@ namespace NUC_Controller.Pages
 
         private void ButtonRestartApp_Click(object sender, RoutedEventArgs e)
         {
-            var result = MessageBox.Show("Are you sure?", "Warning", MessageBoxButton.YesNo);
+            var msgWindow = new MessageViewer("Warning", "Are you sure?");
+            msgWindow.ShowDialog();
 
-            if (result == MessageBoxResult.Yes)
+            if (msgWindow.result == MessageBoxResult.Yes)
             {
                 var indexOfSeparator = (sender as Button).Name.IndexOf('_');
                 var deviceID_string = (sender as Button).Name.Substring(indexOfSeparator + 1);
@@ -217,9 +225,10 @@ namespace NUC_Controller.Pages
 
         private void ButtonRestartDevice_Click(object sender, RoutedEventArgs e)
         {
-            var result = MessageBox.Show("Are you sure?", "Warning", MessageBoxButton.YesNo);
+            var msgWindow = new MessageViewer("Warning", "Are you sure?");
+            msgWindow.ShowDialog();
 
-            if (result == MessageBoxResult.Yes)
+            if (msgWindow.result == MessageBoxResult.Yes)
             {
                 var indexOfSeparator = (sender as Button).Name.IndexOf('_');
                 var deviceID_string = (sender as Button).Name.Substring(indexOfSeparator + 1);

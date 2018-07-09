@@ -101,7 +101,8 @@ namespace NUC_Controller.Pages
                 this.tabDevicesList.Items.Clear();
                 foreach (var device in sortedDevices)
                 {
-                    this.TabCreator(device);
+                    if (device.deviceID != DeviceID.TU_SERVER)
+                        this.TabCreator(device);
                 }
 
                 this.tabDevicesList.SelectedIndex = lastSelectedIndex != -1 ? lastSelectedIndex : connectedDevices.Count > 0 ? 0 : -1;

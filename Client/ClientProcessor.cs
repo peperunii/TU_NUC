@@ -242,23 +242,23 @@ namespace Client
 
                     case MessageType.ColorFrameRequest:
                         //SendMessage(new MessageColorFrame(camera.colorImageByteArr));
-                        IsColorFrameRequested = true;
+                        IsColorFrameRequested = !IsColorFrameRequested;
                         break;
 
                     case MessageType.DepthFrameRequest:
                         /*TODO*/
                         //SendMessage(new MessageDepthFrame());
-                        IsDepthFrameRequested = true;
+                        IsDepthFrameRequested = !IsDepthFrameRequested;
                         break;
 
                     case MessageType.IRFrameRequest:
                         /*TODO*/
                         //SendMessage(new MessageIRFrame());
-                        IsIRFrameRequested = true;
+                        IsIRFrameRequested = !IsIRFrameRequested;
                         break;
 
                     case MessageType.SkeletonRequest:
-                        IsBodyFrameRequested = true;
+                        IsBodyFrameRequested = !IsBodyFrameRequested;
                         break;
                 }
             }

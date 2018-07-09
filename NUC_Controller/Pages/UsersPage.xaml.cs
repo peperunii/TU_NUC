@@ -145,6 +145,11 @@ namespace NUC_Controller.Pages
 
                 this.buttonEdit.IsEnabled = false;
             }
+
+            if(!Globals.loggedInUser.CheckIfHasAccess(ActionType.ChangeExistingUser))
+            {
+                this.buttonEdit.IsEnabled = false;
+            }
         }
 
         public UsersPage()
@@ -278,6 +283,11 @@ namespace NUC_Controller.Pages
 
         private void ButtonEditClick(object sender, RoutedEventArgs e)
         {
+            if(!Globals.loggedInUser.CheckIfHasAccess(ActionType.ChangeExistingUser))
+            {
+                return;
+            }
+
             var selItem = this.listboxUsers.SelectedItem as UserViewModel;
             if (selItem != null)
             {

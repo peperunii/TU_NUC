@@ -1,0 +1,56 @@
+﻿<Page x:Class="NUC_Controller.Pages.GlobalPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:NUC_Controller.Pages"
+      mc:Ignorable="d" 
+      d:DesignHeight="300" d:DesignWidth="300"
+      Title="GlobalPage"
+      Loaded="Page_Loaded">
+
+    <DockPanel>
+        <StackPanel Width="300" HorizontalAlignment="Left">
+            <Button x:Name="buttonRefresDevices" Width="130" Height="24" Margin="10" HorizontalAlignment="Right" VerticalAlignment="Center" Click="buttonRefresDevices_Click">RefreshDevices</Button>
+            <Grid x:Name="gridDevicesSettings" Width="300" HorizontalAlignment="Left">
+                <Grid.RowDefinitions>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition Height="20"></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" Margin="5" VerticalAlignment="Center" FontSize="14" FontWeight="Bold">All Apps</TextBlock>
+                <TextBlock Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" Margin="5" VerticalAlignment="Center" FontSize="14" FontWeight="Bold">All Devices</TextBlock>
+                <TextBlock Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left" Margin="5" VerticalAlignment="Center" FontSize="14" FontWeight="Bold">All Cameras</TextBlock>
+                <TextBlock Grid.Row="4" Grid.Column="0" HorizontalAlignment="Left" Margin="5" VerticalAlignment="Center" FontSize="14" FontWeight="Bold">All Streams</TextBlock>
+                <TextBlock Grid.Row="5" Grid.Column="0" HorizontalAlignment="Left" Margin="5" VerticalAlignment="Center" FontSize="14" FontWeight="Bold">Color Stream</TextBlock>
+                <TextBlock Grid.Row="6" Grid.Column="0" HorizontalAlignment="Left" Margin="5" VerticalAlignment="Center" FontSize="14" FontWeight="Bold">Depth Stream</TextBlock>
+                <TextBlock Grid.Row="7" Grid.Column="0" HorizontalAlignment="Left" Margin="5" VerticalAlignment="Center" FontSize="14" FontWeight="Bold">IR Stream</TextBlock>
+                <TextBlock Grid.Row="8" Grid.Column="0" HorizontalAlignment="Left" Margin="5" VerticalAlignment="Center" FontSize="14" FontWeight="Bold">Body Stream</TextBlock>
+
+                <Button Grid.Row="0" Grid.Column="1" Margin="5" Height="24" Width="130" x:Name="buttonRestartApps" Click="buttonRestartApps_Click">Restart</Button>
+                <DockPanel Grid.Row="1" Grid.Column="1" Margin="5" Height="24" Width="130">
+                    <Button Height="24" Width="63" Margin="0,0,4,0" x:Name="buttonRestartDevices" Click="buttonRestartDevices_Click">Restart</Button>
+                    <Button Height="24" Width="63" x:Name="buttonShutdownDevices" Click="buttonShutdownDevices_Click">Shutdown</Button>
+                </DockPanel>
+                <Button Grid.Row="2" Grid.Column="1" Margin="5" Height="24" Width="130" x:Name="buttonCamerasStartStop" Click="buttonCamerasStartStop_Click">Start</Button>
+                <Button Grid.Row="4" Grid.Column="1" Margin="5" Height="24" Width="130" x:Name="buttonStreamsAll" Click="buttonStreamsAll_Click">Enable</Button>
+                <Button Grid.Row="5" Grid.Column="1" Margin="5" Height="24" Width="130" x:Name="buttonStreamsColor" Click="buttonStreamsColor_Click">Enable</Button>
+                <Button Grid.Row="6" Grid.Column="1" Margin="5" Height="24" Width="130" x:Name="buttonStreamDepth" Click="buttonStreamDepth_Click">Enable</Button>
+                <Button Grid.Row="7" Grid.Column="1" Margin="5" Height="24" Width="130" x:Name="buttonStreamIR" Click="buttonStreamIR_Click">Enable</Button>
+                <Button Grid.Row="8" Grid.Column="1" Margin="5" Height="24" Width="130" x:Name="buttonStreamBody" Click="buttonStreamBody_Click">Enable</Button>
+            </Grid>
+        </StackPanel>
+    </DockPanel>
+</Page>

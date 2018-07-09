@@ -2,6 +2,7 @@
 {
     public enum ActionType
     {
+        readGlobals,
         ReadEvents,
         ReadFaces,
         ReadBodies,
@@ -11,6 +12,7 @@
         ExportEventsToFile,
         PerformCalibration,
 
+        changeGlobals,
         ChangeConfig,
         CreateUser,
         RemoveUser,

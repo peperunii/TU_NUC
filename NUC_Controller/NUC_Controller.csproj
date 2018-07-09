@@ -106,6 +106,9 @@
     <Compile Include="Pages\FilterLogType.cs" />
     <Compile Include="Pages\EventsPage.xaml.cs" />
     <Compile Include="Pages\ConfigurationPage.xaml.cs" />
+    <Compile Include="Pages\GlobalPage.xaml.cs">
+      <DependentUpon>GlobalPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Pages\UsersPage.xaml.cs" />
     <Compile Include="UserControls\UserUserControl.xaml.cs" />
     <Compile Include="Users\AccessTable.cs" />
@@ -123,6 +126,9 @@
       <DependentUpon>AboutWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\LoginWindow.xaml.cs" />
+    <Compile Include="Windows\MessageViewer.xaml.cs">
+      <DependentUpon>MessageViewer.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\UsersWindow.xaml.cs" />
     <Compile Include="Windows\WindowAction.cs" />
     <Page Include="MainWindow.xaml">
@@ -153,6 +159,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Pages\GlobalPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Pages\UsersPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -168,6 +178,10 @@
     <Page Include="Windows\LoginWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\MessageViewer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Windows\UsersWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

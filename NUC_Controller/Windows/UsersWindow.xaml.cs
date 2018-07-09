@@ -3,17 +3,8 @@ using NUC_Controller.DB;
 using NUC_Controller.Users;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace NUC_Controller.Windows
 {
@@ -32,6 +23,9 @@ namespace NUC_Controller.Windows
         {
             this.windowAction = action;
             this.user = user;
+
+            this.Owner = Application.Current.MainWindow;
+            this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
 
             InitializeComponent();
         }
