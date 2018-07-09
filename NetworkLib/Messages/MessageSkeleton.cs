@@ -35,12 +35,17 @@ namespace Network.Messages
 
         public byte [] ConvertBodiesListToByteArr()
         {
+            Console.WriteLine("Skeleton serialization");
             var ms = new MemoryStream();
             BinaryFormatter bf = new BinaryFormatter();
 
             bf.Serialize(ms, this.info as List<Body>);
+            Console.WriteLine("Skeleton serialization 2");
+
             ms.Position = 0;
 
+            var byteArr = ms.ToArray();
+            Console.WriteLine("Skeleton byte length: " + byteArr.Length);
             return ms.ToArray();
         }
 
