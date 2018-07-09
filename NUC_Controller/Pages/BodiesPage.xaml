@@ -1,0 +1,24 @@
+﻿<Page x:Class="NUC_Controller.Pages.BodiesPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:NUC_Controller.Pages"
+      mc:Ignorable="d" 
+      d:DesignHeight="300" d:DesignWidth="300"
+      Title="BodiesPage">
+
+    <Grid Background="Transparent">
+        <Grid.RowDefinitions>
+            <RowDefinition></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+        </Grid.RowDefinitions>
+        <TabControl x:Name="tabDevicesList" Margin="2">
+
+        </TabControl>
+        <DockPanel Height="24" Grid.Row="1" HorizontalAlignment="Right" Margin="5,2,5,2">
+            <Button x:Name="buttonRefreshDevices" Click="buttonRefreshDevices_Click" Width="130" Margin="5,0,0,0">Refresh Devices list</Button>
+        </DockPanel>
+        
+    </Grid>
+</Page>

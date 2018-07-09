@@ -28,7 +28,7 @@ namespace Client.Cameras
         private FrameDescription depthFrameDescription;
         private FrameDescription irFrameDescription;
         
-        private Body[] bodies = null;
+        public Body[] bodies = null;
 
         private Image<Bgr, Byte> colorImage = null;
         private Image<Gray, ushort> depthImage = null;
@@ -70,7 +70,7 @@ namespace Client.Cameras
         public KinectCamera()
         {
             this.kinectSensor = KinectSensor.GetDefault();
-
+            
             this.colorFrameReader = this.kinectSensor.ColorFrameSource.OpenReader();
             this.depthFrameReader = this.kinectSensor.DepthFrameSource.OpenReader();
             this.irFrameReader = this.kinectSensor.InfraredFrameSource.OpenReader();

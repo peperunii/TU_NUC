@@ -7,6 +7,7 @@ using Network.TCP;
 using Network.TimeSync;
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 
 namespace Client
@@ -18,6 +19,12 @@ namespace Client
         private static ConnectionSettings connectionSettings;
         private static long lastServerHeartbeat;
         private static KinectCamera camera;
+
+        private static bool IsCameraStarted = false;
+        private static bool IsColorFrameRequested = false;
+        private static bool IsDepthFrameRequested = false;
+        private static bool IsIRFrameRequested = false;
+        private static bool IsBodyFrameRequested = false;
 
         public static void Start()
         {
@@ -52,22 +59,10 @@ namespace Client
                 camera.OnDepthFrameArrived += Camera_OnDepthFrameArrived;
                 camera.OnIRFrameArrived += Camera_OnIRFrameArrived;
                 camera.OnBodyFrameArrived += Camera_OnBodyFrameArrived;
-
-                Console.WriteLine("Camera Init - Done");
-                camera.Start();
-                Thread.Sleep(2000);
-                Console.WriteLine("Camera started");
-                camera.Stop();
-                Thread.Sleep(2000);
-                Console.WriteLine("Camera stopped");
-                camera.Start();
-                Thread.Sleep(2000);
-                Console.WriteLine("Camera started");
-                camera.Stop();
             }
             catch(Exception ex)
             {
-                Console.Write("Error: " + ex.ToString());
+                LogManager.LogMessage(LogType.Error, LogLevel.Errors, "Problem with camera Init: " + ex.ToString());
             }
         }
 
@@ -76,28 +71,39 @@ namespace Client
         {
             if (!Configuration.IsServerDisconnected)
             {
-                LogManager.LogMessage(LogType.Info, LogLevel.Everything, "Sending color frame...");
-                var colorData = camera.GetData(CameraDataType.Color);
-                var messageColorFrame = new MessageColorFrame(1080, 1920, 3, false, (colorData as byte[]));
-                tcpClient.Send(messageColorFrame);
-                frameCounter++;
+                if (IsCameraStarted && IsColorFrameRequested)
+                {
+                    LogManager.LogMessage(LogType.Info, LogLevel.Everything, "Sending color frame...");
+                    var colorData = camera.GetData(CameraDataType.Color);
+                    var messageColorFrame = new MessageColorFrame(1080, 1920, 3, false, (colorData as byte[]));
+                    tcpClient.Send(messageColorFrame);
+                    frameCounter++;
+                }
             }
         }
 
         private static void Camera_OnDepthFrameArrived()
         {
-            var depthData = camera.GetData(CameraDataType.Depth);
+            if (IsCameraStarted && IsDepthFrameRequested)
+            {
+                var depthData = camera.GetData(CameraDataType.Depth);
+            }
         }
-        
+
         private static void Camera_OnIRFrameArrived()
         {
-            var irData = camera.GetData(CameraDataType.IR);
+            if (IsCameraStarted && IsIRFrameRequested)
+            {
+                var irData = camera.GetData(CameraDataType.IR);
+            }
         }
+
         private static void Camera_OnBodyFrameArrived()
         {
-            var bodyData = camera.GetData(CameraDataType.Body);
-
-            //tcpClient.Send(new MessageSkeleton);
+            if (IsCameraStarted && IsBodyFrameRequested)
+            {
+                tcpClient.Send(new MessageSkeleton(Configuration.DeviceID, camera.bodies.ToList()));
+            }
         }
         
 
@@ -196,6 +202,7 @@ namespace Client
                             {
                                 camera.Start();
                                 LogManager.LogMessage(LogType.Info, LogLevel.ErrWarnInfo, "Camera Started.");
+                                IsCameraStarted = true;
                             }
                             catch (Exception ex)
                             {
@@ -212,6 +219,11 @@ namespace Client
                             {
                                 camera.Stop();
                                 LogManager.LogMessage(LogType.Info, LogLevel.ErrWarnInfo, "Camera Stopped.");
+                                IsCameraStarted = false;
+                                IsColorFrameRequested = false;
+                                IsDepthFrameRequested = false;
+                                IsIRFrameRequested = false;
+                                IsBodyFrameRequested = false;
                             }
                             catch (Exception ex)
                             {
@@ -229,26 +241,24 @@ namespace Client
                         break;
 
                     case MessageType.ColorFrameRequest:
-                        /*Send last colorFrame*/
-                        SendMessage(new MessageColorFrame(camera.colorImageByteArr));
+                        //SendMessage(new MessageColorFrame(camera.colorImageByteArr));
+                        IsColorFrameRequested = true;
                         break;
 
                     case MessageType.DepthFrameRequest:
                         /*TODO*/
-                        /*Send last depthFrame*/
-                        SendMessage(new MessageDepthFrame());
+                        //SendMessage(new MessageDepthFrame());
+                        IsDepthFrameRequested = true;
                         break;
 
                     case MessageType.IRFrameRequest:
                         /*TODO*/
-                        /*Send last colorFrame*/
-                        SendMessage(new MessageIRFrame());
+                        //SendMessage(new MessageIRFrame());
+                        IsIRFrameRequested = true;
                         break;
 
                     case MessageType.SkeletonRequest:
-                        /*TODO*/
-                        /*Send last colorFrame*/
-                        SendMessage(new MessageSkeleton());
+                        IsBodyFrameRequested = true;
                         break;
                 }
             }

@@ -1,4 +1,5 @@
 ﻿using DB_Initialization;
+using Microsoft.Kinect;
 using Network;
 using Network.Devices;
 using Network.Discovery;
@@ -6,6 +7,7 @@ using Network.Logger;
 using Network.Messages;
 using Network.TCP;
 using Network.TimeSync;
+using NetworkLib.Events;
 using NUC_Controller.Notifications;
 using System;
 using System.Collections.Generic;
@@ -20,6 +22,9 @@ namespace NUC_Controller.NetworkWorker
     static class Worker
     {
         private static List<NUC> connectedDevices;
+
+        public delegate void MyEventHandler(object source, NewBodyArrivedEventArgs e);
+        public static event MyEventHandler NewBodyArrived;
 
         public static void StartNetworkClient()
         {
@@ -114,7 +119,15 @@ namespace NUC_Controller.NetworkWorker
                         break;
 
                     case MessageType.Skeleton:
+                        {
+                            var msgSkeleton = message as MessageSkeleton;
+                            var deviceId = msgSkeleton.deviceID;
+                            var bodiesList = msgSkeleton.info as List<Body>;
+
+                            NewBodyArrived.Invoke(null, new NewBodyArrivedEventArgs(deviceId, bodiesList));
+                        }
                         break;
+
                         // The controller is not sending configuration
                         //case MessageType.GetConfigurationPerClient:
                         //    SendMessage(new MessageSetConfigurationPerClient(Network.Configuration.DeviceID, Network.Configuration.GetConfigurationFile()));

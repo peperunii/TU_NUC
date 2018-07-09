@@ -30,6 +30,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.Kinect, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.Win32.Primitives, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Win32.Primitives.4.0.1\lib\net46\Microsoft.Win32.Primitives.dll</HintPath>
     </Reference>
@@ -114,6 +115,7 @@
     <Compile Include="Discovery\DiscoveryReceiver.cs" />
     <Compile Include="Discovery\UDPClient.cs" />
     <Compile Include="Discovery\DiscoverySender.cs" />
+    <Compile Include="Events\NewBodyArrivedEventArgs.cs" />
     <Compile Include="Events\ServerFoundEventArgs.cs" />
     <Compile Include="Events\NUCConnectedEventArgs.cs" />
     <Compile Include="Logger\Logger.cs" />

@@ -82,7 +82,7 @@ namespace NUC_Controller
                 {this.navEvents, new Uri("Pages/EventsPage.xaml", UriKind.RelativeOrAbsolute)},
                 {this.navConfiguration, new Uri("Pages/ConfigurationPage.xaml", UriKind.RelativeOrAbsolute)},
                 {this.navCalibration, new Uri("Pages/CalibrationPage.xaml", UriKind.RelativeOrAbsolute)},
-                {this.navBodies, new Uri("Pages/KinectBodiesPage.xaml", UriKind.RelativeOrAbsolute)},
+                {this.navBodies, new Uri("Pages/BodiesPage.xaml", UriKind.RelativeOrAbsolute)},
                 { this.navUsers, new Uri("Pages/UsersPage.xaml", UriKind.RelativeOrAbsolute)}
             };
         }

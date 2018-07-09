@@ -209,6 +209,24 @@ namespace Server
                                 + (message as MessageColorFrame).Width
                                 + ")");
                             break;
+
+                        case MessageType.Skeleton:
+                            SendToController(message);
+                            break;
+
+                        case MessageType.SkeletonRequest:
+                            {
+                                try
+                                {
+                                    var deviceID = (message as MessageSkeletonRequest).deviceId;
+
+                                    tcpServers[deviceID].Send(
+                                            tcpServers[deviceID].GetClient(),
+                                            new MessageSkeletonRequest(deviceID));
+                                }
+                                catch (Exception) { }
+                            }
+                            break;
                     }
 
                 }

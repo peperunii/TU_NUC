@@ -106,7 +106,7 @@ namespace Network.Messages
                         return null;
 
                     case MessageType.Skeleton:
-                        return null;
+                        return new MessageSkeleton(messageArr.SubArray(6));
 
 
                     case MessageType.ColorFrameRequest:
@@ -119,8 +119,8 @@ namespace Network.Messages
                         return null;
 
                     case MessageType.SkeletonRequest:
-                        return null;
-                        
+                        return new MessageSkeletonRequest(messageArr.SubArray(6));
+
 
                     default:
                         return null;
