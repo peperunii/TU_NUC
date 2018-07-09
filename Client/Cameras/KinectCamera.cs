@@ -77,9 +77,9 @@ namespace Client.Cameras
             this.bodyFrameReader = this.kinectSensor.BodyFrameSource.OpenReader();
 
             this.colorFrameReader.FrameArrived += this.ColorFrameReader_FrameArrived;
-            //this.depthFrameReader.FrameArrived += this.DepthFrameReader_FrameArrived;
-            //this.irFrameReader.FrameArrived += this.IrFrameReader_FrameArrived;
-            //this.bodyFrameReader.FrameArrived += this.BodyFrameReader_FrameArrived;
+            this.depthFrameReader.FrameArrived += this.DepthFrameReader_FrameArrived;
+            this.irFrameReader.FrameArrived += this.IrFrameReader_FrameArrived;
+            this.bodyFrameReader.FrameArrived += this.BodyFrameReader_FrameArrived;
 
             this.colorFrameDescription = this.kinectSensor.ColorFrameSource.CreateFrameDescription(ColorImageFormat.Bgra);
             this.colorImage = new Image<Bgr, byte>(colorFrameDescription.Width, colorFrameDescription.Height);
@@ -276,7 +276,6 @@ namespace Client.Cameras
                     // those body objects will be re-used.
                     bodyFrame.GetAndRefreshBodyData(this.bodies);
 
-                    Console.WriteLine("Body frame arrived.. triggering event");
                     //fire event
                     dOnBodyFrameArrived lEvent = OnBodyFrameArrived;
                     if (lEvent != null)
