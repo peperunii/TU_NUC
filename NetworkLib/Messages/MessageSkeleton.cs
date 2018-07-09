@@ -46,30 +46,29 @@ namespace Network.Messages
         public List<Skeleton> ConvertByteArrToBodyList(byte [] byteArr)
         {
             var listBodies = new List<Skeleton>();
-            var reader = JsonConvert.DeserializeObject<dynamic>(Encoding.ASCII.GetString(byteArr));
-            JArray bodies = JArray.Parse(reader["Bodies"]);
-            
-            foreach(var body in bodies)
+            var jObj = JObject.Parse(Encoding.ASCII.GetString(byteArr))["Bodies"];
+
+            var children = jObj.Children();
+
+            foreach(var body in jObj)
             {
                 var skeleton = new Skeleton();
                 var joints = body["Joints"];
                 
                 foreach(var joint in joints)
                 {
-                    Console.WriteLine("parsing joint object...");
                     var jointType = joint["JointType"];
                     var trackState = joint["TrackingState"];
                     var position = joint["Position"];
 
                     var jointObj = new Joint();
                     jointObj.JointType = (JointType)Enum.Parse(typeof(JointType), (string)jointType);
-                    jointObj.TrackingState = (TrackingState)Enum.Parse(typeof(TrackingState), (string)jointType);
+                    jointObj.TrackingState = (TrackingState)Enum.Parse(typeof(TrackingState), (string)trackState);
                     jointObj.Position = new CameraSpacePoint();
                     jointObj.Position.X = float.Parse((string)position["X"]);
                     jointObj.Position.Y = float.Parse((string)position["Y"]);
                     jointObj.Position.Z = float.Parse((string)position["Z"]);
 
-                    Console.WriteLine("joint added. Pos: " + jointObj.Position.X + ", " + jointObj.Position.Y);
                     skeleton.AddJoint(jointObj);
                 }
 
@@ -178,7 +177,7 @@ namespace Network.Messages
             json.Append("\"Z\":\"" + joint.Position.Z + "\"");
             json.Append("}");
             json.Append("}");
-
+            
             return json.ToString();
         }
 

@@ -171,7 +171,7 @@ namespace NUC_Controller.Pages
 
                 foreach (var joint in body.Joints)
                 {
-                    var point = new System.Drawing.PointF(joint.Position.X, joint.Position.Y);
+                    var point = new System.Drawing.PointF(200 * (joint.Position.X + 1), 200 * (joint.Position.Y + 1));
                     image.Draw(new CircleF(point, 3), bgr, 2);
                 }
 
@@ -192,8 +192,8 @@ namespace NUC_Controller.Pages
                         continue;
                     }
 
-                    var p1 = new System.Drawing.Point((int)joint0.Position.X, (int)joint0.Position.Y);
-                    var p2 = new System.Drawing.Point((int)joint1.Position.X, (int)joint1.Position.Y);
+                    var p1 = new System.Drawing.Point((int)(200 * (joint0.Position.X + 1)), (int)(200 * (joint0.Position.Y + 1)));
+                    var p2 = new System.Drawing.Point((int)(200 * (joint1.Position.X + 1)), (int)(200 * (joint1.Position.Y + 1)));
 
                     // We assume all drawn bones are inferred unless BOTH joints are tracked
                     if ((joint0.TrackingState == TrackingState.Tracked) && (joint1.TrackingState == TrackingState.Tracked))
