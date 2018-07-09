@@ -185,11 +185,12 @@ namespace NetworkLib.TCP
         {
             TcpClient lClient = xClient as TcpClient;
             NetworkStream lNetworkStream = lClient.GetStream();
-
+            
             while (!_ExitLoop && lClient.Connected)
             {
                 try
                 {
+                    if (!lNetworkStream.CanRead) continue;
                     var msg = MessageParser.GetMessageFromBytArr(GetBytArrFromNetworkStream(lNetworkStream));
 
                     if (msg != null)
