@@ -100,11 +100,13 @@ namespace Client
 
         private static void Camera_OnBodyFrameArrived()
         {
-            Console.WriteLine("Body frame arrived !");
             if (IsCameraStarted && IsBodyFrameRequested)
             {
-                Console.WriteLine("Body frame send");
-                tcpClient.Send(new MessageSkeleton(Configuration.DeviceID, camera.bodies.ToList()));
+                if (camera.bodies.Count() > 0)
+                {
+                    Console.WriteLine("Body frame send");
+                    tcpClient.Send(new MessageSkeleton(Configuration.DeviceID, camera.bodies.ToList()));
+                }
             }
         }
         

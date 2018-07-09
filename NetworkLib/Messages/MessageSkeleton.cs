@@ -171,6 +171,7 @@ namespace Network.Messages
         {
             StringBuilder json = new StringBuilder();
 
+            Console.WriteLine(string.Format("Position: X: {0}, Y:{1}, Z:{2}", joint.Position.X, joint.Position.Y, joint.Position.Z));
             json.Append("{");
             json.Append("\"JointType\":\"" + joint.JointType + "\",");
             json.Append("\"TrackingState\":\"" + joint.TrackingState + "\",");
