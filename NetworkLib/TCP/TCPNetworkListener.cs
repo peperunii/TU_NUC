@@ -188,18 +188,24 @@ namespace NetworkLib.TCP
             {
                 try
                 {
+                    Console.WriteLine("Message arrived");
                     var msg = MessageParser.GetMessageFromBytArr(GetBytArrFromNetworkStream(lNetworkStream));
+                    Console.WriteLine("Message parsed");
+
                     if (msg != null)
                     {
                         //fire event
                         dOnMessage lEvent = OnMessage;
                         if (lEvent == null) continue;
                         lEvent(lClient, msg);
+                        Console.WriteLine("Message processed");
                     }
                     Thread.Sleep(1);
                 }
                 catch (System.IO.IOException ex)
                 {
+                    Console.WriteLine("info 5");
+
                     if (_ExitLoop) LogManager.LogMessage(LogType.Error, LogLevel.Errors, "User requested client shutdown");
                     else LogManager.LogMessage(LogType.Error, LogLevel.Communication, "Disconnected");
                     this.RestartClient(lClient);
@@ -222,12 +228,16 @@ namespace NetworkLib.TCP
             byte[] lHeader = new byte[2];
 
             if (_NetworkStream.Read(lHeader, 0, 2) != 2)
+            {
+                Console.WriteLine("info 1");
                 return null;
+            }
 
             var messageType = (MessageType)BitConverter.ToInt16(lHeader, 0);
             
             if((ushort)messageType > Enum.GetValues(typeof(MessageType)).Length)
             {
+                Console.WriteLine("info 2");
                 return null;
             }
             if (messagesWithHeaderOnly.Contains(messageType))
@@ -244,6 +254,7 @@ namespace NetworkLib.TCP
                     var dataSize = BitConverter.ToInt32(dataLength, 0);
                     if (dataSize < 0)
                     {
+                        Console.WriteLine("info 3");
                         return null;
                     }
                     var data = new byte[dataSize];
@@ -254,6 +265,7 @@ namespace NetworkLib.TCP
                 }
                 catch (Exception ex)
                 {
+                    Console.WriteLine("info 4");
                     return null;
                 }
             }
