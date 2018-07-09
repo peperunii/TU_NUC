@@ -73,6 +73,8 @@ namespace NetworkLib.TCP
                         }
                     }
                 }
+
+                Console.WriteLine(string.Join(Environment.NewLine, messagesWithHeaderOnly));
             }
         }
 
