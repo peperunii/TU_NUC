@@ -234,10 +234,14 @@ namespace NetworkLib.TCP
 
                 var messageType = (MessageType)BitConverter.ToInt16(lHeader, 0);
                 Console.WriteLine("Message type: " + messageType);
+                Console.WriteLine("waaaait 1...");
+                
                 if ((ushort)messageType > Enum.GetValues(typeof(MessageType)).Length)
                 {
+                    Console.WriteLine("waaaait 2...");
                     return null;
                 }
+                Console.WriteLine("waaaait 3...");
                 if (messagesWithHeaderOnly.Contains(messageType))
                 {
                     return lHeader;
