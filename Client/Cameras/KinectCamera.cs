@@ -276,6 +276,7 @@ namespace Client.Cameras
                     // those body objects will be re-used.
                     bodyFrame.GetAndRefreshBodyData(this.bodies);
 
+                    Console.WriteLine("Body frame arrived.. triggering event");
                     //fire event
                     dOnBodyFrameArrived lEvent = OnBodyFrameArrived;
                     if (lEvent != null)
