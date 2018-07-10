@@ -105,7 +105,7 @@ namespace NUC_Controller.Pages
         private Image GetImageChildOfTab(DeviceID deviceID)
         {
             var tab = (from t in this.tabDevicesList.Items.Cast<TabItem>()
-                       where (t.Header.ToString()).Contains(deviceID.ToString())
+                       where (t.Header.ToString() == deviceID.ToString())
                        select t).FirstOrDefault();
             if (tab != null)
             {
@@ -118,14 +118,14 @@ namespace NUC_Controller.Pages
             }
         }
 
-        private Image<Bgr, ushort> ConvertMessageToImage(MessageIRFrame message)
+        private Image<Gray, ushort> ConvertMessageToImage(MessageIRFrame message)
         {
             var data = message.info as byte[];
 
             var width = (int)imagesize.Width;
             var height = (int)imagesize.Height;
 
-            var image = new Image<Bgr, ushort>(width, height);
+            var image = new Image<Gray, ushort>(width, height);
             var imgData = image.Data;
 
             ushort[] result = new ushort[data.Length /2];
