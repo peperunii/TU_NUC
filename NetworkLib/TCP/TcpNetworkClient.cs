@@ -105,6 +105,9 @@ namespace Network.TCP
                     _Client = new TcpClient();
                     _Client.ReceiveBufferSize = MAX_MESSAGE_SIZE;
                     _Client.SendBufferSize = MAX_MESSAGE_SIZE;
+                    _Client.SendTimeout = 1500;
+                    _Client.ReceiveTimeout = 1500;
+
                     _Client.Connect(IpAddress, Port);
                     _NetworkStream = _Client.GetStream();
 

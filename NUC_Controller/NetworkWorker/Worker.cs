@@ -76,103 +76,106 @@ namespace NUC_Controller.NetworkWorker
 
         private static void TcpClient_OnMessage(Network.Messages.Message message)
         {
-            try
+            if (message != null)
             {
-                LogManager.LogMessage(LogType.Info, LogLevel.Everything, "Received message: " + message.type);
-                switch (message.type)
+                try
                 {
-                    case MessageType.Info:
-                        new Notification(NotificationType.Info, (message as MessageSendInfoToServer).info as string);
-                        break;
+                    LogManager.LogMessage(LogType.Info, LogLevel.Everything, "Received message: " + message.type);
+                    switch (message.type)
+                    {
+                        case MessageType.Info:
+                            new Notification(NotificationType.Info, (message as MessageSendInfoToServer).info as string);
+                            break;
 
-                    case MessageType.TimeInfo:
-                        {
-                            ServerTime.Set(DateTime.FromFileTimeUtc((long)message.info));
-                            LogManager.LogMessage(LogType.Info, LogLevel.Everything, "Sync Date/Time...");
-                        }
-                        break;
-
-                    case MessageType.ConnectedClients:
-                        {
-                            Worker.connectedDevices = message.info as List<NUC>;
-
-                            /*Read configurations if user is allowed*/
-                            if (Globals.loggedInUser.CheckIfHasAccess(Users.ActionType.ReadConfig))
+                        case MessageType.TimeInfo:
                             {
-                                foreach (var client in Worker.connectedDevices)
+                                ServerTime.Set(DateTime.FromFileTimeUtc((long)message.info));
+                                LogManager.LogMessage(LogType.Info, LogLevel.Everything, "Sync Date/Time...");
+                            }
+                            break;
+
+                        case MessageType.ConnectedClients:
+                            {
+                                Worker.connectedDevices = message.info as List<NUC>;
+
+                                /*Read configurations if user is allowed*/
+                                if (Globals.loggedInUser.CheckIfHasAccess(Users.ActionType.ReadConfig))
                                 {
-                                    SendMessage(new MessageGetConfigurationPerClient(client.deviceID));
-                                    if (client.deviceID != DeviceID.TU_SERVER)
+                                    foreach (var client in Worker.connectedDevices)
                                     {
-                                        SendMessage(new MessageCameraStatusRequest(client.deviceID));
+                                        SendMessage(new MessageGetConfigurationPerClient(client.deviceID));
+                                        if (client.deviceID != DeviceID.TU_SERVER)
+                                        {
+                                            SendMessage(new MessageCameraStatusRequest(client.deviceID));
+                                        }
                                     }
                                 }
                             }
-                        }
-                        break;
+                            break;
 
-                    case MessageType.ShowConfigurationPerClient:
-                        {
-                            var deviceId = (message as MessageSetConfigurationPerClient).deviceId;
-                            var device = (from t in connectedDevices
-                                          where t.deviceID == deviceId
-                                          select t).FirstOrDefault();
-                            device.SetConfiguration((message as MessageSetConfigurationPerClient).info as string);
-                        }
-                        break;
+                        case MessageType.ShowConfigurationPerClient:
+                            {
+                                var deviceId = (message as MessageSetConfigurationPerClient).deviceId;
+                                var device = (from t in connectedDevices
+                                              where t.deviceID == deviceId
+                                              select t).FirstOrDefault();
+                                device.SetConfiguration((message as MessageSetConfigurationPerClient).info as string);
+                            }
+                            break;
 
-                    case MessageType.CameraStatus:
-                        {
-                            var msg = (message as MessageCameraStatus);
-                            var deviceId = msg.deviceID;
-                            var device = (from t in connectedDevices
-                                          where t.deviceID == deviceId
-                                          select t).FirstOrDefault();
-                            device.isCameraStarted = msg.isCameraStarted;
-                            device.isColorStreamEnabled = msg.isColorStreamEnabled;
-                            device.isDepthStreamEnabled = msg.isDepthStreamEnabled;
-                            device.isIRStreamEnabled = msg.isIRStreamEnabled;
-                            device.isBodyStreamEnabled = msg.isBodyStreamEnabled;
-                        }
-                        break;
+                        case MessageType.CameraStatus:
+                            {
+                                var msg = (message as MessageCameraStatus);
+                                var deviceId = msg.deviceID;
+                                var device = (from t in connectedDevices
+                                              where t.deviceID == deviceId
+                                              select t).FirstOrDefault();
+                                device.isCameraStarted = msg.isCameraStarted;
+                                device.isColorStreamEnabled = msg.isColorStreamEnabled;
+                                device.isDepthStreamEnabled = msg.isDepthStreamEnabled;
+                                device.isIRStreamEnabled = msg.isIRStreamEnabled;
+                                device.isBodyStreamEnabled = msg.isBodyStreamEnabled;
+                            }
+                            break;
 
-                    case MessageType.ColorFrame:
-                        NewColorArrived.Invoke(null, new NewColorArrivedEventArgs(message as MessageColorFrame));
-                        break;
+                        case MessageType.ColorFrame:
+                            NewColorArrived.Invoke(null, new NewColorArrivedEventArgs(message as MessageColorFrame));
+                            break;
 
-                    case MessageType.DepthFrame:
-                        {
-                            NewDepthArrived.Invoke(null, new NewDepthArrivedEventArgs(message as MessageDepthFrame));
-                        }
-                        break;
+                        case MessageType.DepthFrame:
+                            {
+                                NewDepthArrived.Invoke(null, new NewDepthArrivedEventArgs(message as MessageDepthFrame));
+                            }
+                            break;
 
-                    case MessageType.IRFrame:
-                        {
-                            Console.WriteLine("Received IR frame");
-                            NewIRArrived.Invoke(null, new NewIRArrivedEventArgs(message as MessageIRFrame));
-                        }
-                        break;
+                        case MessageType.IRFrame:
+                            {
+                                Console.WriteLine("Received IR frame");
+                                NewIRArrived.Invoke(null, new NewIRArrivedEventArgs(message as MessageIRFrame));
+                            }
+                            break;
 
-                    case MessageType.Skeleton:
-                        {
-                            var msgSkeleton = message as MessageSkeleton;
-                            var deviceId = msgSkeleton.deviceID;
-                            var bodiesList = msgSkeleton.info as List<Skeleton>;
+                        case MessageType.Skeleton:
+                            {
+                                var msgSkeleton = message as MessageSkeleton;
+                                var deviceId = msgSkeleton.deviceID;
+                                var bodiesList = msgSkeleton.info as List<Skeleton>;
 
-                            NewBodyArrived.Invoke(null, new NewBodyArrivedEventArgs(deviceId, bodiesList));
-                        }
-                        break;
+                                NewBodyArrived.Invoke(null, new NewBodyArrivedEventArgs(deviceId, bodiesList));
+                            }
+                            break;
 
-                        // The controller is not sending configuration
-                        //case MessageType.GetConfigurationPerClient:
-                        //    SendMessage(new MessageSetConfigurationPerClient(Network.Configuration.DeviceID, Network.Configuration.GetConfigurationFile()));
-                        //    break;
+                            // The controller is not sending configuration
+                            //case MessageType.GetConfigurationPerClient:
+                            //    SendMessage(new MessageSetConfigurationPerClient(Network.Configuration.DeviceID, Network.Configuration.GetConfigurationFile()));
+                            //    break;
 
+                    }
                 }
-            }
-            catch(Exception ex)
-            {
-                Network.Logger.LogManager.LogMessage(LogType.Error, LogLevel.Communication, "Error in receiving message");
+                catch (Exception ex)
+                {
+                    Network.Logger.LogManager.LogMessage(LogType.Error, LogLevel.Communication, "Error in receiving message");
+                }
             }
         }
 
