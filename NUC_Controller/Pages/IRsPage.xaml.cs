@@ -105,7 +105,7 @@ namespace NUC_Controller.Pages
         private Image GetImageChildOfTab(DeviceID deviceID)
         {
             var tab = (from t in this.tabDevicesList.Items.Cast<TabItem>()
-                       where (t.Header as string).Contains(deviceID.ToString())
+                       where (t.Header.ToString()).Contains(deviceID.ToString())
                        select t).FirstOrDefault();
             if (tab != null)
             {
