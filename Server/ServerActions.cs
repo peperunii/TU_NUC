@@ -91,6 +91,7 @@ namespace Server
 
 
                         case MessageType.RestartClientApp:
+                            break;
                             try
                             {
                                 var msg = message as MessageRestartClientApp;
@@ -107,6 +108,7 @@ namespace Server
                             break;
 
                         case MessageType.RestartClientDevice:
+                            break;
                             try
                             {
                                 var msg = message as MessageRestartClientDevice;
@@ -124,11 +126,11 @@ namespace Server
 
 
                         case MessageType.RestartServerApp:
-                            Global.RestartApp();
+                            //Global.RestartApp();
                             break;
 
                         case MessageType.RestartServerDevice:
-                            Global.RestartDevice();
+                            //Global.RestartDevice();
                             break;
 
                         case MessageType.ShutdownDevice:
