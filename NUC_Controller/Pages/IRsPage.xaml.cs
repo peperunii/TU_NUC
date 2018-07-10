@@ -219,10 +219,10 @@ namespace NUC_Controller.Pages
 
             NetworkSettings.tcpClient.Send(new MessageCameraStart(deviceID));
 
-            if (!device.isBodyStreamEnabled)
+            if (!device.isIRStreamEnabled)
             {
-                NetworkSettings.tcpClient.Send(new MessageSkeletonRequest(deviceID));
-                device.isBodyStreamEnabled = true;
+                NetworkSettings.tcpClient.Send(new MessageIRFrameRequest(deviceID));
+                device.isIRStreamEnabled = true;
             }
             (sender as Button).IsEnabled = false;
             this.EnableChildButton(1);

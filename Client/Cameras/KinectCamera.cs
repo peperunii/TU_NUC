@@ -252,7 +252,7 @@ namespace Client.Cameras
                     }
 
                     //fire event
-                    dOnDepthFrameArrived lEvent = OnDepthFrameArrived;
+                    dOnIRFrameArrived lEvent = OnIRFrameArrived;
                     if (lEvent != null)
                     {
                         lEvent();
