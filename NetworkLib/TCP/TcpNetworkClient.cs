@@ -22,6 +22,9 @@ namespace Network.TCP
         private NetworkStream _NetworkStream = null;
         private TcpClient _Client = null;
         private bool _ExitLoop = true;
+
+        private int MAX_MESSAGE_SIZE = (1920 * 1080 * 4) + 1500;
+
         private BlockingCollection<Message> _Queue = new BlockingCollection<Message>();
         public delegate void dOnMessage(Message message);
         public event dOnMessage OnMessage;
@@ -100,6 +103,8 @@ namespace Network.TCP
                 try
                 {
                     _Client = new TcpClient();
+                    _Client.ReceiveBufferSize = MAX_MESSAGE_SIZE;
+                    _Client.SendBufferSize = MAX_MESSAGE_SIZE;
                     _Client.Connect(IpAddress, Port);
                     _NetworkStream = _Client.GetStream();
 

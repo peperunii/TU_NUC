@@ -19,9 +19,11 @@ namespace NetworkLib.TCP
 
         private bool _ExitLoop = true;
         private TcpListener _Listener;
+        private int MAX_MESSAGE_SIZE = (1920 * 1080 * 4) + 1500;
+
         public delegate void dOnMessage(object xSender, Message message);
         public event dOnMessage OnMessage;
-
+        
         private List<TcpClient> _clients = new List<TcpClient>();
 
         public int Port { get; private set; }
@@ -98,6 +100,8 @@ namespace NetworkLib.TCP
             try
             {
                 _Listener = new TcpListener(IPAddress.Parse(IpAddress), Port);
+                _Listener.Server.ReceiveBufferSize = MAX_MESSAGE_SIZE;
+                _Listener.Server.SendBufferSize = MAX_MESSAGE_SIZE;
                 _Listener.Start();
                 LogManager.LogMessage(
                     LogType.Info,
