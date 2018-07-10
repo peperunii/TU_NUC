@@ -8,7 +8,7 @@ namespace Network.Messages
 {
     public class MessageShutdownDevice : Message
     {
-        private DeviceID deviceId;
+        public DeviceID deviceId;
 
         public MessageShutdownDevice()
         {

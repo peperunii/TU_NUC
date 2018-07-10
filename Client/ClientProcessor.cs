@@ -168,6 +168,9 @@ namespace Client
                         Global.RestartDevice();
                         break;
 
+                    case MessageType.ShutdownDevice:
+                        Global.ShutDownDevice();
+                        break;
 
                     case MessageType.ReloadConfiguration:
                         Global.ReloadConfiguration();

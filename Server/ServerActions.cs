@@ -91,9 +91,35 @@ namespace Server
 
 
                         case MessageType.RestartClientApp:
+                            try
+                            {
+                                var msg = message as MessageRestartClientApp;
+                                var deviceID = msg.deviceId;
+
+                                tcpServers[deviceID].Send(
+                                        tcpServers[deviceID].GetClient(),
+                                        message);
+                            }
+                            catch (Exception)
+                            {
+
+                            }
                             break;
 
                         case MessageType.RestartClientDevice:
+                            try
+                            {
+                                var msg = message as MessageRestartClientDevice;
+                                var deviceID = msg.deviceId;
+
+                                tcpServers[deviceID].Send(
+                                        tcpServers[deviceID].GetClient(),
+                                        message);
+                            }
+                            catch (Exception)
+                            {
+
+                            }
                             break;
 
 
@@ -106,6 +132,26 @@ namespace Server
                             break;
 
                         case MessageType.ShutdownDevice:
+                            try
+                            {
+                                var msg = message as MessageShutdownDevice;
+                                var deviceID = msg.deviceId;
+
+                                if (deviceID != DeviceID.TU_SERVER)
+                                {
+                                    tcpServers[deviceID].Send(
+                                            tcpServers[deviceID].GetClient(),
+                                            message);
+                                }
+                                else
+                                {
+                                    Global.ShutDownDevice();
+                                }
+                            }
+                            catch (Exception)
+                            {
+
+                            }
                             break;
 
 
