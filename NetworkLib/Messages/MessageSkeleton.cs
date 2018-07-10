@@ -144,23 +144,17 @@ namespace Network.Messages
 
             json.Append("{");
             json.Append("\"Bodies\":");
-
+            json.Append("[");
             if (bodies != null)
             {
-                json.Append("[");
-
                 foreach (Body body in bodies)
                 {
                     json.Append(body.Serialize() + ",");
                 }
-
-                json.Append("]");
-                json.Append("}");
             }
+            json.Append("]");
+            json.Append("}");
 
-            Console.WriteLine(".............");
-            Console.WriteLine("json body: " + json.ToString());
-            Console.WriteLine(".............");
             return json.ToString();
         }
 
