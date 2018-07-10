@@ -51,8 +51,11 @@ namespace Network.Messages
 
         public override byte[] Serialize()
         {
+            Console.WriteLine("IR frame serialize = step 1");
             var bytes = this.GetBytesForNumberShort((ushort)this.type);
+            Console.WriteLine("IR frame serialize = step 2");
             var bytesInfo = this.GetBytesOfInfo();
+            Console.WriteLine("IR frame serialize = step 3");
             var lenghtInfoBytes = this.GetBytesForNumberInt(bytesInfo.Length);
 
             var result = bytes.Concat(lenghtInfoBytes.Concat(bytesInfo)).ToArray();
@@ -64,12 +67,12 @@ namespace Network.Messages
         {
             this.info =
                 this.GetBytesForNumberShort((ushort)this.deviceID).
-                Concat((BitConverter.GetBytes(this.Height).
-                Concat(BitConverter.GetBytes(this.Width).
-                Concat(BitConverter.GetBytes(this.Channels).
-                Concat(BitConverter.GetBytes(this.IsCompressed).
-                Concat(BitConverter.GetBytes(this.Timestamp).
-                Concat(this.info as byte[]))))))).ToArray();
+                Concat((BitConverter.GetBytes(this.Height)).
+                Concat(BitConverter.GetBytes(this.Width)).
+                Concat(BitConverter.GetBytes(this.Channels)).
+                Concat(BitConverter.GetBytes(this.IsCompressed)).
+                Concat(BitConverter.GetBytes(this.Timestamp)).
+                Concat(this.info as byte[])).ToArray();
 
             return this.info as byte[];
         }
