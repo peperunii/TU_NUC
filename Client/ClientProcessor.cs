@@ -292,17 +292,17 @@ namespace Client
                         break;
 
                     case MessageType.DepthFrameRequest:
-                        Console.WriteLine("Request: Depth - " + (!IsColorFrameRequested).ToString());
+                        Console.WriteLine("Request: Depth - " + (!IsDepthFrameRequested).ToString());
                         IsDepthFrameRequested = !IsDepthFrameRequested;
                         break;
 
                     case MessageType.IRFrameRequest:
-                        Console.WriteLine("Request: Depth - " + (!IsColorFrameRequested).ToString());
+                        Console.WriteLine("Request: Depth - " + (!IsIRFrameRequested).ToString());
                         IsIRFrameRequested = !IsIRFrameRequested;
                         break;
 
                     case MessageType.SkeletonRequest:
-                        Console.WriteLine("Request: Skeleton - " + (!IsColorFrameRequested).ToString());
+                        Console.WriteLine("Request: Skeleton - " + (!IsBodyFrameRequested).ToString());
                         IsBodyFrameRequested = !IsBodyFrameRequested;
                         break;
                 }

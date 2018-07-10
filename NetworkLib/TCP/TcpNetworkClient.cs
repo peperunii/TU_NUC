@@ -155,19 +155,21 @@ namespace Network.TCP
                         Thread.Sleep(1);
                         continue;
                     }
-                    
+
+                    Console.WriteLine("Sending " + lObject.type + " ....");
                     LogManager.LogMessage(LogType.Info, LogLevel.Communication, "Sending... ");
                     var messageData = lObject.Serialize();
                     LogManager.LogMessage(LogType.Info, LogLevel.Communication, "Sending: " + messageData.Length + " bytes");
                     _NetworkStream.Write(messageData, 0, messageData.Length);
                     Thread.Sleep(1);
                 }
-                catch (System.IO.IOException)
+                catch (System.IO.IOException ex)
                 {
+                    Console.WriteLine("Fail sending.." + ex.ToString());
                     if (_ExitLoop) LogManager.LogMessage(LogType.Error, LogLevel.Communication, "User requested client shutdown.");
                     else LogManager.LogMessage(LogType.Error, LogLevel.Errors, "Disconnected");
                 }
-                catch (Exception ex) { LogManager.LogMessage(LogType.Error, LogLevel.Errors, ex.ToString()); }
+                catch (Exception ex) { Console.WriteLine("Fail sending.." + ex.ToString());  LogManager.LogMessage(LogType.Error, LogLevel.Errors, ex.ToString()); }
             }
             _ExitLoop = true;
             LogManager.LogMessage(LogType.Error, LogLevel.Errors, "Writer is shutting down");
