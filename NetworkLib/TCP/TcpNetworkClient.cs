@@ -103,10 +103,10 @@ namespace Network.TCP
                 try
                 {
                     _Client = new TcpClient();
-                    _Client.ReceiveBufferSize = MAX_MESSAGE_SIZE;
-                    _Client.SendBufferSize = MAX_MESSAGE_SIZE;
-                    _Client.SendTimeout = 1500;
-                    _Client.ReceiveTimeout = 1500;
+                    //_Client.ReceiveBufferSize = MAX_MESSAGE_SIZE;
+                    //_Client.SendBufferSize = MAX_MESSAGE_SIZE;
+                    //_Client.SendTimeout = 1500;
+                    //_Client.ReceiveTimeout = 1500;
 
                     _Client.Connect(IpAddress, Port);
                     _NetworkStream = _Client.GetStream();
@@ -156,23 +156,14 @@ namespace Network.TCP
             {
                 try
                 {
-                    
-                        Message lObject;
-                        var result = _Queue.TryTake(out lObject);
-                        if (result == false || lObject == null)
-                        {
-                            Thread.Sleep(1);
-                            continue;
-                        }
-                    while (true)
+                    Message lObject;
+                    var result = _Queue.TryTake(out lObject);
+                    if (result == false || lObject == null)
                     {
-                        if (_NetworkStream.CanWrite)
-                            break;
-                        else
-                        {
-                            Thread.Sleep(1);
-                        }
+                        Thread.Sleep(1);
+                        continue;
                     }
+
                     Console.WriteLine("Sending " + lObject.type + " ....");
                     LogManager.LogMessage(LogType.Info, LogLevel.Communication, "Sending... ");
                     var messageData = lObject.Serialize();
@@ -186,7 +177,7 @@ namespace Network.TCP
                     if (_ExitLoop) LogManager.LogMessage(LogType.Error, LogLevel.Communication, "User requested client shutdown.");
                     else LogManager.LogMessage(LogType.Error, LogLevel.Errors, "Disconnected");
                 }
-                catch (Exception ex) { Console.WriteLine("Fail sending.." + ex.ToString());  LogManager.LogMessage(LogType.Error, LogLevel.Errors, ex.ToString()); }
+                catch (Exception ex) { Console.WriteLine("Fail sending.." + ex.ToString()); LogManager.LogMessage(LogType.Error, LogLevel.Errors, ex.ToString()); }
             }
             _ExitLoop = true;
             LogManager.LogMessage(LogType.Error, LogLevel.Errors, "Writer is shutting down");
@@ -198,16 +189,6 @@ namespace Network.TCP
             {
                 try
                 {
-                    while (true)
-                    {
-                        if (_NetworkStream.CanRead)
-                            break;
-                        else
-                        {
-                            Thread.Sleep(1);
-                        }
-                    }
-
                     var msg = MessageParser.GetMessageFromBytArr(GetBytArrFromNetworkStream());
                     //fire event
                     dOnMessage lEvent = OnMessage;
@@ -246,25 +227,54 @@ namespace Network.TCP
 
         private byte[] GetBytArrFromNetworkStream()
         {
-            byte[] lHeader = new byte[2];
-            if (_NetworkStream.Read(lHeader, 0, 2) != 2) return null;
-
-            var messageType = (MessageType)BitConverter.ToInt16(lHeader, 0);
-
-            if (messagesWithHeaderOnly.Contains(messageType))
+            try
             {
-                return lHeader;
+                byte[] lHeader = new byte[2];
+
+                if (_NetworkStream.Read(lHeader, 0, 2) != 2)
+                {
+                    return null;
+                }
+
+                var messageType = (MessageType)BitConverter.ToInt16(lHeader, 0);
+
+                if ((ushort)messageType > Enum.GetValues(typeof(MessageType)).Length)
+                {
+                    return null;
+                }
+                if (messagesWithHeaderOnly.Contains(messageType))
+                {
+                    return lHeader;
+                }
+                else
+                {
+                    try
+                    {
+                        var dataLength = new byte[4];
+
+                        _NetworkStream.Read(dataLength, 0, 4);
+
+                        var dataSize = BitConverter.ToInt32(dataLength, 0);
+                        if (dataSize < 0)
+                        {
+                            return null;
+                        }
+                        var data = new byte[dataSize];
+
+                        if (_NetworkStream.Read(data, 0, dataSize) != dataSize) return null;
+                        var fullMessage = lHeader.Concat(dataLength.Concat(data)).ToArray();
+                        return fullMessage;
+                    }
+                    catch (Exception ex)
+                    {
+                        return null;
+                    }
+                }
             }
-            else
+            catch (Exception ex)
             {
-                var dataLength = new byte[4];
-                if (_NetworkStream.Read(dataLength, 0, 4) != 4) return null;
-                var dataSize = BitConverter.ToInt32(dataLength, 0);
-                var data = new byte[dataSize];
-
-                if (_NetworkStream.Read(data, 0, dataSize) != dataSize) return null;
-
-                return lHeader.Concat(dataLength.Concat(data)).ToArray();
+                Console.WriteLine(ex.ToString());
+                return null;
             }
         }
     }

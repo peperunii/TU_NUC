@@ -100,10 +100,10 @@ namespace NetworkLib.TCP
             try
             {
                 _Listener = new TcpListener(IPAddress.Parse(IpAddress), Port);
-                _Listener.Server.ReceiveBufferSize = MAX_MESSAGE_SIZE;
-                _Listener.Server.SendBufferSize = MAX_MESSAGE_SIZE;
-                _Listener.Server.ReceiveTimeout = 1500;
-                _Listener.Server.SendTimeout = 1500;
+                //_Listener.Server.ReceiveBufferSize = MAX_MESSAGE_SIZE;
+                //_Listener.Server.SendBufferSize = MAX_MESSAGE_SIZE;
+                //_Listener.Server.ReceiveTimeout = 1500;
+                //_Listener.Server.SendTimeout = 1500;
 
                 _Listener.Start();
                 LogManager.LogMessage(
@@ -197,16 +197,6 @@ namespace NetworkLib.TCP
             {
                 try
                 {
-                    while (true)
-                    {
-                        if (lNetworkStream.CanRead)
-                            break;
-                        else
-                        {
-                            Thread.Sleep(1);
-                        }
-                    }
-
                     var msg = MessageParser.GetMessageFromBytArr(GetBytArrFromNetworkStream(lNetworkStream));
 
                     if (msg != null)
