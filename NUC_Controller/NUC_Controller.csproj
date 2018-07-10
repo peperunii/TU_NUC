@@ -109,6 +109,9 @@
     <Compile Include="Pages\GlobalPage.xaml.cs">
       <DependentUpon>GlobalPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Pages\IRsPage.xaml.cs">
+      <DependentUpon>IRsPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Pages\UsersPage.xaml.cs" />
     <Compile Include="UserControls\UserUserControl.xaml.cs" />
     <Compile Include="Users\AccessTable.cs" />
@@ -160,6 +163,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Pages\GlobalPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\IRsPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

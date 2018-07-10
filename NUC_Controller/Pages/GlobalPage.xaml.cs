@@ -21,9 +21,28 @@ namespace NUC_Controller.Pages
     /// <summary>
     /// Interaction logic for GlobalPage.xaml
     /// </summary>
+    /// 
+
+    public class GlobalSettigns
+    {
+        public bool CameraStart = false;
+        public bool allStreamsEnabled = false;
+        public bool colorStreamEnabled = false;
+        public bool depthStreamEnabled = false;
+        public bool irStreamEnabled = false;
+        public bool bodyStreamEnabled = false;
+
+        public GlobalSettigns()
+        {
+
+        }
+    }
+
     public partial class GlobalPage : Page
     {
         private List<NUC> connectedDevices;
+
+        private static GlobalSettigns settings = new GlobalSettigns();
 
         public GlobalPage()
         {
@@ -93,10 +112,12 @@ namespace NUC_Controller.Pages
 
         private void buttonCamerasStartStop_Click(object sender, RoutedEventArgs e)
         {
+            settings.CameraStart = !settings.CameraStart;
+
             var button = (sender as Button);
-            if (button.Content as string == "Enable")
+            if (button.Content as string == "Start")
             {
-                button.Content = "Disable";
+                button.Content = "Stop";
 
                 if (this.connectedDevices.Count > 0)
                 {
@@ -105,15 +126,17 @@ namespace NUC_Controller.Pages
                         if (!connectedDevice.isCameraStarted)
                         {
                             if (connectedDevice.deviceID != Network.DeviceID.TU_SERVER)
+                            {
                                 NetworkWorker.Worker.SendMessage(new MessageCameraStart(connectedDevice.deviceID));
-                            connectedDevice.isCameraStarted = !connectedDevice.isCameraStarted;
+                                connectedDevice.isCameraStarted = !connectedDevice.isCameraStarted;
+                            }
                         }
                     }
                 }
             }
             else
             {
-                button.Content = "Enable";
+                button.Content = "Start";
 
                 if (this.connectedDevices.Count > 0)
                 {
@@ -122,8 +145,10 @@ namespace NUC_Controller.Pages
                         if (connectedDevice.isCameraStarted)
                         {
                             if (connectedDevice.deviceID != Network.DeviceID.TU_SERVER)
+                            {
                                 NetworkWorker.Worker.SendMessage(new MessageCameraStop(connectedDevice.deviceID));
-                            connectedDevice.isCameraStarted = !connectedDevice.isCameraStarted;
+                                connectedDevice.isCameraStarted = !connectedDevice.isCameraStarted;
+                            }
                         }
                     }
                 }
@@ -132,6 +157,8 @@ namespace NUC_Controller.Pages
 
         private void buttonStreamsAll_Click(object sender, RoutedEventArgs e)
         {
+            settings.allStreamsEnabled = !settings.allStreamsEnabled;
+
             var button = (sender as Button);
             if (button.Content as string == "Enable")
             {
@@ -205,6 +232,8 @@ namespace NUC_Controller.Pages
 
         private void buttonStreamsColor_Click(object sender, RoutedEventArgs e)
         {
+            settings.colorStreamEnabled = !settings.colorStreamEnabled;
+
             var button = (sender as Button);
             if (button.Content as string == "Enable")
             {
@@ -218,12 +247,17 @@ namespace NUC_Controller.Pages
             foreach (var connectedDevice in this.connectedDevices)
             {
                 if (connectedDevice.deviceID != Network.DeviceID.TU_SERVER)
+                {
+                    connectedDevice.isColorStreamEnabled = !connectedDevice.isColorStreamEnabled;
                     NetworkWorker.Worker.SendMessage(new MessageColorFrameRequest(connectedDevice.deviceID));
+                }
             }
         }
 
         private void buttonStreamDepth_Click(object sender, RoutedEventArgs e)
         {
+            settings.depthStreamEnabled = !settings.depthStreamEnabled;
+
             var button = (sender as Button);
             if (button.Content as string == "Enable")
             {
@@ -237,12 +271,17 @@ namespace NUC_Controller.Pages
             foreach (var connectedDevice in this.connectedDevices)
             {
                 if (connectedDevice.deviceID != Network.DeviceID.TU_SERVER)
+                {
+                    connectedDevice.isDepthStreamEnabled = !connectedDevice.isDepthStreamEnabled;
                     NetworkWorker.Worker.SendMessage(new MessageDepthFrameRequest(connectedDevice.deviceID));
+                }
             }
         }
 
         private void buttonStreamIR_Click(object sender, RoutedEventArgs e)
         {
+            settings.irStreamEnabled = !settings.irStreamEnabled;
+
             var button = (sender as Button);
             if (button.Content as string == "Enable")
             {
@@ -256,12 +295,17 @@ namespace NUC_Controller.Pages
             foreach (var connectedDevice in this.connectedDevices)
             {
                 if (connectedDevice.deviceID != Network.DeviceID.TU_SERVER)
+                {
+                    connectedDevice.isIRStreamEnabled = !connectedDevice.isIRStreamEnabled;
                     NetworkWorker.Worker.SendMessage(new MessageIRFrameRequest(connectedDevice.deviceID));
+                }
             }
         }
 
         private void buttonStreamBody_Click(object sender, RoutedEventArgs e)
         {
+            settings.bodyStreamEnabled = !settings.bodyStreamEnabled;
+
             var button = (sender as Button);
             if (button.Content as string == "Enable")
             {
@@ -275,7 +319,10 @@ namespace NUC_Controller.Pages
             foreach (var connectedDevice in this.connectedDevices)
             {
                 if (connectedDevice.deviceID != Network.DeviceID.TU_SERVER)
+                {
+                    connectedDevice.isBodyStreamEnabled = !connectedDevice.isBodyStreamEnabled;
                     NetworkWorker.Worker.SendMessage(new MessageSkeletonRequest(connectedDevice.deviceID));
+                }
             }
         }
 
@@ -286,6 +333,13 @@ namespace NUC_Controller.Pages
             {
                 this.connectedDevices = devices;
                 this.gridDevicesSettings.IsEnabled = true;
+
+                this.buttonCamerasStartStop.Content = settings.CameraStart ? "Stop" : "Start";
+                this.buttonStreamsAll.Content = settings.allStreamsEnabled ? "Disable" : "Enable";
+                this.buttonStreamsColor.Content = settings.colorStreamEnabled ? "Disable" : "Enable";
+                this.buttonStreamDepth.Content = settings.depthStreamEnabled ? "Disable" : "Enable";
+                this.buttonStreamIR.Content = settings.irStreamEnabled ? "Disable" : "Enable";
+                this.buttonStreamBody.Content = settings.bodyStreamEnabled ? "Disable" : "Enable";
             }
             else
             {

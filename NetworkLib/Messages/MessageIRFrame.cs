@@ -8,6 +8,8 @@ namespace Network.Messages
 {
     public class MessageIRFrame : Message
     {
+        public DeviceID deviceID;
+
         public int Height;
         public int Width;
         public int Channels;
@@ -20,28 +22,31 @@ namespace Network.Messages
             this.info = new byte[] { };
         }
 
-        public MessageIRFrame(int height, int width, int channels, bool isCompressed, byte[] bytes)
+        public MessageIRFrame(DeviceID deviceID, int height, int width, int channels, bool isCompressed, byte[] bytes)
         {
             this.type = MessageType.IRFrame;
             this.info = bytes;
             this.Timestamp = DateTime.Now.ToFileTimeUtc();
 
+            this.deviceID = deviceID;
+
             this.Height = height;
             this.Width = width;
             this.Channels = channels;
             this.IsCompressed = isCompressed;
-
         }
 
         public MessageIRFrame(byte[] colorFrameInfo = null)
         {
             this.type = MessageType.ColorFrame;
-            this.Height = BitConverter.ToInt32(colorFrameInfo.SubArray(0, 4), 0);
-            this.Width = BitConverter.ToInt32(colorFrameInfo.SubArray(4, 4), 0);
-            this.Channels = BitConverter.ToInt32(colorFrameInfo.SubArray(8, 4), 0);
-            this.IsCompressed = BitConverter.ToBoolean(colorFrameInfo.SubArray(12, 1), 0);
+            this.deviceID = (DeviceID)BitConverter.ToUInt16(colorFrameInfo, 0);
+            this.Height = BitConverter.ToInt32(colorFrameInfo, 2);
+            this.Width = BitConverter.ToInt32(colorFrameInfo, 6);
+            this.Channels = BitConverter.ToInt32(colorFrameInfo, 10);
+            this.IsCompressed = BitConverter.ToBoolean(colorFrameInfo, 14);
+            this.Timestamp = BitConverter.ToInt64(colorFrameInfo, 15);
 
-            this.info = colorFrameInfo.SubArray(13);
+            this.info = colorFrameInfo.SubArray(23);
         }
 
         public override byte[] Serialize()
@@ -57,9 +62,14 @@ namespace Network.Messages
 
         private byte[] GetBytesOfInfo()
         {
-            var time = DateTime.Now;
-            this.info = (BitConverter.GetBytes(this.Height).Concat(BitConverter.GetBytes(this.Width).Concat(BitConverter.GetBytes(this.Channels).Concat(BitConverter.GetBytes(this.IsCompressed).Concat(this.info as byte[]))))).ToArray();
-            var timeSpan = (DateTime.Now - time).TotalMilliseconds;
+            this.info =
+                this.GetBytesForNumberShort((ushort)this.deviceID).
+                Concat((BitConverter.GetBytes(this.Height).
+                Concat(BitConverter.GetBytes(this.Width).
+                Concat(BitConverter.GetBytes(this.Channels).
+                Concat(BitConverter.GetBytes(this.IsCompressed).
+                Concat(BitConverter.GetBytes(this.Timestamp).
+                Concat(this.info as byte[]))))))).ToArray();
 
             return this.info as byte[];
         }

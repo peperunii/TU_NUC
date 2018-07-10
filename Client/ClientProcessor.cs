@@ -65,8 +65,7 @@ namespace Client
                 LogManager.LogMessage(LogType.Error, LogLevel.Errors, "Problem with camera Init: " + ex.ToString());
             }
         }
-
-        private static int frameCounter = 0;
+        
         private static void Camera_OnColorFrameArrived()
         {
             if (!Configuration.IsServerDisconnected)
@@ -75,9 +74,15 @@ namespace Client
                 {
                     LogManager.LogMessage(LogType.Info, LogLevel.Everything, "Sending color frame...");
                     var colorData = camera.GetData(CameraDataType.Color);
-                    var messageColorFrame = new MessageColorFrame(1080, 1920, 3, false, (colorData as byte[]));
-                    tcpClient.Send(messageColorFrame);
-                    frameCounter++;
+
+                    tcpClient.Send(
+                    new MessageColorFrame(
+                        Configuration.DeviceID,
+                        camera.colorFrameDescription.Height,
+                        camera.colorFrameDescription.Width,
+                        3,
+                        false,
+                        colorData as byte[]));
                 }
             }
         }
@@ -87,6 +92,15 @@ namespace Client
             if (IsCameraStarted && IsDepthFrameRequested)
             {
                 var depthData = camera.GetData(CameraDataType.Depth);
+
+                tcpClient.Send(
+                    new MessageDepthFrame(
+                        Configuration.DeviceID,
+                        camera.depthFrameDescription.Height,
+                        camera.depthFrameDescription.Width,
+                        1,
+                        false,
+                        depthData as byte[]));
             }
         }
 
@@ -95,6 +109,14 @@ namespace Client
             if (IsCameraStarted && IsIRFrameRequested)
             {
                 var irData = camera.GetData(CameraDataType.IR);
+                tcpClient.Send(
+                    new MessageIRFrame(
+                        Configuration.DeviceID, 
+                        camera.irFrameDescription.Height, 
+                        camera.irFrameDescription.Width, 
+                        1, 
+                        false, 
+                        irData as byte []));
             }
         }
 
@@ -105,7 +127,6 @@ namespace Client
 
                 if (camera.IsTrackedBodyFound())
                 {
-                    Console.WriteLine("Body frame send");
                     tcpClient.Send(new MessageSkeleton(Configuration.DeviceID, camera.bodies.ToList()));
                 }
             }

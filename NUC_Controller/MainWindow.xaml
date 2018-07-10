@@ -141,6 +141,24 @@
                        MouseLeave="TextBox_MouseLeave" BorderThickness="0">Bodies</TextBox>
             </Grid>
 
+            <Grid>
+                <Label Name="labelNavIRs" 
+                           Target="{Binding ElementName=navIrs}"  Visibility="Collapsed">
+                    <AccessText Foreground="LightGray" TextWrapping="WrapWithOverflow">_IRs</AccessText>
+                </Label>
+                <TextBox Margin="5" FontSize="12" Padding="5"
+                       Name="navIRs" 
+                       IsReadOnly="True"
+                       SelectionOpacity="0"
+                       Background="Transparent"
+                       TextAlignment="Center"
+                       Cursor="Hand"
+                       GotKeyboardFocus="Nav_GotFocus"
+                       ToolTipService.ShowOnDisabled="True"
+                       PreviewMouseDown="TextBox_MouseDown"
+                       MouseEnter="TextBox_MouseEnter"
+                       MouseLeave="TextBox_MouseLeave" BorderThickness="0">IRs</TextBox>
+            </Grid>
             
             <Grid>
                 <Label Name="labelNavUsers" 

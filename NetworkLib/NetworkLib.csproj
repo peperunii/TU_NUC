@@ -119,6 +119,9 @@
     <Compile Include="Discovery\UDPClient.cs" />
     <Compile Include="Discovery\DiscoverySender.cs" />
     <Compile Include="Events\NewBodyArrivedEventArgs.cs" />
+    <Compile Include="Events\NewColorArrivedEventArgs.cs" />
+    <Compile Include="Events\NewDepthArrivedEventArgs.cs" />
+    <Compile Include="Events\NewIRArrivedEventArgs.cs" />
     <Compile Include="Events\ServerFoundEventArgs.cs" />
     <Compile Include="Events\NUCConnectedEventArgs.cs" />
     <Compile Include="Logger\Logger.cs" />

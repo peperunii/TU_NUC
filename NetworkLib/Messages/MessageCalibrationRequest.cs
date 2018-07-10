@@ -8,15 +8,41 @@ namespace Network.Messages
 {
     public class MessageCalibrationRequest : Message
     {
+        public DeviceID deviceId;
+
         public MessageCalibrationRequest()
         {
             this.type = MessageType.CalibrationRequest;
-            this.info = null;
+            this.info = new byte[] { };
+        }
+
+        public MessageCalibrationRequest(DeviceID deviceID)
+        {
+            this.type = MessageType.CalibrationRequest;
+            this.deviceId = deviceID;
+            this.info = BitConverter.GetBytes((ushort)deviceID);
+        }
+
+        public MessageCalibrationRequest(byte[] infoBytes)
+        {
+            this.type = MessageType.CalibrationRequest;
+            this.info = infoBytes;
+
+            this.deviceId = (DeviceID)BitConverter.ToUInt16(infoBytes, 0);
         }
 
         public override byte[] Serialize()
         {
-            return this.GetBytesForNumberShort((ushort)this.type);
+            var bytes = this.GetBytesForNumberShort((ushort)this.type);
+            var bytesInfo = this.GetBytesOfInfo();
+            var lenghtInfoBytes = this.GetBytesForNumberInt((int)bytesInfo.Length);
+
+            return bytes.Concat(lenghtInfoBytes.Concat(bytesInfo)).ToArray();
+        }
+
+        private byte[] GetBytesOfInfo()
+        {
+            return this.info as byte[];
         }
     }
 }

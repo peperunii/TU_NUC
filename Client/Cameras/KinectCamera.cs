@@ -24,9 +24,9 @@ namespace Client.Cameras
         private InfraredFrameReader irFrameReader = null;
         private BodyFrameReader bodyFrameReader = null;
 
-        private FrameDescription colorFrameDescription;
-        private FrameDescription depthFrameDescription;
-        private FrameDescription irFrameDescription;
+        public FrameDescription colorFrameDescription;
+        public FrameDescription depthFrameDescription;
+        public FrameDescription irFrameDescription;
         
         public Body[] bodies = null;
 
@@ -208,25 +208,14 @@ namespace Client.Cameras
                     // the underlying buffer
                     using (Microsoft.Kinect.KinectBuffer depthBuffer = depthFrame.LockImageBuffer())
                     {
+                        var dataSize = this.depthFrameDescription.Width * this.depthFrameDescription.Height * 2;
+                        this.depthImageUshortArr = new ushort[dataSize];
 
-                        // Note: In order to see the full range of depth (including the less reliable far field depth)
-                        // we are setting maxDepth to the extreme potential depth threshold
-                        
-                        ushort* frameData = (ushort*)depthBuffer.UnderlyingBuffer;
-                        var dataSize = depthFrameDescription.Width * depthFrameDescription.Height;
-
-                        IntPtr ptr = (IntPtr)frameData;
-                        depthFrame.CopyFrameDataToIntPtr(ptr, (uint)dataSize);
-
-                        this.depthImage = new Image<Gray, ushort>(depthFrameDescription.Width, depthFrameDescription.Height, depthFrameDescription.Width, ptr);
-                        if (this.depthScale != 1)
+                        fixed (ushort* frameData = &this.depthImageUshortArr[0])
                         {
-                            this.depthImage = this.depthImage.Resize(this.depthScale, Inter.Cubic);
-                        }
+                            IntPtr ptr = (IntPtr)frameData;
 
-                        if(this.MaxReliableDepth != ushort.MaxValue)
-                        {
-                            this.ConvertDepthImageToMaxDistance();
+                            depthFrame.CopyFrameDataToIntPtr(ptr, (uint)dataSize);
                         }
                     }
 
@@ -251,19 +240,15 @@ namespace Client.Cameras
                     // the underlying buffer
                     using (Microsoft.Kinect.KinectBuffer infraredbuffer = infraredFrame.LockImageBuffer())
                     {
-                        ushort* frameData = (ushort*)infraredbuffer.UnderlyingBuffer;
-                        var dataSize = irFrameDescription.Width * irFrameDescription.Height;
+                        var dataSize = this.irFrameDescription.Width * this.irFrameDescription.Height * 2;
+                        this.irImageUshortArr = new ushort[dataSize];
 
-                        IntPtr ptr = (IntPtr)frameData;
-                        infraredFrame.CopyFrameDataToIntPtr(ptr, (uint)dataSize);
-
-                        this.irImage = new Image<Gray, ushort>(irFrameDescription.Width, irFrameDescription.Height, irFrameDescription.Width, ptr);
-                        if (this.irScale != 1)
+                        fixed (ushort* frameData = &this.irImageUshortArr[0])
                         {
-                            this.irImage = this.irImage.Resize(this.irScale, Inter.Cubic);
-                        }
+                            IntPtr ptr = (IntPtr)frameData;
 
-                        this.ConvertIRImage();
+                            infraredFrame.CopyFrameDataToIntPtr(ptr, (uint)dataSize);
+                        }
                     }
 
                     //fire event
@@ -343,17 +328,22 @@ namespace Client.Cameras
         private unsafe byte[] GetColorImageByteArr()
         {
             return this.colorImageByteArr;
+        }
 
-            if (this.colorImage != null)
-            {
-                var byteArr = this.colorImage.Data;
-                byte[] baData = new byte[byteArr.Length];
+        private unsafe byte[] GetDepthImageByteArr()
+        {
+            byte[] result = new byte[this.depthImageUshortArr.Length * sizeof(ushort)];
+            Buffer.BlockCopy(this.depthImageUshortArr, 0, result, 0, result.Length);
 
-                Buffer.BlockCopy(byteArr, 0, baData, 0, byteArr.Length);
+            return result;
+        }
 
-                return baData;
-            }
-            else return null;
+        private unsafe byte[] GetIRImageByteArr()
+        {
+            byte[] result = new byte[this.irImageUshortArr.Length * sizeof(ushort)];
+            Buffer.BlockCopy(this.irImageUshortArr, 0, result, 0, result.Length);
+
+            return result;
         }
 
         private byte [] Serialize(object objToSerialize, CameraDataType type)
@@ -364,6 +354,14 @@ namespace Client.Cameras
             {
                 case CameraDataType.Color:
                     result = this.GetColorImageByteArr();
+                    break;
+
+                case CameraDataType.Depth:
+                    result = this.GetDepthImageByteArr();
+                    break;
+
+                case CameraDataType.IR:
+                    result = this.GetIRImageByteArr();
                     break;
 
                 default:

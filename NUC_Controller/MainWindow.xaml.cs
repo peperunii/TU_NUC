@@ -84,6 +84,7 @@ namespace NUC_Controller
                 {this.navConfiguration, new Uri("Pages/ConfigurationPage.xaml", UriKind.RelativeOrAbsolute)},
                 {this.navCalibration, new Uri("Pages/CalibrationPage.xaml", UriKind.RelativeOrAbsolute)},
                 {this.navBodies, new Uri("Pages/BodiesPage.xaml", UriKind.RelativeOrAbsolute)},
+                {this.navIRs, new Uri("Pages/IRsPage.xaml", UriKind.RelativeOrAbsolute)},
                 { this.navUsers, new Uri("Pages/UsersPage.xaml", UriKind.RelativeOrAbsolute)}
             };
         }
@@ -96,7 +97,7 @@ namespace NUC_Controller
                 { ActionType.ReadEvents, new List<FrameworkElement>(){ this.navEvents } },
                 { ActionType.ReadConfig, new List<FrameworkElement>(){ this.navConfiguration } },
                 { ActionType.PerformCalibration, new List<FrameworkElement>(){ this.navCalibration } },
-                { ActionType.ReadBodies, new List<FrameworkElement>(){ this.navBodies } },
+                { ActionType.ReadBodies, new List<FrameworkElement>(){ this.navBodies, this.navIRs } },
                 { ActionType.ReadUsers, new List<FrameworkElement>(){ this.navUsers } }
             };
         }
@@ -135,7 +136,8 @@ namespace NUC_Controller
             this.tabOrder.Add(2, this.navConfiguration);
             this.tabOrder.Add(3, this.navCalibration);
             this.tabOrder.Add(4, this.navBodies);
-            this.tabOrder.Add(5, this.navUsers);
+            this.tabOrder.Add(5, this.navIRs);
+            this.tabOrder.Add(6, this.navUsers);
 
             this.lastSelectedTab = 1;
             this.initialSelectedTab = 1;
@@ -297,7 +299,15 @@ namespace NUC_Controller
                     this.navBodies.Focusable = false;
                 }
 
-                
+                if (this.navIRs == this.lastClickedNav)
+                {
+                    this.navIRs.Focusable = true;
+                }
+                else
+                {
+                    this.navIRs.Focusable = false;
+                }
+
                 if (this.navUsers == this.lastClickedNav)
                 {
                     this.navUsers.Focusable = true;
@@ -354,6 +364,7 @@ namespace NUC_Controller
                 this.navConfiguration.IsFocused == true ||
                 this.navCalibration.IsFocused == true ||
                 this.navBodies.IsFocused == true ||
+                this.navIRs.IsFocused == true ||
                 this.navUsers.IsFocused == true ||
                 this.navLogo.IsFocused == true))
             {
@@ -396,6 +407,7 @@ namespace NUC_Controller
             this.navConfiguration.Focusable = focusable;
             this.navCalibration.Focusable = focusable;
             this.navBodies.Focusable = focusable;
+            this.navIRs.Focusable = focusable;
             this.navUsers.Focusable = focusable;
         }
 

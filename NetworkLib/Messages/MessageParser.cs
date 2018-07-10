@@ -98,30 +98,30 @@ namespace Network.Messages
                         return null;
 
                     case MessageType.CalibrationRequest:
-                        return new MessageCalibrationRequest();
+                        return new MessageCalibrationRequest(messageArr.SubArray(6));
 
 
                     case MessageType.ColorFrame:
                         return new MessageColorFrame(messageArr.SubArray(6));
 
                     case MessageType.DepthFrame:
-                        return null;
+                        return new MessageDepthFrame(messageArr.SubArray(6));
 
                     case MessageType.IRFrame:
-                        return null;
+                        return new MessageIRFrame(messageArr.SubArray(6));
 
                     case MessageType.Skeleton:
                         return new MessageSkeleton(messageArr.SubArray(6));
 
 
                     case MessageType.ColorFrameRequest:
-                        return null;
+                        return new MessageColorFrameRequest(messageArr.SubArray(6));
 
                     case MessageType.DepthFrameRequest:
-                        return null;
+                        return new MessageDepthFrameRequest(messageArr.SubArray(6));
 
                     case MessageType.IRFrameRequest:
-                        return null;
+                        return new MessageIRFrameRequest(messageArr.SubArray(6)); ;
 
                     case MessageType.SkeletonRequest:
                         return new MessageSkeletonRequest(messageArr.SubArray(6));

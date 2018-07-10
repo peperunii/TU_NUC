@@ -276,18 +276,19 @@ namespace Server
                             break;
 
                         case MessageType.ColorFrame:
-                            LogManager.LogMessage(
-                                LogType.Warning,
-                                LogLevel.Everything,
-                                "Received Color Frame: ("
-                                + (message as MessageColorFrame).Height
-                                + ", "
-                                + (message as MessageColorFrame).Width
-                                + ")");
+                            SendToController(message);
+                            break;
+
+                        case MessageType.DepthFrame:
+                            SendToController(message);
+                            break;
+
+                        case MessageType.IRFrame:
+                            SendToController(message);
                             break;
 
                         case MessageType.Skeleton:
-                            Console.WriteLine("Resend Skeleton !!!");
+                            /*Resend Skeleton*/
                             SendToController(message);
                             break;
 

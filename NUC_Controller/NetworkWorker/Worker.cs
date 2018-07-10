@@ -24,8 +24,15 @@ namespace NUC_Controller.NetworkWorker
     {
         private static List<NUC> connectedDevices;
 
-        public delegate void MyEventHandler(object source, NewBodyArrivedEventArgs e);
-        public static event MyEventHandler NewBodyArrived;
+        public delegate void MyEventHandlerColor(object source, NewColorArrivedEventArgs e);
+        public delegate void MyEventHandlerDepth(object source, NewDepthArrivedEventArgs e);
+        public delegate void MyEventHandlerIR(object source, NewIRArrivedEventArgs e);
+        public delegate void MyEventHandlerBody(object source, NewBodyArrivedEventArgs e);
+
+        public static event MyEventHandlerColor NewColorArrived;
+        public static event MyEventHandlerDepth NewDepthArrived;
+        public static event MyEventHandlerIR NewIRArrived;
+        public static event MyEventHandlerBody NewBodyArrived;
 
         public static void StartNetworkClient()
         {
@@ -130,12 +137,20 @@ namespace NUC_Controller.NetworkWorker
                         break;
 
                     case MessageType.ColorFrame:
+                        NewColorArrived.Invoke(null, new NewColorArrivedEventArgs(message as MessageColorFrame));
                         break;
 
                     case MessageType.DepthFrame:
+                        {
+                            NewDepthArrived.Invoke(null, new NewDepthArrivedEventArgs(message as MessageDepthFrame));
+                        }
                         break;
 
                     case MessageType.IRFrame:
+                        {
+                            Console.WriteLine("Received IR frame");
+                            NewIRArrived.Invoke(null, new NewIRArrivedEventArgs(message as MessageIRFrame));
+                        }
                         break;
 
                     case MessageType.Skeleton:
