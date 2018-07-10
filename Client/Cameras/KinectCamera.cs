@@ -251,7 +251,7 @@ namespace Client.Cameras
 
                             for(int i = 0; i < dataSize; i++)
                             {
-                                frameData[i] = (ushort)Math.Min(InfraredOutputValueMaximum, (((float)frameData[i] / InfraredSourceValueMaximum * InfraredSourceScale) * (1.0f - InfraredOutputValueMinimum)) + InfraredOutputValueMinimum);
+                                frameData[i] = (ushort)(255 * Math.Min(InfraredOutputValueMaximum, (((float)frameData[i] / InfraredSourceValueMaximum * InfraredSourceScale) * (1.0f - InfraredOutputValueMinimum)) + InfraredOutputValueMinimum));
                             }
                         }
 
