@@ -239,6 +239,18 @@ namespace Client
                         }
                         break;
 
+                    case MessageType.CameraStatusRequest:
+                        var msgCameraStatus =
+                            new MessageCameraStatus(
+                                Configuration.DeviceID,
+                                IsCameraStarted, 
+                                IsColorFrameRequested,
+                                IsDepthFrameRequested,
+                                IsIRFrameRequested, 
+                                IsBodyFrameRequested);
+                        SendMessage(msgCameraStatus);
+                        break;
+                    
                     case MessageType.CalibrationRequest:
                         /*Calculate Intrinsic params*/
                         //SendMessage(

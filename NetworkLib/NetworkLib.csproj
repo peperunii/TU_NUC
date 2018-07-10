@@ -126,6 +126,8 @@
     <Compile Include="Logger\LogType.cs" />
     <Compile Include="Messages\MessageCalibrationRequest.cs" />
     <Compile Include="Messages\MessageCameraStart.cs" />
+    <Compile Include="Messages\MessageCameraStatus.cs" />
+    <Compile Include="Messages\MessageCameraStatusRequest.cs" />
     <Compile Include="Messages\MessageCameraStop.cs" />
     <Compile Include="Messages\MessageColorFrame.cs" />
     <Compile Include="Messages\MessageColorFrameRequest.cs" />

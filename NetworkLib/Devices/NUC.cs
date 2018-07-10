@@ -26,12 +26,24 @@ namespace Network.Devices
         public string config;
         public List<ConfigParam> configDict;
 
+        public bool isCameraStarted;
+        public bool isColorStreamEnabled;
+        public bool isDepthStreamEnabled;
+        public bool isIRStreamEnabled;
+        public bool isBodyStreamEnabled;
+
         public NUC(DeviceID deviceID, IPEndPoint ipEndPoint)
         {
             this.deviceID = deviceID;
             this.ip = ipEndPoint;
 
             this.config = string.Empty;
+
+            this.isCameraStarted = false;
+            this.isColorStreamEnabled = false;
+            this.isDepthStreamEnabled = false;
+            this.isIRStreamEnabled = false;
+            this.isBodyStreamEnabled = false;
         }
 
         public override bool Equals(object obj)

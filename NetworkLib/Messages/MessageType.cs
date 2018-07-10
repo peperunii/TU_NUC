@@ -18,6 +18,8 @@
 
         CameraStart,
         CameraStop,
+        CameraStatus,
+        CameraStatusRequest,
 
         ConnectedClients,    //
         GetConnectedClients,  //

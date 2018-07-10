@@ -29,6 +29,13 @@ namespace Network.Messages
             this.deviceID = deviceID;
         }
 
+        public MessageSkeleton(DeviceID deviceID, List<Skeleton> bodies)
+        {
+            this.type = MessageType.Skeleton;
+            this.info = bodies;
+            this.deviceID = deviceID;
+        }
+
         public MessageSkeleton(byte[] bodiesByteArr)
         {
             this.type = MessageType.Skeleton;
@@ -41,6 +48,34 @@ namespace Network.Messages
             var json = Encoding.ASCII.GetBytes(SerializationExtensions.Serialize(this.info as List<Body>));
          
             return json;
+        }
+
+        public static List<Skeleton> GenerateSkeletons(int numberOfSkeletons = 3)
+        {
+            var listBodies = new List<Skeleton>();
+            var rand = new Random();
+
+            for (int i = 0; i < numberOfSkeletons; i++)
+            {
+                var skeleton = new Skeleton();
+
+                for (int j = 0; j < 25; j++)
+                {
+                    var joint = new Joint();
+                    joint.JointType = (JointType)j;
+                    joint.TrackingState = (TrackingState)rand.Next(0, Enum.GetValues(typeof(TrackingState)).Length);
+                    joint.Position = new CameraSpacePoint();
+                    joint.Position.X = rand.Next(0, 100) / 100.0f;
+                    joint.Position.Y = rand.Next(0, 100) / 100.0f;
+                    joint.Position.Z = rand.Next(0, 100) / 100.0f;
+
+                    skeleton.AddJoint(joint);
+                }
+
+                listBodies.Add(skeleton);
+            }
+
+            return listBodies;
         }
 
         public List<Skeleton> ConvertByteArrToBodyList(byte [] byteArr)
@@ -151,6 +186,59 @@ namespace Network.Messages
                 json.Append("\"Joints\":[");
 
                 foreach (Joint joint in body.Joints.Values)
+                {
+                    json.Append(joint.Serialize() + ",");
+                }
+
+                json.Append("]");
+                json.Append("}");
+            }
+
+            return json.ToString();
+        }
+
+        public static string Serialize(this IEnumerable<Skeleton> bodies)
+        {
+            StringBuilder json = new StringBuilder();
+
+            json.Append("{");
+            json.Append("\"Bodies\":");
+
+            if (bodies != null)
+            {
+                json.Append("[");
+
+                foreach (Skeleton body in bodies)
+                {
+                    json.Append(body.Serialize() + ",");
+                }
+
+                json.Append("]");
+                json.Append("}");
+            }
+
+            Console.WriteLine(".............");
+            Console.WriteLine("json body: " + json.ToString());
+            Console.WriteLine(".............");
+            return json.ToString();
+        }
+
+        /// <summary>
+        /// Serializes the current <see cref="Body"/>.
+        /// </summary>
+        /// <param name="body">The body to serialize.</param>
+        /// <returns>A JSON representation of the current body.</returns>
+        public static string Serialize(this Skeleton body)
+        {
+            StringBuilder json = new StringBuilder();
+
+            if (body != null)
+            {
+                json.Append("{");
+                json.Append("\"IsTracked\":\"" + body.IsTracked + "\",");
+                json.Append("\"Joints\":[");
+
+                foreach (Joint joint in body.Joints)
                 {
                     json.Append(joint.Serialize() + ",");
                 }

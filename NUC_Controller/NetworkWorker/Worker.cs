@@ -95,6 +95,10 @@ namespace NUC_Controller.NetworkWorker
                                 foreach (var client in Worker.connectedDevices)
                                 {
                                     SendMessage(new MessageGetConfigurationPerClient(client.deviceID));
+                                    if (client.deviceID != DeviceID.TU_SERVER)
+                                    {
+                                        SendMessage(new MessageCameraStatusRequest(client.deviceID));
+                                    }
                                 }
                             }
                         }
@@ -107,6 +111,21 @@ namespace NUC_Controller.NetworkWorker
                                           where t.deviceID == deviceId
                                           select t).FirstOrDefault();
                             device.SetConfiguration((message as MessageSetConfigurationPerClient).info as string);
+                        }
+                        break;
+
+                    case MessageType.CameraStatus:
+                        {
+                            var msg = (message as MessageCameraStatus);
+                            var deviceId = msg.deviceID;
+                            var device = (from t in connectedDevices
+                                          where t.deviceID == deviceId
+                                          select t).FirstOrDefault();
+                            device.isCameraStarted = msg.isCameraStarted;
+                            device.isColorStreamEnabled = msg.isColorStreamEnabled;
+                            device.isDepthStreamEnabled = msg.isDepthStreamEnabled;
+                            device.isIRStreamEnabled = msg.isIRStreamEnabled;
+                            device.isBodyStreamEnabled = msg.isBodyStreamEnabled;
                         }
                         break;
 

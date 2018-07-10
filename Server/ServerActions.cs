@@ -170,6 +170,36 @@ namespace Server
                             break;
 
 
+                        case MessageType.CameraStatusRequest:
+                            {
+                                try
+                                {
+                                    var msg = message as MessageCameraStatusRequest;
+                                    var deviceID = msg.deviceId;
+
+                                    tcpServers[deviceID].Send(
+                                            tcpServers[deviceID].GetClient(),
+                                            message);
+                                }
+                                catch(Exception)
+                                {
+
+                                }
+                            }
+                            break;
+
+                        case MessageType.CameraStatus:
+                            {
+                                try
+                                {
+                                    SendToController(message);
+                                }
+                                catch(Exception)
+                                {
+
+                                }
+                            }
+                            break;
 
                         case MessageType.CameraStart:
                             {

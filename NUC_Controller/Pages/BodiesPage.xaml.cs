@@ -33,6 +33,7 @@ namespace NUC_Controller.Pages
         private List<Tuple<JointType, JointType>> bones;
         private static Size imagesize = new Size(400, 400);
 
+
         public BodiesPage()
         {
             Worker.NewBodyArrived += this.Worker_NewBodyArrived;
@@ -245,6 +246,7 @@ namespace NUC_Controller.Pages
             buttonCameraStart.Width = 80;
             buttonCameraStart.Height = 24;
             buttonCameraStart.Content = "Start camera";
+            buttonCameraStart.IsEnabled = !device.isCameraStarted;
             buttonCameraStart.HorizontalAlignment = HorizontalAlignment.Right;
 
             var buttonCameraStop = new Button();
@@ -253,10 +255,10 @@ namespace NUC_Controller.Pages
             buttonCameraStop.Width = 80;
             buttonCameraStop.Height = 24;
             buttonCameraStop.Content = "Stop camera";
-            buttonCameraStop.IsEnabled = false;
+            buttonCameraStop.IsEnabled = device.isCameraStarted;
             buttonCameraStop.HorizontalAlignment = HorizontalAlignment.Right;
             buttonCameraStop.Margin = new Thickness(5, 0, 5, 0);
-            
+
             dockPanelButtons.Children.Add(buttonCameraStart);
             dockPanelButtons.Children.Add(buttonCameraStop);
 
@@ -273,6 +275,7 @@ namespace NUC_Controller.Pages
             datagrid.Children.Add(image);
             tab.Content = datagrid;
         }
+        
 
         private void ButtonCameraStart_Click(object sender, RoutedEventArgs e)
         {
@@ -282,9 +285,18 @@ namespace NUC_Controller.Pages
             var deviceID = (DeviceID)Enum.Parse(typeof(DeviceID), deviceID_string);
             new Notification(NotificationType.Info, "Starting camera on device: " + deviceID);
 
-            NetworkSettings.tcpClient.Send(new MessageCameraStart(deviceID));
-            NetworkSettings.tcpClient.Send(new MessageSkeletonRequest(deviceID));
+            var device = (from t in connectedDevices
+                          where t.deviceID == deviceID
+                          select t).FirstOrDefault();
+            device.isCameraStarted = true;
 
+            NetworkSettings.tcpClient.Send(new MessageCameraStart(deviceID));
+            
+            if(!device.isBodyStreamEnabled)
+            {
+                NetworkSettings.tcpClient.Send(new MessageSkeletonRequest(deviceID));
+                device.isBodyStreamEnabled = true;
+            }
             (sender as Button).IsEnabled = false;
             this.EnableChildButton(1);
         }
@@ -296,6 +308,11 @@ namespace NUC_Controller.Pages
 
             var deviceID = (DeviceID)Enum.Parse(typeof(DeviceID), deviceID_string);
             new Notification(NotificationType.Info, "Stopping camera on device: " + deviceID);
+
+            var device = (from t in connectedDevices
+                          where t.deviceID == deviceID
+                          select t).FirstOrDefault();
+            device.isCameraStarted = false;
 
             NetworkSettings.tcpClient.Send(new MessageCameraStop(deviceID));
             (sender as Button).IsEnabled = false;

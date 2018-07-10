@@ -60,6 +60,11 @@ namespace Network.Messages
                     case MessageType.CameraStop:
                         return new MessageCameraStop(messageArr.SubArray(6));
 
+                    case MessageType.CameraStatus:
+                        return new MessageCameraStatus(messageArr.SubArray(6));
+
+                    case MessageType.CameraStatusRequest:
+                        return new MessageCameraStatusRequest(messageArr.SubArray(6));
 
                     case MessageType.ConnectedClients:
                         return new MessageConnectedClients(messageArr.SubArray(6));
