@@ -39,7 +39,7 @@ namespace Network.Messages
 
         public MessageDepthFrame(byte[] colorFrameInfo = null)
         {
-            this.type = MessageType.ColorFrame;
+            this.type = MessageType.DepthFrame;
             this.deviceID = (DeviceID)BitConverter.ToUInt16(colorFrameInfo, 0);
             this.Height = BitConverter.ToInt32(colorFrameInfo, 2);
             this.Width = BitConverter.ToInt32(colorFrameInfo, 6);
