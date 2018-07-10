@@ -56,7 +56,7 @@ namespace Network.Messages
             var lenghtInfoBytes = this.GetBytesForNumberInt(bytesInfo.Length);
 
             var result = bytes.Concat(lenghtInfoBytes.Concat(bytesInfo)).ToArray();
-
+            Console.WriteLine("IR frame serialized");
             return result;
         }
 

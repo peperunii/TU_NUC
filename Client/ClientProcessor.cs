@@ -72,6 +72,8 @@ namespace Client
             {
                 if (IsCameraStarted && IsColorFrameRequested)
                 {
+                    Console.WriteLine("Sending Color frame");
+
                     LogManager.LogMessage(LogType.Info, LogLevel.Everything, "Sending color frame...");
                     var colorData = camera.GetData(CameraDataType.Color);
 
@@ -91,6 +93,8 @@ namespace Client
         {
             if (IsCameraStarted && IsDepthFrameRequested)
             {
+                Console.WriteLine("Sending Depth frame");
+
                 var depthData = camera.GetData(CameraDataType.Depth);
 
                 tcpClient.Send(
@@ -108,6 +112,7 @@ namespace Client
         {
             if (IsCameraStarted && IsIRFrameRequested)
             {
+                Console.WriteLine("Sending IR frame");
                 var irData = camera.GetData(CameraDataType.IR);
                 tcpClient.Send(
                     new MessageIRFrame(
@@ -124,7 +129,7 @@ namespace Client
         {
             if (IsCameraStarted && IsBodyFrameRequested)
             {
-
+                Console.WriteLine("Sending Body frame");
                 if (camera.IsTrackedBodyFound())
                 {
                     tcpClient.Send(new MessageSkeleton(Configuration.DeviceID, camera.bodies.ToList()));
@@ -282,25 +287,23 @@ namespace Client
                         break;
 
                     case MessageType.ColorFrameRequest:
-                        //SendMessage(new MessageColorFrame(camera.colorImageByteArr));
+                        Console.WriteLine("Request: Color - " + (!IsColorFrameRequested).ToString());
                         IsColorFrameRequested = !IsColorFrameRequested;
                         break;
 
                     case MessageType.DepthFrameRequest:
-                        /*TODO*/
-                        //SendMessage(new MessageDepthFrame());
+                        Console.WriteLine("Request: Depth - " + (!IsColorFrameRequested).ToString());
                         IsDepthFrameRequested = !IsDepthFrameRequested;
                         break;
 
                     case MessageType.IRFrameRequest:
-                        /*TODO*/
-                        //SendMessage(new MessageIRFrame());
+                        Console.WriteLine("Request: Depth - " + (!IsColorFrameRequested).ToString());
                         IsIRFrameRequested = !IsIRFrameRequested;
                         break;
 
                     case MessageType.SkeletonRequest:
+                        Console.WriteLine("Request: Skeleton - " + (!IsColorFrameRequested).ToString());
                         IsBodyFrameRequested = !IsBodyFrameRequested;
-                        Console.WriteLine("Skeleton request: " + IsBodyFrameRequested);
                         break;
                 }
             }

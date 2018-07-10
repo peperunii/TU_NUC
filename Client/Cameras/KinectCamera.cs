@@ -249,6 +249,8 @@ namespace Client.Cameras
 
                             infraredFrame.CopyFrameDataToIntPtr(ptr, (uint)dataSize);
                         }
+
+                        Console.WriteLine("IR frame parsed");
                     }
 
                     //fire event
@@ -343,6 +345,7 @@ namespace Client.Cameras
             byte[] result = new byte[this.irImageUshortArr.Length * sizeof(ushort)];
             Buffer.BlockCopy(this.irImageUshortArr, 0, result, 0, result.Length);
 
+            Console.WriteLine("IR frame converted");
             return result;
         }
 
