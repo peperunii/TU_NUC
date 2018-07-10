@@ -273,7 +273,6 @@ namespace Network.TCP
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
                 return null;
             }
         }
