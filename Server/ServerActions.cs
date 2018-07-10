@@ -292,6 +292,51 @@ namespace Server
                             SendToController(message);
                             break;
 
+                        case MessageType.ColorFrameRequest:
+                            {
+                                try
+                                {
+                                    var deviceID = (message as MessageColorFrameRequest).deviceId;
+
+                                    tcpServers[deviceID].Send(
+                                            tcpServers[deviceID].GetClient(),
+                                            message);
+                                    Console.WriteLine("Resend Color Request");
+                                }
+                                catch (Exception) { }
+                            }
+                            break;
+
+                        case MessageType.DepthFrameRequest:
+                            {
+                                try
+                                {
+                                    var deviceID = (message as MessageDepthFrameRequest).deviceId;
+
+                                    tcpServers[deviceID].Send(
+                                            tcpServers[deviceID].GetClient(),
+                                            message);
+                                    Console.WriteLine("Resend Depth Request");
+                                }
+                                catch (Exception) { }
+                            }
+                            break;
+
+                        case MessageType.IRFrameRequest:
+                            {
+                                try
+                                {
+                                    var deviceID = (message as MessageIRFrameRequest).deviceId;
+
+                                    tcpServers[deviceID].Send(
+                                            tcpServers[deviceID].GetClient(),
+                                            message);
+                                    Console.WriteLine("Resend IR Request");
+                                }
+                                catch (Exception) { }
+                            }
+                            break;
+
                         case MessageType.SkeletonRequest:
                             {
                                 try
@@ -300,7 +345,7 @@ namespace Server
 
                                     tcpServers[deviceID].Send(
                                             tcpServers[deviceID].GetClient(),
-                                            new MessageSkeletonRequest(deviceID));
+                                            message);
                                     Console.WriteLine("Resend Skeleton Request");
                                 }
                                 catch (Exception) { }
