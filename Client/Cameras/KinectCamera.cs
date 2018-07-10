@@ -248,6 +248,11 @@ namespace Client.Cameras
                             IntPtr ptr = (IntPtr)frameData;
 
                             infraredFrame.CopyFrameDataToIntPtr(ptr, (uint)dataSize);
+
+                            for(int i = 0; i < dataSize; i++)
+                            {
+                                frameData[i] = (ushort)Math.Min(InfraredOutputValueMaximum, (((float)frameData[i] / InfraredSourceValueMaximum * InfraredSourceScale) * (1.0f - InfraredOutputValueMinimum)) + InfraredOutputValueMinimum);
+                            }
                         }
 
                         Console.WriteLine("IR frame parsed");
