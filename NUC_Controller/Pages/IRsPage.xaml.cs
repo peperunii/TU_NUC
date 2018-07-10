@@ -45,11 +45,14 @@ namespace NUC_Controller.Pages
             var irMessage = e.Message;
             var deviceID = irMessage.deviceID;
 
-            var image = this.GetImageChildOfTab(deviceID);
-            if (image != null)
+            Application.Current.Dispatcher.Invoke(new Action(() =>
             {
-                image.Source = this.ToBitmapSource(this.ConvertMessageToImage(irMessage));
-            }
+                var image = this.GetImageChildOfTab(deviceID);
+                if (image != null)
+                {
+                    image.Source = this.ToBitmapSource(this.ConvertMessageToImage(irMessage));
+                }
+            }));
         }
 
         private void Page_Loaded(object sender, RoutedEventArgs e)
