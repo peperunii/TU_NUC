@@ -50,10 +50,14 @@ namespace Client
 
         public static void RestartApp()
         {
-            Thread.Sleep(1000);
-            Application.Restart();
-            Thread.Sleep(1000);
-            Environment.Exit(0);
+            try
+            {
+                Thread.Sleep(3000);
+                Application.Restart();
+                Thread.Sleep(1000);
+                Environment.Exit(0);
+            }
+            catch (Exception) { }
         }
 
         public static void ReloadConfiguration()

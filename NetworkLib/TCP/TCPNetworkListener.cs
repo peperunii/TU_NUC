@@ -197,6 +197,16 @@ namespace NetworkLib.TCP
             {
                 try
                 {
+                    while (true)
+                    {
+                        if (lNetworkStream.CanRead)
+                            break;
+                        else
+                        {
+                            Thread.Sleep(1);
+                        }
+                    }
+
                     var msg = MessageParser.GetMessageFromBytArr(GetBytArrFromNetworkStream(lNetworkStream));
 
                     if (msg != null)

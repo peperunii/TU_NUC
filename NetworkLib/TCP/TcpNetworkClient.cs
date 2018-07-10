@@ -156,14 +156,23 @@ namespace Network.TCP
             {
                 try
                 {
-                    Message lObject;
-                    var result = _Queue.TryTake(out lObject);
-                    if (result == false || lObject == null)
+                    
+                        Message lObject;
+                        var result = _Queue.TryTake(out lObject);
+                        if (result == false || lObject == null)
+                        {
+                            Thread.Sleep(1);
+                            continue;
+                        }
+                    while (true)
                     {
-                        Thread.Sleep(1);
-                        continue;
+                        if (_NetworkStream.CanWrite)
+                            break;
+                        else
+                        {
+                            Thread.Sleep(1);
+                        }
                     }
-
                     Console.WriteLine("Sending " + lObject.type + " ....");
                     LogManager.LogMessage(LogType.Info, LogLevel.Communication, "Sending... ");
                     var messageData = lObject.Serialize();
@@ -189,6 +198,16 @@ namespace Network.TCP
             {
                 try
                 {
+                    while (true)
+                    {
+                        if (_NetworkStream.CanRead)
+                            break;
+                        else
+                        {
+                            Thread.Sleep(1);
+                        }
+                    }
+
                     var msg = MessageParser.GetMessageFromBytArr(GetBytArrFromNetworkStream());
                     //fire event
                     dOnMessage lEvent = OnMessage;
