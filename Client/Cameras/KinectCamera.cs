@@ -42,7 +42,7 @@ namespace Client.Cameras
         private const float InfraredSourceScale = 0.75f;
         private const float InfraredOutputValueMinimum = 0.01f;
         private const float InfraredOutputValueMaximum = 1.0f;
-        private const float InfraredSourceValueMaximum = (float)ushort.MaxValue;
+        private const float InfraredSourceValueMaximum = (float)4096;// ushort.MaxValue;
 
         /*Depth settings*/
         private const int MapDepthToByte = 8000 / 256;
@@ -70,7 +70,7 @@ namespace Client.Cameras
         public KinectCamera()
         {
             this.kinectSensor = KinectSensor.GetDefault();
-            
+
             this.colorFrameReader = this.kinectSensor.ColorFrameSource.OpenReader();
             this.depthFrameReader = this.kinectSensor.DepthFrameSource.OpenReader();
             this.irFrameReader = this.kinectSensor.InfraredFrameSource.OpenReader();
@@ -90,7 +90,6 @@ namespace Client.Cameras
             this.irFrameDescription = this.kinectSensor.DepthFrameSource.FrameDescription;
             this.irImage = new Image<Gray, ushort>(irFrameDescription.Width, irFrameDescription.Height);
 
-            this.Start();
         }
 
         internal bool IsTrackedBodyFound()
@@ -231,7 +230,7 @@ namespace Client.Cameras
             }
         }
 
-        private unsafe void IrFrameReader_FrameArrived(object sender, InfraredFrameArrivedEventArgs e)
+        private void IrFrameReader_FrameArrived(object sender, InfraredFrameArrivedEventArgs e)
         {
             // InfraredFrame is IDisposable
             using (InfraredFrame infraredFrame = e.FrameReference.AcquireFrame())
@@ -242,20 +241,7 @@ namespace Client.Cameras
                     // the underlying buffer
                     using (Microsoft.Kinect.KinectBuffer infraredbuffer = infraredFrame.LockImageBuffer())
                     {
-                        ushort* frameData = (ushort*)infraredbuffer.UnderlyingBuffer;
-
-                        var dataSize = infraredbuffer.Size;
-
-                        for (int i = 0; i < dataSize; i++)
-                        {
-                            var calc = (255 * Math.Min(
-                                    InfraredOutputValueMaximum,
-                                    (((float)frameData[i] / InfraredSourceValueMaximum * InfraredSourceScale) * (1.0f - InfraredOutputValueMinimum)) + InfraredOutputValueMinimum));
-                            calc = calc > 255 ? 255 : calc;
-                            frameData[i] = (byte)calc;
-                        }
-
-                        ConvertMessageToImage(this.irImageByteArr).Save(@"..\..\..\IMAGE.png");
+                        this.ProcessIRFrame(infraredbuffer.UnderlyingBuffer, infraredbuffer.Size/ 2);
                     }
 
                     //fire event
@@ -268,24 +254,34 @@ namespace Client.Cameras
             }
         }
 
-        private Image<Gray, byte> ConvertMessageToImage(byte [] data)
+        private unsafe void ProcessIRFrame(IntPtr underlyingBuffer, uint dataSize)
         {
-            var width = 512;
-            var height = 424;
+            ushort* frameData = (ushort*)underlyingBuffer;
+            
+            this.irImageByteArr = new byte[dataSize];
 
-            var image = new Image<Gray, byte>(width, height);
-            var imgData = image.Data;
-
-            for (int i = 0; i < height; i++)
+            try
             {
-                for (int j = 0; j < width; j++)
-                {
-                    imgData[i, j, 0] = data[i * width + j];
-                }
-            }
+                float min = 10000;
+                float max = -1110;
 
-            return image;
+                for (int i = 0; i < dataSize; i++)
+                {
+                    var calc = 255 * Math.Min(
+                            InfraredOutputValueMaximum,
+                            (((float)frameData[i] / InfraredSourceValueMaximum * InfraredSourceScale) * (1.0f - InfraredOutputValueMinimum)) + InfraredOutputValueMinimum);
+                    if (calc > max) max = calc;
+                    if (calc < min) min = calc;
+                     calc = calc > 255 ? 255 : calc;
+                    this.irImageByteArr[i] = (byte)calc;
+                }
+
+                Console.WriteLine(string.Format("{0}, {1}", min, max));
+            }
+            catch (Exception ex) { Console.WriteLine(ex); }
         }
+
+        
         private void BodyFrameReader_FrameArrived(object sender, BodyFrameArrivedEventArgs e)
         {
             using (BodyFrame bodyFrame = e.FrameReference.AcquireFrame())
