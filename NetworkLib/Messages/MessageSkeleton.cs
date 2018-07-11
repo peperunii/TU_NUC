@@ -132,65 +132,7 @@ namespace Network.Messages
     public static class SerializationExtensions
     {
         #region Serialization
-
-        /// <summary>
-        /// Serializes the current collection of <see cref="Body"/>.
-        /// </summary>
-        /// <param name="bodies">The body collection to serialize.</param>
-        /// <returns>A JSON representation of the current body collection.</returns>
-        public static string Serialize(this IEnumerable<Body> bodies)
-        {
-            StringBuilder json = new StringBuilder();
-
-            json.Append("{");
-            json.Append("\"Bodies\":");
-            json.Append("[");
-            if (bodies != null)
-            {
-                foreach (Body body in bodies)
-                {
-                    json.Append(body.Serialize() + ",");
-                }
-            }
-            json.Append("]");
-            json.Append("}");
-
-            return json.ToString();
-        }
-
-        /// <summary>
-        /// Serializes the current <see cref="Body"/>.
-        /// </summary>
-        /// <param name="body">The body to serialize.</param>
-        /// <returns>A JSON representation of the current body.</returns>
-        public static string Serialize(this Body body)
-        {
-            StringBuilder json = new StringBuilder();
-
-            if (body != null)
-            {
-                json.Append("{");
-                json.Append("\"TrackingId\":\"" + body.TrackingId + "\",");
-                json.Append("\"IsTracked\":\"" + body.IsTracked + "\",");
-                json.Append("\"LeanTrackingState\":\"" + body.LeanTrackingState + "\",");
-                json.Append("\"HandLeftConfidence\":\"" + body.HandLeftConfidence + "\",");
-                json.Append("\"HandLeftState\":\"" + body.HandLeftState + "\",");
-                json.Append("\"HandRightConfidence\":\"" + body.HandRightConfidence + "\",");
-                json.Append("\"HandRightState\":\"" + body.HandRightState + "\",");
-                json.Append("\"Joints\":[");
-
-                foreach (Joint joint in body.Joints.Values)
-                {
-                    json.Append(joint.Serialize() + ",");
-                }
-
-                json.Append("]");
-                json.Append("}");
-            }
-
-            return json.ToString();
-        }
-
+        
         public static string Serialize(this IEnumerable<Skeleton> bodies)
         {
             StringBuilder json = new StringBuilder();
@@ -200,17 +142,20 @@ namespace Network.Messages
             json.Append("[");
             if (bodies != null)
             {
+                var currentBodyCount = 0;
                 foreach (Skeleton body in bodies)
                 {
-                    json.Append(body.Serialize() + ",");
+                    json.Append(body.Serialize());
+                    if(currentBodyCount < bodies.Count() - 1)
+                    {
+                        json.Append(",");
+                    }
+                    currentBodyCount++;
                 }
             }
             json.Append("]");
             json.Append("}");
 
-            Console.WriteLine(".............");
-            Console.WriteLine("json body: " + json.ToString());
-            Console.WriteLine(".............");
             return json.ToString();
         }
 
@@ -229,9 +174,15 @@ namespace Network.Messages
                 json.Append("\"IsTracked\":\"" + body.IsTracked + "\",");
                 json.Append("\"Joints\":[");
 
+                var currentJointIndex = 0;
                 foreach (Joint joint in body.Joints)
                 {
-                    json.Append(joint.Serialize() + ",");
+                    json.Append(joint.Serialize());
+                    if (currentJointIndex < body.Joints.Count - 1)
+                    {
+                        json.Append(",");
+                    }
+                    currentJointIndex++;
                 }
 
                 json.Append("]");

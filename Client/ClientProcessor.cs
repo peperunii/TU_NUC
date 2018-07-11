@@ -128,7 +128,6 @@ namespace Client
         {
             if (IsCameraStarted && IsBodyFrameRequested)
             {
-                Console.WriteLine("Sending Body frame");
                 if (camera.IsTrackedBodyFound())
                 {
                     tcpClient.Send(new MessageSkeleton(Configuration.DeviceID, camera.GetConvertedBodyArr()));
