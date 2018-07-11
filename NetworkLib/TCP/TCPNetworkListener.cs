@@ -200,12 +200,10 @@ namespace NetworkLib.TCP
             {
                 try
                 {
-                    Console.WriteLine("Received Message..");
                     var listArrays = GetBytArrFromNetworkStream(lNetworkStream);
                     foreach(var byteArr in listArrays)
                     {
                         var msg = MessageParser.GetMessageFromBytArr(byteArr);
-                        Console.WriteLine("Parsed Message.." + msg.type);
                         if (msg != null)
                         {
                             //fire event

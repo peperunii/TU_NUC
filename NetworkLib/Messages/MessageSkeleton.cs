@@ -146,12 +146,15 @@ namespace Network.Messages
             json.Append("[");
             if (bodies != null)
             {
+                var filteredBodiesList = (from t in bodies
+                                          where t.IsTracked == true
+                                          select t).ToList();
                 var currentBodyCount = 0;
-                foreach (Skeleton body in bodies)
+                foreach (Skeleton body in filteredBodiesList)
                 {
                     if (body.IsTracked == false) continue;
                     json.Append(body.Serialize());
-                    if(currentBodyCount < bodies.Count() - 1)
+                    if(currentBodyCount < filteredBodiesList.Count() - 1)
                     {
                         json.Append(",");
                     }
