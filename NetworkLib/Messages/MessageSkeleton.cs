@@ -44,8 +44,10 @@ namespace Network.Messages
         }
 
         public byte [] ConvertBodiesListToByteArr()
-        {
-            var json = Encoding.ASCII.GetBytes(SerializationExtensions.Serialize(this.info as List<Skeleton>));
+        { 
+            var serializationStr = SerializationExtensions.Serialize(this.info as List<Skeleton>);
+            serializationStr = serializationStr.Substring(0, serializationStr.LastIndexOf('}') + 1);
+            var json = Encoding.ASCII.GetBytes(serializationStr);
          
             return json;
         }
@@ -147,6 +149,7 @@ namespace Network.Messages
                 var currentBodyCount = 0;
                 foreach (Skeleton body in bodies)
                 {
+                    if (body.IsTracked == false) continue;
                     json.Append(body.Serialize());
                     if(currentBodyCount < bodies.Count() - 1)
                     {
@@ -203,7 +206,6 @@ namespace Network.Messages
         {
             StringBuilder json = new StringBuilder();
 
-            Console.WriteLine(string.Format("Position: X: {0}, Y:{1}, Z:{2}", joint.Position.X, joint.Position.Y, joint.Position.Z));
             json.Append("{");
             json.Append("\"JointType\":\"" + joint.JointType + "\",");
             json.Append("\"TrackingState\":\"" + joint.TrackingState + "\",");
