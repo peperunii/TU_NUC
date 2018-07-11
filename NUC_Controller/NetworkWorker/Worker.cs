@@ -84,7 +84,7 @@ namespace NUC_Controller.NetworkWorker
                     switch (message.type)
                     {
                         case MessageType.Info:
-                            new Notification(NotificationType.Info, (message as MessageSendInfoToServer).info as string);
+                            //new Notification(NotificationType.Info, (message as MessageSendInfoToServer).info as string);
                             break;
 
                         case MessageType.TimeInfo:

@@ -296,7 +296,7 @@ namespace Client
                         break;
 
                     case MessageType.IRFrameRequest:
-                        Console.WriteLine("Request: Depth - " + (!IsIRFrameRequested).ToString());
+                        Console.WriteLine("Request: IR - " + (!IsIRFrameRequested).ToString());
                         IsIRFrameRequested = !IsIRFrameRequested;
                         break;
 

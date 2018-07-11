@@ -70,8 +70,6 @@ namespace Server
             {
                 if (message != null)
                 {
-                    SendToController(new MessageSendInfoToServer("Message received: " + message.type));
-
                     var tcpStream = (xSender as TcpClient).GetStream();
 
                     switch (message.type)
