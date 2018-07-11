@@ -85,33 +85,33 @@ namespace Network.Messages
             var listBodies = new List<Skeleton>();
             var decodedText = Encoding.ASCII.GetString(byteArr);
             decodedText = decodedText.Substring(0, decodedText.LastIndexOf('}') + 1);
-            //Console.WriteLine(decodedText);
             var jObj = JObject.Parse(decodedText)["Bodies"];
-
-            Console.WriteLine(jObj);
-            var children = jObj.Children();
-            Console.WriteLine(children);
+            
             foreach (var body in jObj)
             {
                 var skeleton = new Skeleton();
                 var joints = body["Joints"];
-                
-                foreach(var joint in joints)
+
+                try
                 {
-                    var jointType = joint["JointType"];
-                    var trackState = joint["TrackingState"];
-                    var position = joint["Position"];
+                    foreach (var joint in joints)
+                    {
+                        var jointType = joint["JointType"];
+                        var trackState = joint["TrackingState"];
+                        var position = joint["Position"];
 
-                    var jointObj = new Joint();
-                    jointObj.JointType = (JointType)Enum.Parse(typeof(JointType), (string)jointType);
-                    jointObj.TrackingState = (TrackingState)Enum.Parse(typeof(TrackingState), (string)trackState);
-                    jointObj.Position = new CameraSpacePoint();
-                    jointObj.Position.X = float.Parse((string)position["X"]);
-                    jointObj.Position.Y = float.Parse((string)position["Y"]);
-                    jointObj.Position.Z = float.Parse((string)position["Z"]);
+                        var jointObj = new Joint();
+                        jointObj.JointType = (JointType)Enum.Parse(typeof(JointType), (string)jointType);
+                        jointObj.TrackingState = (TrackingState)Enum.Parse(typeof(TrackingState), (string)trackState);
+                        jointObj.Position = new CameraSpacePoint();
+                        jointObj.Position.X = float.Parse((string)position["X"]);
+                        jointObj.Position.Y = float.Parse((string)position["Y"]);
+                        jointObj.Position.Z = float.Parse((string)position["Z"]);
 
-                    skeleton.AddJoint(jointObj);
+                        skeleton.AddJoint(jointObj);
+                    }
                 }
+                catch (Exception) { }
 
                 listBodies.Add(skeleton);
             }
