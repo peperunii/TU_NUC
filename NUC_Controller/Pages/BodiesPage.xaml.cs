@@ -83,10 +83,20 @@ namespace NUC_Controller.Pages
             var bodies = e.BodiesList;
             var deviceID = e.DeviceID;
 
-            var image = this.GetImageChildOfTab(deviceID);
-            if (image != null)
+            if (bodies.Count > 0)
             {
-                image.Source = this.ToBitmapSource(this.ConvertBodiesToImage(bodies));
+                Application.Current.Dispatcher.Invoke(new Action(() =>
+                {
+                    try
+                    {
+                        var image = this.GetImageChildOfTab(deviceID);
+                        if (image != null)
+                        {
+                            image.Source = this.ToBitmapSource(this.ConvertBodiesToImage(bodies));
+                        }
+                    }
+                    catch (Exception) { }
+                }));
             }
         }
 

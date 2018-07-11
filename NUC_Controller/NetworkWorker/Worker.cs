@@ -71,7 +71,14 @@ namespace NUC_Controller.NetworkWorker
 
         public static void SendMessage(Message message)
         {
-            NetworkSettings.tcpClient.Send(message);
+            if (NetworkSettings.tcpClient != null)
+            {
+                NetworkSettings.tcpClient.Send(message);
+            }
+            else
+            {
+                MessageBox.Show("You are not connected to Server", "Error");
+            }
         }
 
         private static void TcpClient_OnMessage(Network.Messages.Message message)

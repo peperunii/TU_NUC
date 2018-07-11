@@ -84,12 +84,14 @@ namespace Network.Messages
         {
             var listBodies = new List<Skeleton>();
             var decodedText = Encoding.ASCII.GetString(byteArr);
-            Console.WriteLine(decodedText);
+            decodedText = decodedText.Substring(0, decodedText.LastIndexOf('}') + 1);
+            //Console.WriteLine(decodedText);
             var jObj = JObject.Parse(decodedText)["Bodies"];
 
+            Console.WriteLine(jObj);
             var children = jObj.Children();
-
-            foreach(var body in jObj)
+            Console.WriteLine(children);
+            foreach (var body in jObj)
             {
                 var skeleton = new Skeleton();
                 var joints = body["Joints"];
