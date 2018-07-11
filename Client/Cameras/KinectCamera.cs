@@ -89,6 +89,8 @@ namespace Client.Cameras
 
             this.irFrameDescription = this.kinectSensor.DepthFrameSource.FrameDescription;
             this.irImage = new Image<Gray, ushort>(irFrameDescription.Width, irFrameDescription.Height);
+
+            this.Start();
         }
 
         internal bool IsTrackedBodyFound()
@@ -240,26 +242,20 @@ namespace Client.Cameras
                     // the underlying buffer
                     using (Microsoft.Kinect.KinectBuffer infraredbuffer = infraredFrame.LockImageBuffer())
                     {
-                        var dataSize = this.irFrameDescription.Width * this.irFrameDescription.Height * 2;
-                        this.irImageByteArr = new byte[dataSize];
+                        ushort* frameData = (ushort*)infraredbuffer.UnderlyingBuffer;
 
-                        fixed (byte* frameData = &this.irImageByteArr[0])
+                        var dataSize = infraredbuffer.Size;
+
+                        for (int i = 0; i < dataSize; i++)
                         {
-                            IntPtr ptr = (IntPtr)frameData;
-
-                            infraredFrame.CopyFrameDataToIntPtr(ptr, (uint)dataSize);
-
-                            for(int i = 0; i < dataSize; i++)
-                            {
-                                var calc = (255 * Math.Min(
-                                        InfraredOutputValueMaximum,
-                                        (((float)frameData[i] / InfraredSourceValueMaximum * InfraredSourceScale) * (1.0f - InfraredOutputValueMinimum)) + InfraredOutputValueMinimum));
-                                calc = calc > 255 ? 255 : calc;
-                                frameData[i] = (byte)calc;
-                            }
-
-                            ConvertMessageToImage(this.irImageByteArr).Save(@"..\..\..\IMAGE.png");
+                            var calc = (255 * Math.Min(
+                                    InfraredOutputValueMaximum,
+                                    (((float)frameData[i] / InfraredSourceValueMaximum * InfraredSourceScale) * (1.0f - InfraredOutputValueMinimum)) + InfraredOutputValueMinimum));
+                            calc = calc > 255 ? 255 : calc;
+                            frameData[i] = (byte)calc;
                         }
+
+                        ConvertMessageToImage(this.irImageByteArr).Save(@"..\..\..\IMAGE.png");
                     }
 
                     //fire event
