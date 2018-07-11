@@ -262,25 +262,25 @@ namespace Network.TCP
                         }
                         var data = new byte[dataSize];
 
-                        var readBuffer = new byte[1024];
-                        using (var memoryStream = new MemoryStream())
-                        {
-                            do
-                            {
-                                int numberOfBytesRead = _NetworkStream.Read(readBuffer, 0, readBuffer.Length);
-                                memoryStream.Write(readBuffer, 0, numberOfBytesRead);
+                        //var readBuffer = new byte[1024];
+                        //using (var memoryStream = new MemoryStream())
+                        //{
+                        //    do
+                        //    {
+                        //        int numberOfBytesRead = _NetworkStream.Read(readBuffer, 0, readBuffer.Length);
+                        //        memoryStream.Write(readBuffer, 0, numberOfBytesRead);
+                        //
+                        //        if (!_NetworkStream.DataAvailable)
+                        //            System.Threading.Thread.Sleep(1);
+                        //    }
+                        //    while (_NetworkStream.DataAvailable);
+                        //
+                        //    data = memoryStream.ToArray();
+                        //}
 
-                                if (!_NetworkStream.DataAvailable)
-                                    System.Threading.Thread.Sleep(1);
-                            }
-                            while (_NetworkStream.DataAvailable);
-
-                            data = memoryStream.ToArray();
-                        }
-
-                        //if (_NetworkStream.Read(data, 0, dataSize) != dataSize) return null;
-                        var fullMessage = lHeader.Concat(dataLength.Concat(data)).ToArray();
-                        return fullMessage;
+                        if (_NetworkStream.Read(data, 0, dataSize) != dataSize) return null;
+                        //var fullMessage = lHeader.Concat(dataLength.Concat(data)).ToArray();
+                        return data;
                     }
                     catch (Exception ex)
                     {
