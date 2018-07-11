@@ -124,24 +124,21 @@ namespace NUC_Controller.Pages
             }
         }
 
-        private Image<Gray, ushort> ConvertMessageToImage(MessageIRFrame message)
+        private Image<Gray, byte> ConvertMessageToImage(MessageIRFrame message)
         {
             var data = message.info as byte[];
 
             var width = (int)imagesize.Width;
             var height = (int)imagesize.Height;
 
-            var image = new Image<Gray, ushort>(width, height);
+            var image = new Image<Gray, byte>(width, height);
             var imgData = image.Data;
-
-            ushort[] result = new ushort[data.Length /2];
-            Buffer.BlockCopy(data, 0, result, 0, result.Length);
-
+            
             for(int i = 0; i < height; i++)
             {
                 for (int j = 0; j < width; j++)
                 {
-                    imgData[i, j, 0] = result[i * width + j];
+                    imgData[i, j, 0] = data[i * width + j];
                 }
             }
 

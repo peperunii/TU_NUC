@@ -257,6 +257,8 @@ namespace Client.Cameras
                                 calc = calc > 255 ? 255 : calc;
                                 frameData[i] = (byte)calc;
                             }
+
+                            ConvertMessageToImage(this.irImageByteArr).Save(@"..\..\..\IMAGE.png");
                         }
                     }
 
@@ -270,6 +272,24 @@ namespace Client.Cameras
             }
         }
 
+        private Image<Gray, byte> ConvertMessageToImage(byte [] data)
+        {
+            var width = 512;
+            var height = 424;
+
+            var image = new Image<Gray, byte>(width, height);
+            var imgData = image.Data;
+
+            for (int i = 0; i < height; i++)
+            {
+                for (int j = 0; j < width; j++)
+                {
+                    imgData[i, j, 0] = data[i * width + j];
+                }
+            }
+
+            return image;
+        }
         private void BodyFrameReader_FrameArrived(object sender, BodyFrameArrivedEventArgs e)
         {
             using (BodyFrame bodyFrame = e.FrameReference.AcquireFrame())
