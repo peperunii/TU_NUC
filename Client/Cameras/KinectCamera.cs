@@ -12,6 +12,7 @@ using Emgu.CV;
 using Emgu.CV.Structure;
 using Emgu.CV.CvEnum;
 using Network.Logger;
+using Network.Messages;
 
 namespace Client.Cameras
 {
@@ -116,6 +117,18 @@ namespace Client.Cameras
         public void Stop()
         {
             this.kinectSensor.Close();
+        }
+
+        public List<Skeleton> GetConvertedBodyArr()
+        {
+            var listSkeletons = new List<Skeleton>();
+
+            foreach(var body in this.bodies)
+            {
+                listSkeletons.Add(new Skeleton(body));
+            }
+
+            return listSkeletons;
         }
 
         public void SetScaleFactor(CameraDataType type, double scale)

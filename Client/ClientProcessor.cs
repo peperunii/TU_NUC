@@ -131,7 +131,7 @@ namespace Client
                 Console.WriteLine("Sending Body frame");
                 if (camera.IsTrackedBodyFound())
                 {
-                    tcpClient.Send(new MessageSkeleton(Configuration.DeviceID, camera.bodies.ToList()));
+                    tcpClient.Send(new MessageSkeleton(Configuration.DeviceID, camera.GetConvertedBodyArr()));
                 }
             }
         }

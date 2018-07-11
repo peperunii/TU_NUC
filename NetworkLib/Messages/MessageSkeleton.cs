@@ -22,12 +22,12 @@ namespace Network.Messages
             this.info = new byte[] { };
         }
 
-        public MessageSkeleton(DeviceID deviceID, List<Body> bodies)
-        {
-            this.type = MessageType.Skeleton;
-            this.info = bodies;
-            this.deviceID = deviceID;
-        }
+        //public MessageSkeleton(DeviceID deviceID, List<Body> bodies)
+        //{
+        //    this.type = MessageType.Skeleton;
+        //    this.info = bodies;
+        //    this.deviceID = deviceID;
+        //}
 
         public MessageSkeleton(DeviceID deviceID, List<Skeleton> bodies)
         {
@@ -45,7 +45,7 @@ namespace Network.Messages
 
         public byte [] ConvertBodiesListToByteArr()
         {
-            var json = Encoding.ASCII.GetBytes(SerializationExtensions.Serialize(this.info as List<Body>));
+            var json = Encoding.ASCII.GetBytes(SerializationExtensions.Serialize(this.info as List<Skeleton>));
          
             return json;
         }
@@ -278,6 +278,16 @@ namespace Network.Messages
         public Skeleton()
         {
             this.Joints = new List<Joint>();
+        }
+
+        public Skeleton(Body kinectBody)
+        {
+            this.Joints = new List<Joint>();
+            this.IsTracked = kinectBody.IsTracked;
+            foreach(var joint in kinectBody.Joints)
+            {
+                this.AddJoint(joint.Value);
+            }
         }
 
         public void AddJoint(Joint joint)
