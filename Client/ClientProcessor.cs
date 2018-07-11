@@ -112,7 +112,6 @@ namespace Client
         {
             if (IsCameraStarted && IsIRFrameRequested)
             {
-                Console.WriteLine("Sending IR frame");
                 var irData = camera.GetData(CameraDataType.IR);
                 tcpClient.Send(
                     new MessageIRFrame(

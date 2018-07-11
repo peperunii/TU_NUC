@@ -104,9 +104,15 @@ namespace NUC_Controller.Pages
 
         private Image GetImageChildOfTab(DeviceID deviceID)
         {
-            var tab = (from t in this.tabDevicesList.Items.Cast<TabItem>()
-                       where (t.Header.ToString() == deviceID.ToString())
-                       select t).FirstOrDefault();
+            TabItem tab = null;
+            try
+            {
+                tab = (from t in this.tabDevicesList.Items.Cast<TabItem>()
+                           where (t.Header.ToString() == deviceID.ToString())
+                           select t).FirstOrDefault();
+            }
+            catch (Exception) { }
+
             if (tab != null)
             {
                 var datagrid = tab.Content as Grid;

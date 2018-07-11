@@ -36,7 +36,7 @@ namespace Client.Cameras
 
         public byte[] colorImageByteArr = null;
         public ushort[] depthImageUshortArr = null;
-        public ushort[] irImageUshortArr = null;
+        public byte[] irImageByteArr = null;
 
         /*IR settings*/
         private const float InfraredSourceScale = 0.75f;
@@ -241,9 +241,9 @@ namespace Client.Cameras
                     using (Microsoft.Kinect.KinectBuffer infraredbuffer = infraredFrame.LockImageBuffer())
                     {
                         var dataSize = this.irFrameDescription.Width * this.irFrameDescription.Height * 2;
-                        this.irImageUshortArr = new ushort[dataSize];
+                        this.irImageByteArr = new byte[dataSize];
 
-                        fixed (ushort* frameData = &this.irImageUshortArr[0])
+                        fixed (byte* frameData = &this.irImageByteArr[0])
                         {
                             IntPtr ptr = (IntPtr)frameData;
 
@@ -251,11 +251,13 @@ namespace Client.Cameras
 
                             for(int i = 0; i < dataSize; i++)
                             {
-                                frameData[i] = (ushort)(255 * Math.Min(InfraredOutputValueMaximum, (((float)frameData[i] / InfraredSourceValueMaximum * InfraredSourceScale) * (1.0f - InfraredOutputValueMinimum)) + InfraredOutputValueMinimum));
+                                var calc = (255 * Math.Min(
+                                        InfraredOutputValueMaximum,
+                                        (((float)frameData[i] / InfraredSourceValueMaximum * InfraredSourceScale) * (1.0f - InfraredOutputValueMinimum)) + InfraredOutputValueMinimum));
+                                calc = calc > 255 ? 255 : calc;
+                                frameData[i] = (byte)calc;
                             }
                         }
-
-                        Console.WriteLine("IR frame parsed");
                     }
 
                     //fire event
@@ -347,11 +349,12 @@ namespace Client.Cameras
 
         private unsafe byte[] GetIRImageByteArr()
         {
-            byte[] result = new byte[this.irImageUshortArr.Length * sizeof(ushort)];
-            Buffer.BlockCopy(this.irImageUshortArr, 0, result, 0, result.Length);
-
-            Console.WriteLine("IR frame converted");
-            return result;
+            return this.irImageByteArr;
+            //byte[] result = new byte[this.irImageByteArr.Length * sizeof(ushort)];
+            //Buffer.BlockCopy(this.irImageByteArr, 0, result, 0, result.Length);
+            //
+            //Console.WriteLine("IR frame converted");
+            //return result;
         }
 
         private byte [] Serialize(object objToSerialize, CameraDataType type)

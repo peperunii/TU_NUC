@@ -51,15 +51,12 @@ namespace Network.Messages
 
         public override byte[] Serialize()
         {
-            Console.WriteLine("IR frame serialize = step 1");
             var bytes = this.GetBytesForNumberShort((ushort)this.type);
-            Console.WriteLine("IR frame serialize = step 2");
             var bytesInfo = this.GetBytesOfInfo();
-            Console.WriteLine("IR frame serialize = step 3");
             var lenghtInfoBytes = this.GetBytesForNumberInt(bytesInfo.Length);
 
             var result = bytes.Concat(lenghtInfoBytes.Concat(bytesInfo)).ToArray();
-            Console.WriteLine("IR frame serialized");
+
             return result;
         }
 
