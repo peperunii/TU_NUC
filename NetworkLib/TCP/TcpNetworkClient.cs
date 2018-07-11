@@ -167,11 +167,8 @@ namespace Network.TCP
                         Thread.Sleep(1);
                         continue;
                     }
-
-                    Console.WriteLine("Sending " + lObject.type + " ....");
-                    LogManager.LogMessage(LogType.Info, LogLevel.Communication, "Sending... ");
-                    var messageData = lObject.Serialize();
-                    LogManager.LogMessage(LogType.Info, LogLevel.Communication, "Sending: " + messageData.Length + " bytes");
+                    
+                    var messageData = lObject.Serialize().Concat(this.endOfMessageByteSequence).ToArray();
                     _NetworkStream.Write(messageData, 0, messageData.Length);
                     Thread.Sleep(1);
                 }

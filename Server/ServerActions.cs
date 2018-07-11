@@ -66,6 +66,7 @@ namespace Server
 
         private static void Server_OnMessage(object xSender, Message message)
         {
+            var bytesEnding = TcpNetworkListener.endOfMessageByteSequence;
             try
             {
                 if (message != null)
@@ -83,7 +84,7 @@ namespace Server
                             break;
 
                         case MessageType.TimeSyncRequest:
-                            var messageTimeInfo = new MessageTimeInfo().Serialize();
+                            var messageTimeInfo = new MessageTimeInfo().Serialize().Concat(bytesEnding).ToArray();
                             tcpStream.Write(messageTimeInfo, 0, messageTimeInfo.Length);
                             break;
 
@@ -158,7 +159,7 @@ namespace Server
                         case MessageType.GetConnectedClients:
                             LogManager.LogMessage(LogType.Info, LogLevel.Everything, "Sending Clients info to UI Controller");
                             LogManager.LogMessage(LogType.Info, LogLevel.Communication, "Number of connected Devices: " + Devices.Count);
-                            var messageClients = new MessageConnectedClients(ServerActions.Devices).Serialize();
+                            var messageClients = new MessageConnectedClients(ServerActions.Devices).Serialize().Concat(bytesEnding).ToArray();
                             tcpStream.Write(messageClients, 0, messageClients.Length);
                             break;
 
@@ -172,12 +173,12 @@ namespace Server
 
                                 if (deviceID_GetConfig == DeviceID.TU_SERVER)
                                 {
-                                    var getConfMessage = new MessageSetConfigurationPerClient(DeviceID.TU_SERVER, Configuration.GetConfigurationFile()).Serialize();
+                                    var getConfMessage = new MessageSetConfigurationPerClient(DeviceID.TU_SERVER, Configuration.GetConfigurationFile()).Serialize().Concat(bytesEnding).ToArray();
                                     tcpStream.Write(getConfMessage, 0, getConfMessage.Length);
                                 }
                                 else
                                 {
-                                    var getConfMessage = new MessageGetConfigurationPerClient(deviceID_GetConfig).Serialize();
+                                    var getConfMessage = new MessageGetConfigurationPerClient(deviceID_GetConfig).Serialize().Concat(bytesEnding).ToArray();
                                     tcpStream.Write(getConfMessage, 0, getConfMessage.Length);
                                 }
                             }

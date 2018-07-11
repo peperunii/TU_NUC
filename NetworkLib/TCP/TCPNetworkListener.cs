@@ -17,7 +17,7 @@ namespace NetworkLib.TCP
     {
         private static List<MessageType> messagesWithHeaderOnly = null;
 
-        private byte[] endOfMessageByteSequence;
+        public static byte[] endOfMessageByteSequence;
         private bool _ExitLoop = true;
         private TcpListener _Listener;
         private int MAX_MESSAGE_SIZE = (1920 * 1080 * 4) + 1500;
@@ -314,12 +314,12 @@ namespace NetworkLib.TCP
             var indexEnd = 0;
             while(indexEnd < fullMessage.Length)
             {
-                var indexOfSeparator = SearchBytes(fullMessage, this.endOfMessageByteSequence);
+                var indexOfSeparator = SearchBytes(fullMessage, endOfMessageByteSequence);
                 
                 if (indexOfSeparator == -1) break;
 
                 listArrays.Add(fullMessage.SubArray(indexEnd, indexOfSeparator));
-                indexEnd += (indexOfSeparator + this.endOfMessageByteSequence.Length);
+                indexEnd += (indexOfSeparator + endOfMessageByteSequence.Length);
             }
 
             return listArrays;
