@@ -81,7 +81,9 @@ namespace Network.Messages
         public List<Skeleton> ConvertByteArrToBodyList(byte [] byteArr)
         {
             var listBodies = new List<Skeleton>();
-            var jObj = JObject.Parse(Encoding.ASCII.GetString(byteArr))["Bodies"];
+            var decodedText = Encoding.ASCII.GetString(byteArr);
+            Console.WriteLine(decodedText);
+            var jObj = JObject.Parse(decodedText)["Bodies"];
 
             var children = jObj.Children();
 
