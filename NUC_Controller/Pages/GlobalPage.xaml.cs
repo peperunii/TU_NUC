@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -349,6 +350,8 @@ namespace NUC_Controller.Pages
 
         private void buttonRefresDevices_Click(object sender, RoutedEventArgs e)
         {
+            NetworkWorker.Worker.SendMessage(new MessageGetConnectedClients());
+            Thread.Sleep(1);
             this.Page_Loaded(null, null);
         }
     }

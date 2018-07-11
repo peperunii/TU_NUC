@@ -47,6 +47,8 @@ namespace Network.TimeSync
             st.Minute = (ushort)dateTime.Minute;
             st.Second = (ushort)dateTime.Second;
             Win32SetSystemTime(ref st);
+
+            Console.WriteLine("Time sync: " + dateTime);
         }
     }
 }

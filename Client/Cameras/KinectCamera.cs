@@ -275,8 +275,7 @@ namespace Client.Cameras
                      calc = calc > 255 ? 255 : calc;
                     this.irImageByteArr[i] = (byte)calc;
                 }
-
-                Console.WriteLine(string.Format("{0}, {1}", min, max));
+                
             }
             catch (Exception ex) { Console.WriteLine(ex); }
         }
