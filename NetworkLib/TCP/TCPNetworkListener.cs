@@ -17,6 +17,7 @@ namespace NetworkLib.TCP
     {
         private static List<MessageType> messagesWithHeaderOnly = null;
 
+        private byte[] endOfMessageByteSequence;
         private bool _ExitLoop = true;
         private TcpListener _Listener;
         private int MAX_MESSAGE_SIZE = (1920 * 1080 * 4) + 1500;
@@ -37,6 +38,8 @@ namespace NetworkLib.TCP
 
         public TcpNetworkListener(string xIpAddress, int xPort, string xThreadName)
         {
+            endOfMessageByteSequence = Encoding.ASCII.GetBytes("EndOfMessage");
+
             Port = xPort;
             IpAddress = xIpAddress;
             ThreadName = xThreadName;
@@ -198,16 +201,20 @@ namespace NetworkLib.TCP
                 try
                 {
                     Console.WriteLine("Received Message..");
-                    var msg = MessageParser.GetMessageFromBytArr(GetBytArrFromNetworkStream(lNetworkStream));
-                    Console.WriteLine("Parsed Message.." + msg.type);
-                    if (msg != null)
+                    var listArrays = GetBytArrFromNetworkStream(lNetworkStream);
+                    foreach(var byteArr in listArrays)
                     {
-                        //fire event
-                        dOnMessage lEvent = OnMessage;
-                        if (lEvent == null) continue;
-                        lEvent(lClient, msg);
+                        var msg = MessageParser.GetMessageFromBytArr(byteArr);
+                        Console.WriteLine("Parsed Message.." + msg.type);
+                        if (msg != null)
+                        {
+                            //fire event
+                            dOnMessage lEvent = OnMessage;
+                            if (lEvent == null) continue;
+                            lEvent(lClient, msg);
+                        }
+                        Thread.Sleep(1);
                     }
-                    Thread.Sleep(1);
                 }
                 catch (System.IO.IOException ex)
                 {
@@ -231,7 +238,7 @@ namespace NetworkLib.TCP
             //this.Connect();
         }
         
-        private byte[] GetBytArrFromNetworkStream(NetworkStream _NetworkStream)
+        private List<byte[]> GetBytArrFromNetworkStream(NetworkStream _NetworkStream)
         {
             try
             {
@@ -239,18 +246,18 @@ namespace NetworkLib.TCP
                 
                 if (_NetworkStream.Read(lHeader, 0, 2) != 2)
                 {
-                    return null;
+                    return new List<byte[]>();
                 }
 
                 var messageType = (MessageType)BitConverter.ToInt16(lHeader, 0);
 
                 if ((ushort)messageType > Enum.GetValues(typeof(MessageType)).Length)
                 {
-                    return null;
+                    return new List<byte[]>();
                 }
                 if (messagesWithHeaderOnly.Contains(messageType))
                 {
-                    return lHeader;
+                    return new List<byte []>() { lHeader };
                 }
                 else
                 {
@@ -263,40 +270,75 @@ namespace NetworkLib.TCP
                         var dataSize = BitConverter.ToInt32(dataLength, 0);
                         if (dataSize < 0)
                         {
-                            return null;
+                            return new List<byte[]>();
                         }
                         var data = new byte[dataSize];
 
-                        //var readBuffer = new byte[1024];
-                        //using (var memoryStream = new MemoryStream())
-                        //{
-                        //    do
-                        //    {
-                        //        int numberOfBytesRead = _NetworkStream.Read(readBuffer, 0, readBuffer.Length);
-                        //        memoryStream.Write(readBuffer, 0, numberOfBytesRead);
-                        //
-                        //        if (!_NetworkStream.DataAvailable)
-                        //            System.Threading.Thread.Sleep(1);
-                        //    }
-                        //    while (_NetworkStream.DataAvailable);
-                        //
-                        //    data = memoryStream.ToArray();
-                        //}
+                        var readBuffer = new byte[1024];
+                        using (var memoryStream = new MemoryStream())
+                        {
+                            do
+                            {
+                                int numberOfBytesRead = _NetworkStream.Read(readBuffer, 0, readBuffer.Length);
+                                memoryStream.Write(readBuffer, 0, numberOfBytesRead);
 
-                        if (_NetworkStream.Read(data, 0, dataSize) != dataSize) return null;
+                                if (!_NetworkStream.DataAvailable)
+                                    System.Threading.Thread.Sleep(1);
+                            }
+                            while (_NetworkStream.DataAvailable);
+
+                            data = memoryStream.ToArray();
+                        }
+
+                        //if (_NetworkStream.Read(data, 0, dataSize) != dataSize) return null;
                         var fullMessage = lHeader.Concat(dataLength.Concat(data)).ToArray();
-                        return data;
+                        
+                        return this.GetListOfArraysUsingSeparator(fullMessage);
                     }
                     catch (Exception ex)
                     {
-                        return null;
+                        return new List<byte[]>();
                     }
                 }
             }
             catch(Exception ex)
             {
-                return null;
+                return new List<byte[]>();
             }
+        }
+
+        private List<byte[]> GetListOfArraysUsingSeparator(byte[] fullMessage)
+        {
+            var listArrays = new List<byte[]>();
+
+            var indexEnd = 0;
+            while(indexEnd < fullMessage.Length)
+            {
+                var indexOfSeparator = SearchBytes(fullMessage, this.endOfMessageByteSequence);
+                
+                if (indexOfSeparator == -1) break;
+
+                listArrays.Add(fullMessage.SubArray(indexEnd, indexOfSeparator));
+                indexEnd += (indexOfSeparator + this.endOfMessageByteSequence.Length);
+            }
+
+            return listArrays;
+        }
+
+        private int SearchBytes(byte[] array, byte[] subArr)
+        {
+            var len = subArr.Length;
+            var limit = array.Length - len;
+            for (var i = 0; i <= limit; i++)
+            {
+                var k = 0;
+                for (; k < len; k++)
+                {
+                    if (subArr[k] != array[i + k]) break;
+                }
+                if (k == len) return i;
+            }
+            return -1;
         }
 
         public void Send(TcpClient xClient, Message msg)
@@ -309,7 +351,7 @@ namespace NetworkLib.TCP
                 try
                 {
                     NetworkStream lNetworkStream = xClient.GetStream();
-                    var msgData = msg.Serialize();
+                    var msgData = msg.Serialize().Concat(endOfMessageByteSequence).ToArray();
                     lNetworkStream.Write(msgData, 0, msgData.Length);
                     Thread.Sleep(1);
                 }
