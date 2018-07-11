@@ -47,11 +47,18 @@ namespace NUC_Controller.Pages
 
             Application.Current.Dispatcher.Invoke(new Action(() =>
             {
-                var image = this.GetImageChildOfTab(deviceID);
-                if (image != null)
+                try
                 {
-                    image.Source = this.ToBitmapSource(this.ConvertMessageToImage(irMessage));
+                    if ((this.tabDevicesList.SelectedItem as TabItem).Header.ToString() == deviceID.ToString())
+                    {
+                        var image = this.GetImageChildOfTab(deviceID);
+                        if (image != null)
+                        {
+                            image.Source = this.ToBitmapSource(this.ConvertMessageToImage(irMessage));
+                        }
+                    }
                 }
+                catch (Exception) { }
             }));
         }
 
