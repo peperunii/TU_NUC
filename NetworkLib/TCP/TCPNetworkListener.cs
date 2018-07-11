@@ -197,8 +197,9 @@ namespace NetworkLib.TCP
             {
                 try
                 {
+                    Console.WriteLine("Received Message..");
                     var msg = MessageParser.GetMessageFromBytArr(GetBytArrFromNetworkStream(lNetworkStream));
-
+                    Console.WriteLine("Parsed Message.." + msg.type);
                     if (msg != null)
                     {
                         //fire event

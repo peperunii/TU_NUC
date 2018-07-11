@@ -289,6 +289,7 @@ namespace Server
 
                         case MessageType.Skeleton:
                             /*Resend Skeleton*/
+                            Console.WriteLine("Sending Skeleton Message..");
                             SendToController(message);
                             break;
 
