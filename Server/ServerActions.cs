@@ -283,6 +283,7 @@ namespace Server
                             break;
 
                         case MessageType.IRFrame:
+                            Console.WriteLine((message as MessageIRFrame).Timestamp + ": Resending IR frame of size: " + (message.info as byte[]).Length);
                             SendToController(message);
                             break;
 

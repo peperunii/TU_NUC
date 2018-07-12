@@ -111,14 +111,15 @@ namespace Client
             if (IsCameraStarted && IsIRFrameRequested)
             {
                 var irData = camera.GetData(CameraDataType.IR);
-                tcpClient.Send(
-                    new MessageIRFrame(
-                        Configuration.DeviceID, 
-                        camera.irFrameDescription.Height, 
-                        camera.irFrameDescription.Width, 
-                        1, 
-                        false, 
-                        irData as byte []));
+                var message = new MessageIRFrame(
+                        Configuration.DeviceID,
+                        camera.irFrameDescription.Height,
+                        camera.irFrameDescription.Width,
+                        1,
+                        false,
+                        irData as byte[]);
+                tcpClient.Send(message);
+                Console.WriteLine(message.Timestamp + ": Sending IR frame of size: " + (irData as byte[]).Length);
             }
         }
 
