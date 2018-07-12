@@ -62,6 +62,19 @@ namespace Server
             }
         }
 
+        private static Dictionary<DeviceID, List<DateTime>> deviceFps = new Dictionary<DeviceID, List<DateTime>>();
+        private static void FPSCalculator(MessageIRFrame message)
+        {
+            var deviceId = message.deviceID;
+            if(!deviceFps.ContainsKey(deviceId))
+            {
+                deviceFps.Add(deviceId, new List<DateTime>());
+            }
+            deviceFps[deviceId].Add(DateTime.Now);
+            var fps = (deviceFps[deviceId][deviceFps[deviceId].Count - 1] - deviceFps[deviceId][0]).TotalSeconds / deviceFps[deviceId].Count;
+            Console.WriteLine("FPS_" + deviceId + ": " + fps);
+        }
+
         private static void Server_OnMessage(object xSender, Message message)
         {
             var bytesEnding = TcpNetworkListener.endOfMessageByteSequence;
@@ -283,6 +296,7 @@ namespace Server
                             break;
 
                         case MessageType.IRFrame:
+                            FPSCalculator(message as MessageIRFrame);
                             //Console.WriteLine(
                             //    (message as MessageIRFrame).deviceID +
                             //    ": " +
