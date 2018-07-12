@@ -228,7 +228,7 @@ namespace Network.TCP
             }
         }
 
-        private List<byte[]> GetBytArrFromNetworkStream()
+        private IEnumerable<byte[]> GetBytArrFromNetworkStream()
         {
             try
             {
@@ -297,10 +297,8 @@ namespace Network.TCP
             }
         }
 
-        private List<byte[]> GetListOfArraysUsingSeparator(byte[] fullMessage)
+        private IEnumerable<byte[]> GetListOfArraysUsingSeparator(byte[] fullMessage)
         {
-            var listArrays = new List<byte[]>();
-
             var indexEnd = 0;
             while (indexEnd < fullMessage.Length)
             {
@@ -308,11 +306,9 @@ namespace Network.TCP
 
                 if (indexOfSeparator == -1) break;
 
-                listArrays.Add(fullMessage.SubArray(indexEnd, indexOfSeparator));
+                yield return fullMessage.SubArray(indexEnd, indexOfSeparator);
                 indexEnd += (indexOfSeparator + this.endOfMessageByteSequence.Length);
             }
-
-            return listArrays;
         }
 
         private int SearchBytes(byte[] array, byte[] subArr)
