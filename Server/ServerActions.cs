@@ -71,8 +71,12 @@ namespace Server
                 deviceFps.Add(deviceId, new List<DateTime>());
             }
             deviceFps[deviceId].Add(DateTime.Now);
-            var fps = (deviceFps[deviceId][deviceFps[deviceId].Count - 1] - deviceFps[deviceId][0]).TotalSeconds / deviceFps[deviceId].Count;
-            Console.WriteLine("FPS_" + deviceId + ": " + fps);
+            var seconds = (deviceFps[deviceId][deviceFps[deviceId].Count - 1] - deviceFps[deviceId][0]).TotalSeconds;
+            if (seconds > 0)
+            {
+                var fps = deviceFps[deviceId].Count / seconds;
+                Console.WriteLine("FPS_" + deviceId + ": " + fps);
+            }
         }
 
         private static void Server_OnMessage(object xSender, Message message)
