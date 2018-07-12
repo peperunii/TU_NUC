@@ -1,16 +1,13 @@
-﻿using Network.Messages;
+﻿using Network.Logger;
+using Network.Messages;
+using Network.Utils;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
+using System.IO;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using Network.Logger;
-using System.Reflection;
-using System.IO;
-using Network.Utils;
 
 namespace Network.TCP
 {

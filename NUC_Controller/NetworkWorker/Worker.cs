@@ -1,6 +1,4 @@
-﻿using DB_Initialization;
-using Microsoft.Kinect;
-using Network;
+﻿using Network;
 using Network.Devices;
 using Network.Discovery;
 using Network.Logger;
@@ -8,14 +6,9 @@ using Network.Messages;
 using Network.TCP;
 using Network.TimeSync;
 using NetworkLib.Events;
-using NUC_Controller.Notifications;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace NUC_Controller.NetworkWorker

@@ -3,16 +3,13 @@ using Network.Devices;
 using Network.Discovery;
 using Network.Logger;
 using Network.Messages;
-using NetworkLib.TCP;
 using Network.Utils;
+using NetworkLib.TCP;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Server
 {

@@ -1,18 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Kinect;
-using System.Windows.Media.Imaging;
-using System.Windows.Media;
-using System.Windows;
-using System.IO;
-using Emgu.CV;
+﻿using Emgu.CV;
 using Emgu.CV.Structure;
-using Emgu.CV.CvEnum;
-using Network.Logger;
+using Microsoft.Kinect;
 using Network.Messages;
+using System;
+using System.Collections.Generic;
 
 namespace Client.Cameras
 {

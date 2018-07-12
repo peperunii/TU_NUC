@@ -1,11 +1,7 @@
-﻿using Microsoft.Kinect;
-using Network;
+﻿using Network;
 using Network.Messages;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NetworkLib.Events
 {
