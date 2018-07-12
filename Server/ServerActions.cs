@@ -77,6 +77,7 @@ namespace Server
                 {
                     var fps = deviceFps[deviceId].Count - i;
                     Console.WriteLine("FPS_" + deviceId + ": " + fps);
+                    break;
                 }
             }
         }
