@@ -275,8 +275,8 @@ namespace NetworkLib.TCP
                         {
                             do
                             {
-                                int numberOfBytesRead = _NetworkStream.Read(readBuffer, 0, readBuffer.Length);
-                                memoryStream.Write(readBuffer, 0, numberOfBytesRead);
+                                var numberOfBytesRead = _NetworkStream.ReadAsync(readBuffer, 0, readBuffer.Length);
+                                memoryStream.Write(readBuffer, 0, numberOfBytesRead.Result);
 
                                 if (!_NetworkStream.DataAvailable)
                                     System.Threading.Thread.Sleep(1);
@@ -348,7 +348,7 @@ namespace NetworkLib.TCP
                 {
                     NetworkStream lNetworkStream = xClient.GetStream();
                     var msgData = msg.Serialize().ConcatenatingArrays(endOfMessageByteSequence);
-                    lNetworkStream.Write(msgData, 0, msgData.Length);
+                    lNetworkStream.WriteAsync(msgData, 0, msgData.Length);
                     Thread.Sleep(1);
                 }
                 catch (Exception ex) { LogManager.LogMessage(LogType.Error, LogLevel.Errors, ex.ToString()); }

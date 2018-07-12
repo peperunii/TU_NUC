@@ -119,7 +119,7 @@ namespace Client
                         false,
                         irData as byte[]);
                 tcpClient.Send(message);
-                Console.WriteLine(message.Timestamp + ": Sending IR frame of size: " + (irData as byte[]).Length);
+                //Console.WriteLine(message.Timestamp + ": Sending IR frame of size: " + (irData as byte[]).Length);
             }
         }
 

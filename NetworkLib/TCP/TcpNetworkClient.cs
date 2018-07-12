@@ -167,7 +167,7 @@ namespace Network.TCP
                     }
                     
                     var messageData = lObject.Serialize().ConcatenatingArrays(this.endOfMessageByteSequence);
-                    _NetworkStream.Write(messageData, 0, messageData.Length);
+                    _NetworkStream.WriteAsync(messageData, 0, messageData.Length);
                     Thread.Sleep(1);
                 }
                 catch (System.IO.IOException ex)
@@ -269,8 +269,8 @@ namespace Network.TCP
                         {
                             do
                             {
-                                int numberOfBytesRead = _NetworkStream.Read(readBuffer, 0, readBuffer.Length);
-                                memoryStream.Write(readBuffer, 0, numberOfBytesRead);
+                                var numberOfBytesRead = _NetworkStream.ReadAsync(readBuffer, 0, readBuffer.Length);
+                                memoryStream.Write(readBuffer, 0, numberOfBytesRead.Result);
 
                                 if (!_NetworkStream.DataAvailable)
                                     System.Threading.Thread.Sleep(1);

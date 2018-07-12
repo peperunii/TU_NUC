@@ -83,7 +83,7 @@ namespace Server
 
                         case MessageType.TimeSyncRequest:
                             var messageTimeInfo = (new MessageTimeInfo().Serialize()).ConcatenatingArrays(bytesEnding);
-                            tcpStream.Write(messageTimeInfo, 0, messageTimeInfo.Length);
+                            tcpStream.WriteAsync(messageTimeInfo, 0, messageTimeInfo.Length);
                             break;
 
 
@@ -158,7 +158,7 @@ namespace Server
                             LogManager.LogMessage(LogType.Info, LogLevel.Everything, "Sending Clients info to UI Controller");
                             LogManager.LogMessage(LogType.Info, LogLevel.Communication, "Number of connected Devices: " + Devices.Count);
                             var messageClients = (new MessageConnectedClients(ServerActions.Devices).Serialize()).ConcatenatingArrays(bytesEnding);
-                            tcpStream.Write(messageClients, 0, messageClients.Length);
+                            tcpStream.WriteAsync(messageClients, 0, messageClients.Length);
                             break;
 
 
@@ -172,7 +172,7 @@ namespace Server
                                 if (deviceID_GetConfig == DeviceID.TU_SERVER)
                                 {
                                     var getConfMessage = ArrayUtils.ConcatenatingArrays(new MessageSetConfigurationPerClient(DeviceID.TU_SERVER, Configuration.GetConfigurationFile()).Serialize(), bytesEnding);
-                                    tcpStream.Write(getConfMessage, 0, getConfMessage.Length);
+                                    tcpStream.WriteAsync(getConfMessage, 0, getConfMessage.Length);
                                 }
                                 else
                                 {
@@ -283,12 +283,10 @@ namespace Server
                             break;
 
                         case MessageType.IRFrame:
-                            Console.WriteLine(
-                                (message as MessageIRFrame).deviceID + 
-                                ": " +
-                                DateTime.FromFileTimeUtc((message as MessageIRFrame).Timestamp).ToLongTimeString() + 
-                                ": Resending IR frame of size: " + 
-                                (message.info as byte[]).Length);
+                            //Console.WriteLine(
+                            //    (message as MessageIRFrame).deviceID +
+                            //    ": " +
+                            //    DateTime.FromFileTimeUtc((message as MessageIRFrame).Timestamp).ToString();
                             SendToController(message);
                             break;
 
