@@ -71,11 +71,13 @@ namespace Server
                 deviceFps.Add(deviceId, new List<DateTime>());
             }
             deviceFps[deviceId].Add(DateTime.Now);
-            var seconds = (deviceFps[deviceId][deviceFps[deviceId].Count - 1] - deviceFps[deviceId][0]).TotalSeconds;
-            if (seconds > 0)
+            for (int i = deviceFps[deviceId].Count - 1; i >= 0; i--)
             {
-                var fps = deviceFps[deviceId].Count / seconds;
-                Console.WriteLine("FPS_" + deviceId + ": " + fps);
+                if((deviceFps[deviceId][(deviceFps[deviceId].Count - 1)] - deviceFps[deviceId][i]).TotalSeconds > 1)
+                {
+                    var fps = deviceFps[deviceId].Count - i;
+                    Console.WriteLine("FPS_" + deviceId + ": " + fps);
+                }
             }
         }
 
