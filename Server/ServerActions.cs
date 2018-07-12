@@ -283,7 +283,12 @@ namespace Server
                             break;
 
                         case MessageType.IRFrame:
-                            Console.WriteLine((message as MessageIRFrame).Timestamp + ": Resending IR frame of size: " + (message.info as byte[]).Length);
+                            Console.WriteLine(
+                                (message as MessageIRFrame).deviceID + 
+                                ": " +
+                                DateTime.FromFileTimeUtc((message as MessageIRFrame).Timestamp).ToLongTimeString() + 
+                                ": Resending IR frame of size: " + 
+                                (message.info as byte[]).Length);
                             SendToController(message);
                             break;
 
