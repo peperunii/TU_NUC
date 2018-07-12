@@ -1,6 +1,7 @@
 ﻿using Network.Logger;
 using Network.Messages;
 using Network.TCP;
+using Network.Utils;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -289,7 +290,7 @@ namespace NetworkLib.TCP
                         }
 
                         //if (_NetworkStream.Read(data, 0, dataSize) != dataSize) return null;
-                        var fullMessage = lHeader.Concat(dataLength.Concat(data)).ToArray();
+                        var fullMessage = lHeader.ConcatenatingArrays(dataLength.ConcatenatingArrays(data));
                         
                         return this.GetListOfArraysUsingSeparator(fullMessage);
                     }
@@ -349,7 +350,7 @@ namespace NetworkLib.TCP
                 try
                 {
                     NetworkStream lNetworkStream = xClient.GetStream();
-                    var msgData = msg.Serialize().Concat(endOfMessageByteSequence).ToArray();
+                    var msgData = msg.Serialize().ConcatenatingArrays(endOfMessageByteSequence);
                     lNetworkStream.Write(msgData, 0, msgData.Length);
                     Thread.Sleep(1);
                 }

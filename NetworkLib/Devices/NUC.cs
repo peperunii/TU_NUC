@@ -1,4 +1,5 @@
 ﻿using Network;
+using Network.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -71,7 +72,7 @@ namespace Network.Devices
             var lengthIP_byteArr = BitConverter.GetBytes((UInt16)lengthIP);
             var length_byteArr = BitConverter.GetBytes((uint)(deviceID_byteArr.Length + lengthIP_byteArr.Length + ip_byteArr.Length));
             
-            return length_byteArr.Concat(deviceID_byteArr.Concat(lengthIP_byteArr.Concat(ip_byteArr))).ToArray(); 
+            return length_byteArr.ConcatenatingArrays(deviceID_byteArr.ConcatenatingArrays(lengthIP_byteArr.ConcatenatingArrays(ip_byteArr))); 
         }
 
         public void SetConfiguration(string config)

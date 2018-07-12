@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Network.Utils;
 
 namespace Network.Messages
 {
@@ -65,17 +66,17 @@ namespace Network.Messages
             var bytes = this.GetBytesForNumberShort((ushort)this.type);
             var lenghtInfoBytes = this.GetBytesForNumberInt((int)(this.info as byte []).Length);
 
-            return bytes.Concat(lenghtInfoBytes.Concat(this.info as byte [])).ToArray();
+            return bytes.ConcatenatingArrays(lenghtInfoBytes.ConcatenatingArrays(this.info as byte []));
         }
 
         private byte[] GetBytesOfInfo()
         {
             var array = this.GetBytesForNumberShort((ushort)this.deviceID);
-            array = array.Concat(BitConverter.GetBytes(this.isCameraStarted)).ToArray();
-            array = array.Concat(BitConverter.GetBytes(this.isColorStreamEnabled)).ToArray();
-            array = array.Concat(BitConverter.GetBytes(this.isDepthStreamEnabled)).ToArray();
-            array = array.Concat(BitConverter.GetBytes(this.isIRStreamEnabled)).ToArray();
-            array = array.Concat(BitConverter.GetBytes(this.isBodyStreamEnabled)).ToArray();
+            array = array.ConcatenatingArrays(BitConverter.GetBytes(this.isCameraStarted));
+            array = array.ConcatenatingArrays(BitConverter.GetBytes(this.isColorStreamEnabled));
+            array = array.ConcatenatingArrays(BitConverter.GetBytes(this.isDepthStreamEnabled));
+            array = array.ConcatenatingArrays(BitConverter.GetBytes(this.isIRStreamEnabled));
+            array = array.ConcatenatingArrays(BitConverter.GetBytes(this.isBodyStreamEnabled));
 
             return array;
         }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Network.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -135,21 +136,6 @@ namespace Network.Messages
             {
                 return null;
             }
-        }
-
-        public static T[] SubArray<T>(this T[] data, int index)
-        {
-            var length = data.Length - index;
-            T[] result = new T[length];
-            Array.Copy(data, index, result, 0, length);
-            return result;
-        }
-
-        public static T[] SubArray<T>(this T[] data, int index, int length)
-        {
-            T[] result = new T[length];
-            Array.Copy(data, index, result, 0, length);
-            return result;
         }
     }
 }

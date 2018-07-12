@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Network.Logger;
 using System.Reflection;
 using System.IO;
+using Network.Utils;
 
 namespace Network.TCP
 {
@@ -168,7 +169,7 @@ namespace Network.TCP
                         continue;
                     }
                     
-                    var messageData = lObject.Serialize().Concat(this.endOfMessageByteSequence).ToArray();
+                    var messageData = lObject.Serialize().ConcatenatingArrays(this.endOfMessageByteSequence);
                     _NetworkStream.Write(messageData, 0, messageData.Length);
                     Thread.Sleep(1);
                 }
@@ -283,7 +284,7 @@ namespace Network.TCP
                         }
 
                         //if (_NetworkStream.Read(data, 0, dataSize) != dataSize) return null;
-                        var fullMessage = lHeader.Concat(dataLength.Concat(data)).ToArray();
+                        var fullMessage = lHeader.ConcatenatingArrays(dataLength.ConcatenatingArrays(data));
 
                         return this.GetListOfArraysUsingSeparator(fullMessage);
                     }

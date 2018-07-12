@@ -1,4 +1,5 @@
 ﻿using Microsoft.Kinect;
+using Network.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -123,10 +124,10 @@ namespace Network.Messages
         {
             var bytes = this.GetBytesForNumberShort((ushort)this.type);
             var bytesDeviceID = BitConverter.GetBytes((ushort)this.deviceID);
-            var bytesInfo = bytesDeviceID.Concat(this.ConvertBodiesListToByteArr()).ToArray();
+            var bytesInfo = bytesDeviceID.ConcatenatingArrays(this.ConvertBodiesListToByteArr());
             var lenghtInfoBytes = this.GetBytesForNumberInt(bytesInfo.Length);
 
-            var result = bytes.Concat(lenghtInfoBytes.Concat(bytesInfo)).ToArray();
+            var result = bytes.ConcatenatingArrays(lenghtInfoBytes.ConcatenatingArrays(bytesInfo));
 
             return result;
         }
@@ -152,6 +153,8 @@ namespace Network.Messages
                                           where t.IsTracked == true
                                           select t).ToList();
                 var currentBodyCount = 0;
+
+                Console.WriteLine("Sending " + filteredBodiesList.Count + " Skeletons");
                 foreach (Skeleton body in filteredBodiesList)
                 {
                     if (body.IsTracked == false) continue;

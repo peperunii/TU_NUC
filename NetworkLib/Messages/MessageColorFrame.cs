@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Network.Utils;
+using System;
 using System.Linq;
 
 namespace Network.Messages
@@ -52,7 +53,7 @@ namespace Network.Messages
             var bytesInfo = this.GetBytesOfInfo();
             var lenghtInfoBytes = this.GetBytesForNumberInt(bytesInfo.Length);
 
-            var result = bytes.Concat(lenghtInfoBytes.Concat(bytesInfo)).ToArray();
+            var result = bytes.ConcatenatingArrays(lenghtInfoBytes.ConcatenatingArrays(bytesInfo));
             
             return result;
         }

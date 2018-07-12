@@ -1,4 +1,5 @@
 ﻿using Network.Devices;
+using Network.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,7 +39,7 @@ namespace Network.Messages
             var infoBytes = this.GetByteArrFromInfo(this.info as List<NUC>);
             var lengthInfoBytes = BitConverter.GetBytes((UInt32)infoBytes.Length);
 
-            return this.GetBytesForNumberShort((ushort)this.type).Concat(lengthInfoBytes.Concat(infoBytes)).ToArray();
+            return this.GetBytesForNumberShort((ushort)this.type).ConcatenatingArrays(lengthInfoBytes.ConcatenatingArrays(infoBytes));
         }
 
         private List<NUC> GetDevicesFromByteArr(byte [] byteArr)
