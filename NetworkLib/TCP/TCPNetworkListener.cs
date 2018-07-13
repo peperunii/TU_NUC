@@ -18,7 +18,7 @@ namespace NetworkLib.TCP
         public static byte[] endOfMessageByteSequence;
         private bool _ExitLoop = true;
         private TcpListener _Listener;
-        private int BUFFER_SIZE = 655360;
+        private int BUFFER_SIZE = 134217728;
 
         public delegate void dOnMessage(object xSender, Message message);
         public event dOnMessage OnMessage;
@@ -279,7 +279,7 @@ namespace NetworkLib.TCP
                         }
                         var data = new byte[dataSize];
 
-                        var readBuffer = new byte[16536];
+                        var readBuffer = new byte[32768];
                         using (var memoryStream = new MemoryStream())
                         {
                             do

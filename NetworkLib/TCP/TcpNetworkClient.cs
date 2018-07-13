@@ -23,7 +23,7 @@ namespace Network.TCP
         private bool _ExitLoop = true;
         private byte[] endOfMessageByteSequence;
 
-        private int BUFFER_SIZE = 655360;
+        private int BUFFER_SIZE = 134217728;
 
         private BlockingCollection<Message> _Queue = new BlockingCollection<Message>();
         public delegate void dOnMessage(Message message);
@@ -278,7 +278,7 @@ namespace Network.TCP
                         }
                         var data = new byte[dataSize];
 
-                        var readBuffer = new byte[16536];
+                        var readBuffer = new byte[32768];
                         using (var memoryStream = new MemoryStream())
                         {
                             do
