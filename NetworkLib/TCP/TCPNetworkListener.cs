@@ -41,6 +41,7 @@ namespace NetworkLib.TCP
         public TcpNetworkListener(string xIpAddress, int xPort, string xThreadName)
         {
             endOfMessageByteSequence = Encoding.ASCII.GetBytes("EndOfMessage");
+            this.OnTCPMessageArrived += this.TcpNetworkClient_OnTCPMessageArrived;
 
             Port = xPort;
             IpAddress = xIpAddress;
@@ -176,8 +177,6 @@ namespace NetworkLib.TCP
                     lThread.IsBackground = true;
                     lThread.Name = ThreadName + "CommunicatingWithClient";
                     lThread.Start(lClient);
-
-                    this.OnTCPMessageArrived += this.TcpNetworkClient_OnTCPMessageArrived;
                 }
             }
             catch (Exception ex)

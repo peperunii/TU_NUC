@@ -38,6 +38,7 @@ namespace Network.TCP
         public TcpNetworkClient(string xIpAddress, int xPort, string xThreadName)
         {
             endOfMessageByteSequence = Encoding.ASCII.GetBytes("EndOfMessage");
+            this.OnTCPMessageArrived += this.TcpNetworkClient_OnTCPMessageArrived;
 
             Port = xPort;
             IpAddress = xIpAddress;
@@ -96,8 +97,6 @@ namespace Network.TCP
             lLoopRead.IsBackground = true;
             lLoopRead.Name = ThreadName + "Read";
             lLoopRead.Start();
-
-            this.OnTCPMessageArrived += this.TcpNetworkClient_OnTCPMessageArrived;
         }
 
         private void TcpNetworkClient_OnTCPMessageArrived(byte[] byteArr)
