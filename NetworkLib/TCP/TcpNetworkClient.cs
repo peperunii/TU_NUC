@@ -32,6 +32,9 @@ namespace Network.TCP
         public delegate void dOnServerDisconnected();
         public event dOnServerDisconnected OnServerDisconnected;
 
+        public delegate void dOnTCPMessageArived(byte [] byteArr);
+        public event dOnTCPMessageArived OnTCPMessageArrived;
+
         public TcpNetworkClient(string xIpAddress, int xPort, string xThreadName)
         {
             endOfMessageByteSequence = Encoding.ASCII.GetBytes("EndOfMessage");
@@ -93,6 +96,22 @@ namespace Network.TCP
             lLoopRead.IsBackground = true;
             lLoopRead.Name = ThreadName + "Read";
             lLoopRead.Start();
+
+            this.OnTCPMessageArrived += this.TcpNetworkClient_OnTCPMessageArrived;
+        }
+
+        private void TcpNetworkClient_OnTCPMessageArrived(byte[] byteArr)
+        {
+            try
+            {
+                var msg = MessageParser.GetMessageFromBytArr(byteArr);
+                //fire event
+                dOnMessage lEvent = OnMessage;
+                if (lEvent == null) return;
+                lEvent(msg);
+                Thread.Sleep(1);
+            }
+            catch(Exception) { }
         }
 
         public void Connect()
@@ -188,16 +207,7 @@ namespace Network.TCP
             {
                 try
                 {
-                    var listArrays = GetBytArrFromNetworkStream();
-                    foreach (var byteArr in listArrays)
-                    {
-                        var msg = MessageParser.GetMessageFromBytArr(byteArr);
-                        //fire event
-                        dOnMessage lEvent = OnMessage;
-                        if (lEvent == null) continue;
-                        lEvent(msg);
-                        Thread.Sleep(1);
-                    }
+                    GetBytArrFromNetworkStream();
                 }
                 catch (System.IO.IOException ex)
                 {
@@ -228,7 +238,7 @@ namespace Network.TCP
             }
         }
 
-        private IEnumerable<byte[]> GetBytArrFromNetworkStream()
+        private void GetBytArrFromNetworkStream()
         {
             try
             {
@@ -236,18 +246,23 @@ namespace Network.TCP
 
                 if (_NetworkStream.Read(lHeader, 0, 2) != 2)
                 {
-                    return new List<byte[]>();
+                    this.TriggerEmptyMessage();
                 }
 
                 var messageType = (MessageType)BitConverter.ToInt16(lHeader, 0);
 
                 if ((ushort)messageType > Enum.GetValues(typeof(MessageType)).Length)
                 {
-                    return new List<byte[]>();
+                    this.TriggerEmptyMessage();
                 }
                 if (messagesWithHeaderOnly.Contains(messageType))
                 {
-                    return new List<byte[]>() { lHeader };
+                    //fire event
+                    dOnTCPMessageArived lEvent = OnTCPMessageArrived;
+                    if (lEvent != null)
+                    {
+                        lEvent(lHeader);
+                    }
                 }
                 else
                 {
@@ -260,7 +275,7 @@ namespace Network.TCP
                         var dataSize = BitConverter.ToInt32(dataLength, 0);
                         if (dataSize < 0)
                         {
-                            return new List<byte[]>();
+                            this.TriggerEmptyMessage();
                         }
                         var data = new byte[dataSize];
 
@@ -279,25 +294,34 @@ namespace Network.TCP
 
                             data = memoryStream.ToArray();
                         }
-
-                        //if (_NetworkStream.Read(data, 0, dataSize) != dataSize) return null;
+                        
                         var fullMessage = lHeader.ConcatenatingArrays(dataLength.ConcatenatingArrays(data));
 
-                        return this.GetListOfArraysUsingSeparator(fullMessage);
+                        this.GetListOfArraysUsingSeparator(fullMessage);
                     }
                     catch (Exception ex)
                     {
-                        return new List<byte[]>();
+                        this.TriggerEmptyMessage();
                     }
                 }
             }
             catch (Exception ex)
             {
-                return new List<byte[]>();
+                this.TriggerEmptyMessage();
             }
         }
 
-        private IEnumerable<byte[]> GetListOfArraysUsingSeparator(byte[] fullMessage)
+        private void TriggerEmptyMessage()
+        {
+            //fire event
+            dOnTCPMessageArived lEvent = OnTCPMessageArrived;
+            if (lEvent != null)
+            {
+                lEvent(new byte[] { });
+            }
+        }
+
+        private void GetListOfArraysUsingSeparator(byte[] fullMessage)
         {
             var indexEnd = 0;
             while (indexEnd < fullMessage.Length)
@@ -305,8 +329,14 @@ namespace Network.TCP
                 var indexOfSeparator = SearchBytes(fullMessage, this.endOfMessageByteSequence);
 
                 if (indexOfSeparator == -1) break;
+                
+                //fire event
+                dOnTCPMessageArived lEvent = OnTCPMessageArrived;
+                if (lEvent != null)
+                {
+                    lEvent(fullMessage.SubArray(indexEnd, indexOfSeparator));
+                }
 
-                yield return fullMessage.SubArray(indexEnd, indexOfSeparator);
                 indexEnd += (indexOfSeparator + this.endOfMessageByteSequence.Length);
             }
         }

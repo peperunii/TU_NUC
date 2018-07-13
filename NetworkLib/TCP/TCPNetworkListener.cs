@@ -22,7 +22,11 @@ namespace NetworkLib.TCP
 
         public delegate void dOnMessage(object xSender, Message message);
         public event dOnMessage OnMessage;
-        
+
+        public delegate void dOnTCPMessageArived(TcpClient client, byte[] byteArr);
+        public event dOnTCPMessageArived OnTCPMessageArrived;
+
+
         private List<TcpClient> _clients = new List<TcpClient>();
 
         public int Port { get; private set; }
@@ -172,6 +176,8 @@ namespace NetworkLib.TCP
                     lThread.IsBackground = true;
                     lThread.Name = ThreadName + "CommunicatingWithClient";
                     lThread.Start(lClient);
+
+                    this.OnTCPMessageArrived += this.TcpNetworkClient_OnTCPMessageArrived;
                 }
             }
             catch (Exception ex)
@@ -188,7 +194,20 @@ namespace NetworkLib.TCP
             }
         } // 
 
-   
+        private void TcpNetworkClient_OnTCPMessageArrived(TcpClient client, byte[] byteArr)
+        {
+            try
+            {
+                var msg = MessageParser.GetMessageFromBytArr(byteArr);
+                //fire event
+                dOnMessage lEvent = OnMessage;
+                if (lEvent == null) return;
+                lEvent(client, msg);
+                Thread.Sleep(1);
+            }
+            catch (Exception) { }
+        }
+
         private void LoopRead(object xClient)
         {
             TcpClient lClient = xClient as TcpClient;
@@ -198,19 +217,7 @@ namespace NetworkLib.TCP
             {
                 try
                 {
-                    var listArrays = GetBytArrFromNetworkStream(lNetworkStream);
-                    foreach(var byteArr in listArrays)
-                    {
-                        var msg = MessageParser.GetMessageFromBytArr(byteArr);
-                        if (msg != null)
-                        {
-                            //fire event
-                            dOnMessage lEvent = OnMessage;
-                            if (lEvent == null) continue;
-                            lEvent(lClient, msg);
-                        }
-                        Thread.Sleep(1);
-                    }
+                    GetBytArrFromNetworkStream(lClient, lNetworkStream);
                 }
                 catch (System.IO.IOException ex)
                 {
@@ -234,7 +241,7 @@ namespace NetworkLib.TCP
             //this.Connect();
         }
         
-        private IEnumerable<byte[]> GetBytArrFromNetworkStream(NetworkStream _NetworkStream)
+        private void GetBytArrFromNetworkStream(TcpClient tcpClient, NetworkStream _NetworkStream)
         {
             try
             {
@@ -242,18 +249,23 @@ namespace NetworkLib.TCP
                 
                 if (_NetworkStream.Read(lHeader, 0, 2) != 2)
                 {
-                    return new List<byte[]>();
+                    this.TriggerEmptyMessage(tcpClient);
                 }
 
                 var messageType = (MessageType)BitConverter.ToInt16(lHeader, 0);
 
                 if ((ushort)messageType > Enum.GetValues(typeof(MessageType)).Length)
                 {
-                    return new List<byte[]>();
+                    this.TriggerEmptyMessage(tcpClient);
                 }
                 if (messagesWithHeaderOnly.Contains(messageType))
                 {
-                    return new List<byte []>() { lHeader };
+                    //fire event
+                    dOnTCPMessageArived lEvent = OnTCPMessageArrived;
+                    if (lEvent != null)
+                    {
+                        lEvent(tcpClient, lHeader);
+                    }
                 }
                 else
                 {
@@ -266,7 +278,7 @@ namespace NetworkLib.TCP
                         var dataSize = BitConverter.ToInt32(dataLength, 0);
                         if (dataSize < 0)
                         {
-                            return new List<byte[]>();
+                            this.TriggerEmptyMessage(tcpClient);
                         }
                         var data = new byte[dataSize];
 
@@ -289,30 +301,46 @@ namespace NetworkLib.TCP
                         //if (_NetworkStream.Read(data, 0, dataSize) != dataSize) return null;
                         var fullMessage = lHeader.ConcatenatingArrays(dataLength.ConcatenatingArrays(data));
                         
-                        return this.GetListOfArraysUsingSeparator(fullMessage);
+                        this.GetListOfArraysUsingSeparator(tcpClient, fullMessage);
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
-                        return new List<byte[]>();
+                        this.TriggerEmptyMessage(tcpClient);
                     }
                 }
             }
             catch(Exception ex)
             {
-                return new List<byte[]>();
+                this.TriggerEmptyMessage(tcpClient);
             }
         }
 
-        private IEnumerable<byte[]> GetListOfArraysUsingSeparator(byte[] fullMessage)
+        private void TriggerEmptyMessage(TcpClient tcpClient)
+        {
+            //fire event
+            dOnTCPMessageArived lEvent = OnTCPMessageArrived;
+            if (lEvent != null)
+            {
+                lEvent(tcpClient, new byte[] { });
+            }
+        }
+
+        private void GetListOfArraysUsingSeparator(TcpClient tcpClient, byte[] fullMessage)
         {
             var indexEnd = 0;
-            while(indexEnd < fullMessage.Length)
+            while (indexEnd < fullMessage.Length)
             {
                 var indexOfSeparator = SearchBytes(fullMessage, endOfMessageByteSequence);
-                
+
                 if (indexOfSeparator == -1) break;
 
-                yield return fullMessage.SubArray(indexEnd, indexOfSeparator);
+                //fire event
+                dOnTCPMessageArived lEvent = OnTCPMessageArrived;
+                if (lEvent != null)
+                {
+                    lEvent(tcpClient, fullMessage.SubArray(indexEnd, indexOfSeparator));
+                }
+
                 indexEnd += (indexOfSeparator + endOfMessageByteSequence.Length);
             }
         }
