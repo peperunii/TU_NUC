@@ -18,7 +18,7 @@ namespace NetworkLib.TCP
         public static byte[] endOfMessageByteSequence;
         private bool _ExitLoop = true;
         private TcpListener _Listener;
-        private int BUFFER_SIZE = 134217728;
+        private int BUFFER_SIZE = 33554432;
 
         public delegate void dOnMessage(object xSender, Message message);
         public event dOnMessage OnMessage;
@@ -108,6 +108,7 @@ namespace NetworkLib.TCP
                 _Listener = new TcpListener(IPAddress.Parse(IpAddress), Port);
                 _Listener.Server.ReceiveBufferSize = BUFFER_SIZE;
                 _Listener.Server.SendBufferSize = BUFFER_SIZE;
+                _Listener.Server.NoDelay = true;
 
                 _Listener.Start();
                 LogManager.LogMessage(
@@ -279,7 +280,7 @@ namespace NetworkLib.TCP
                         }
                         var data = new byte[dataSize];
 
-                        var readBuffer = new byte[32768];
+                        var readBuffer = new byte[BUFFER_SIZE];
                         using (var memoryStream = new MemoryStream())
                         {
                             do
