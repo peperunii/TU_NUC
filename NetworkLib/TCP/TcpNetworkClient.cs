@@ -23,7 +23,7 @@ namespace Network.TCP
         private bool _ExitLoop = true;
         private byte[] endOfMessageByteSequence;
 
-        private int MAX_MESSAGE_SIZE = (1920 * 1080 * 4) + 1500;
+        private int BUFFER_SIZE = 4096;
 
         private BlockingCollection<Message> _Queue = new BlockingCollection<Message>();
         public delegate void dOnMessage(Message message);
@@ -83,6 +83,9 @@ namespace Network.TCP
 
         public void Connect(TcpClient client)
         {
+            client.ReceiveBufferSize = BUFFER_SIZE;
+            client.SendBufferSize = BUFFER_SIZE;
+
             if (!_ExitLoop) return; // running already
             _ExitLoop = false;
             _Client = client;
@@ -123,10 +126,8 @@ namespace Network.TCP
                 try
                 {
                     _Client = new TcpClient();
-                    //_Client.ReceiveBufferSize = MAX_MESSAGE_SIZE;
-                    //_Client.SendBufferSize = MAX_MESSAGE_SIZE;
-                    //_Client.SendTimeout = 1500;
-                    //_Client.ReceiveTimeout = 1500;
+                    _Client.ReceiveBufferSize = BUFFER_SIZE;
+                    _Client.SendBufferSize = BUFFER_SIZE;
 
                     _Client.Connect(IpAddress, Port);
                     _NetworkStream = _Client.GetStream();
@@ -278,7 +279,7 @@ namespace Network.TCP
                         }
                         var data = new byte[dataSize];
 
-                        var readBuffer = new byte[1024];
+                        var readBuffer = new byte[BUFFER_SIZE];
                         using (var memoryStream = new MemoryStream())
                         {
                             do
