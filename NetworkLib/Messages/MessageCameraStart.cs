@@ -7,6 +7,7 @@ namespace Network.Messages
     {
         public DeviceID deviceId;
 
+
         public MessageCameraStart()
         {
             this.type = MessageType.CameraStart;

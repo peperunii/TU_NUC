@@ -121,6 +121,7 @@
     <Compile Include="Discovery\UDPClient.cs" />
     <Compile Include="Discovery\DiscoverySender.cs" />
     <Compile Include="Events\NewBodyArrivedEventArgs.cs" />
+    <Compile Include="Events\NewCalibrationArrivedEventArgs.cs" />
     <Compile Include="Events\NewColorArrivedEventArgs.cs" />
     <Compile Include="Events\NewDepthArrivedEventArgs.cs" />
     <Compile Include="Events\NewIRArrivedEventArgs.cs" />

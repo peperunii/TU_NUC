@@ -18,11 +18,15 @@ namespace Client
         private static long lastServerHeartbeat;
         private static KinectCamera camera;
 
+        private static bool IsCalibrationStarted = false;
         private static bool IsCameraStarted = false;
         private static bool IsColorFrameRequested = false;
         private static bool IsDepthFrameRequested = false;
         private static bool IsIRFrameRequested = false;
         private static bool IsBodyFrameRequested = false;
+
+        private static MessageColorFrame calibrationColorArrived;
+        private static MessageDepthFrame calibrationDepthArrived;
 
         public static void Start()
         {
@@ -75,14 +79,21 @@ namespace Client
                     LogManager.LogMessage(LogType.Info, LogLevel.Everything, "Sending color frame...");
                     var colorData = camera.GetData(CameraDataType.Color);
 
-                    tcpClient.Send(
-                    new MessageColorFrame(
-                        Configuration.DeviceID,
-                        camera.colorFrameDescription.Height,
-                        camera.colorFrameDescription.Width,
-                        3,
-                        false,
-                        colorData as byte[]));
+                    var message = new MessageColorFrame(
+                            Configuration.DeviceID,
+                            camera.colorFrameDescription.Height,
+                            camera.colorFrameDescription.Width,
+                            3,
+                            false,
+                            colorData as byte[]);
+                    if (!IsCalibrationStarted)
+                    {
+                        tcpClient.Send(message);
+                    }
+                    else
+                    {
+                        calibrationColorArrived = message;
+                    }
                 }
             }
         }
@@ -95,14 +106,22 @@ namespace Client
 
                 var depthData = camera.GetData(CameraDataType.Depth);
 
-                tcpClient.Send(
-                    new MessageDepthFrame(
-                        Configuration.DeviceID,
-                        camera.depthFrameDescription.Height,
-                        camera.depthFrameDescription.Width,
-                        1,
-                        false,
-                        depthData as byte[]));
+                var message = new MessageDepthFrame(
+                            Configuration.DeviceID,
+                            camera.depthFrameDescription.Height,
+                            camera.depthFrameDescription.Width,
+                            1,
+                            false,
+                            depthData as byte[]);
+
+                if (!IsCalibrationStarted)
+                {
+                    tcpClient.Send(message);
+                }
+                else
+                {
+                    calibrationDepthArrived = message;
+                }
             }
         }
 
@@ -278,9 +297,51 @@ namespace Client
                         break;
                     
                     case MessageType.CalibrationRequest:
-                        /*Calculate Intrinsic params*/
-                        //SendMessage(
-                        //    new MessageCalibration());
+                        var wasCameraStarted = IsCameraStarted;
+                        var wasColorStarted = IsColorFrameRequested;
+                        var wasDepthStarted = IsDepthFrameRequested;
+
+                        calibrationColorArrived = null;
+                        calibrationDepthArrived = null;
+
+                        IsCalibrationStarted = true;
+                        IsColorFrameRequested = true;
+                        IsDepthFrameRequested = true;
+                        
+                        if(!IsCameraStarted)
+                        {
+                            camera.Start();
+                        }
+
+                        while(true)
+                        {
+                            if(calibrationColorArrived != null &&
+                                calibrationDepthArrived != null)
+                            {
+                                break;
+                            }
+                            Thread.Sleep(1);
+                        }
+
+                        SendMessage(
+                            new MessageCalibration(
+                                Configuration.DeviceID, 
+                                calibrationColorArrived,
+                                calibrationDepthArrived));
+
+                        if(!wasCameraStarted)
+                        {
+                            camera.Stop();
+                        }
+                        if (!wasColorStarted)
+                        {
+                            IsColorFrameRequested = false;
+                        }
+                        if (!wasDepthStarted)
+                        {
+                            IsDepthFrameRequested = false;
+                        }
+                        IsCalibrationStarted = false;
                         break;
 
                     case MessageType.ColorFrameRequest:

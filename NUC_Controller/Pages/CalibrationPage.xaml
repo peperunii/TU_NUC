@@ -6,6 +6,7 @@
       xmlns:local="clr-namespace:NUC_Controller.Pages"
       mc:Ignorable="d" 
       d:DesignHeight="300" d:DesignWidth="300"
+      Loaded="Page_Loaded"
       Title="CalibrationPage">
 
     <Grid>

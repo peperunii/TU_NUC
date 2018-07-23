@@ -93,7 +93,7 @@ namespace Network.Messages
 
                     /*Frames and calibration*/
                     case MessageType.Calibration:
-                        return null;
+                        return new MessageCalibration(messageArr.SubArray(6));
 
                     case MessageType.CalibrationRequest:
                         return new MessageCalibrationRequest(messageArr.SubArray(6));

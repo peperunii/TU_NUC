@@ -21,11 +21,13 @@ namespace NUC_Controller.NetworkWorker
         public delegate void MyEventHandlerDepth(object source, NewDepthArrivedEventArgs e);
         public delegate void MyEventHandlerIR(object source, NewIRArrivedEventArgs e);
         public delegate void MyEventHandlerBody(object source, NewBodyArrivedEventArgs e);
+        public delegate void MyEventHandlerCalibration(object source, NewCalibrationArrivedEventArgs e);
 
         public static event MyEventHandlerColor NewColorArrived;
         public static event MyEventHandlerDepth NewDepthArrived;
         public static event MyEventHandlerIR NewIRArrived;
         public static event MyEventHandlerBody NewBodyArrived;
+        public static event MyEventHandlerCalibration NewCalibrationArrived;
 
         public static void StartNetworkClient()
         {
@@ -136,6 +138,10 @@ namespace NUC_Controller.NetworkWorker
                                 device.isIRStreamEnabled = msg.isIRStreamEnabled;
                                 device.isBodyStreamEnabled = msg.isBodyStreamEnabled;
                             }
+                            break;
+
+                        case MessageType.Calibration:
+                            NewCalibrationArrived.Invoke(null, new NewCalibrationArrivedEventArgs(message as MessageCalibration));
                             break;
 
                         case MessageType.ColorFrame:

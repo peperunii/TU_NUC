@@ -108,7 +108,6 @@ namespace Server
 
 
                         case MessageType.RestartClientApp:
-                            break;
                             try
                             {
                                 var msg = message as MessageRestartClientApp;
@@ -125,7 +124,6 @@ namespace Server
                             break;
 
                         case MessageType.RestartClientDevice:
-                            break;
                             try
                             {
                                 var msg = message as MessageRestartClientDevice;
@@ -294,6 +292,26 @@ namespace Server
                             }
                             break;
 
+                        case MessageType.Calibration:
+                            /*Send configuration to the Controller - If connected*/
+                            SendToController(message);
+                            break;
+
+                        case MessageType.CalibrationRequest:
+                            try
+                            {
+                                var msg = message as MessageCalibrationRequest;
+                                var deviceID = msg.deviceId;
+
+                                tcpServers[deviceID].Send(
+                                        tcpServers[deviceID].GetClient(),
+                                        message);
+                            }
+                            catch (Exception)
+                            {
+
+                            }
+                            break;
                         case MessageType.ColorFrame:
                             SendToController(message);
                             break;

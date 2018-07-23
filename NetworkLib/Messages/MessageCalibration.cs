@@ -1,13 +1,42 @@
 ﻿using Network.Utils;
+using System;
 
 namespace Network.Messages
 {
     public class MessageCalibration : Message
     {
+        public DeviceID deviceId;
+        public MessageColorFrame colorFrame;
+        public MessageDepthFrame depthFrame;
+
         public MessageCalibration()
         {
             this.type = MessageType.Calibration;
             this.info = new byte[] { };
+        }
+
+        public MessageCalibration(
+            DeviceID deviceId, 
+            MessageColorFrame colorFrame,
+            MessageDepthFrame depthFrame)
+        {
+            this.type = MessageType.Calibration;
+
+            this.deviceId = deviceId;
+            this.info = BitConverter.GetBytes((ushort)this.deviceId).
+                ConcatenatingArrays(colorFrame.Serialize()).
+                ConcatenatingArrays(depthFrame.Serialize());
+        }
+
+        public MessageCalibration(byte [] byteArr)
+        {
+            this.type = MessageType.Calibration;
+            this.info = byteArr;
+
+            this.deviceId = (DeviceID)BitConverter.ToUInt16(byteArr, 0);
+            var colorMsgLength = BitConverter.ToUInt32(byteArr, 4);
+            this.colorFrame = new MessageColorFrame(byteArr.SubArray(8, (int)colorMsgLength));
+            this.depthFrame = new MessageDepthFrame(byteArr.SubArray(8 + (int)colorMsgLength));
         }
 
         public override byte[] Serialize()
